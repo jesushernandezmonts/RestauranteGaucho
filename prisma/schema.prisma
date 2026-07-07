@@ -1,0 +1,212 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/@prisma/client/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── USUARIOS ───────────────────────────────────────────
+enum Role {
+  MESERO
+  CHEF
+  ADMIN
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  usuario      String   @unique
+  passwordHash String
+  role         Role     @default(MESERO)
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  ordenes  Orden[]
+  pagos    Pago[]
+}
+
+// ─── MESAS ──────────────────────────────────────────────
+enum MesaEstado {
+  LIBRE
+  OCUPADO
+  CUENTA
+}
+
+model Mesa {
+  id        Int        @id @default(autoincrement())
+  numero    Int        @unique
+  capacidad Int        @default(4)
+  area      String     @default("Salón")
+  estado    MesaEstado @default(LIBRE)
+  ordenes   Orden[]
+}
+
+// ─── CATEGORÍAS ─────────────────────────────────────────
+model Categoria {
+  id     Int    @id @default(autoincrement())
+  nombre String
+  icono  String @default("🍽️")
+  orden  Int    @default(0)
+
+  platillos Platillo[]
+}
+
+// ─── PLATILLOS ──────────────────────────────────────────
+model Platillo {
+  id           Int     @id @default(autoincrement())
+  categoriaId  Int
+  nombre       String
+  descripcion  String  @default("")
+  precio       Float
+  imagen       String  @default("")
+  activo       Boolean @default(true)
+  createdAt    DateTime @default(now())
+
+  categoria    Categoria        @relation(fields: [categoriaId], references: [id])
+  receta       Receta[]
+  detalleOrden DetalleOrden[]
+}
+
+// ─── INGREDIENTES ───────────────────────────────────────
+model Ingrediente {
+  id           Int    @id @default(autoincrement())
+  nombre       String @unique
+  unidad       String @default("pieza")
+  stock        Float  @default(0)
+  stockMinimo  Float  @default(10)
+  costoSugerido Float @default(0)
+
+  receta           Receta[]
+  inventarioMov    InventarioMovimiento[]
+}
+
+// ─── RECETAS (relación platillo ↔ ingredientes) ─────────
+model Receta {
+  id            Int  @id @default(autoincrement())
+  platilloId    Int
+  ingredienteId Int
+  cantidad      Float
+
+  platillo    Platillo    @relation(fields: [platilloId], references: [id])
+  ingrediente Ingrediente @relation(fields: [ingredienteId], references: [id])
+
+  @@unique([platilloId, ingredienteId])
+}
+
+// ─── ÓRDENES ────────────────────────────────────────────
+enum OrdenEstado {
+  ABIERTA
+  EN_COCINA
+  PREPARANDO
+  LISTO
+  SERVIDO
+  CERRADA
+}
+
+model Orden {
+  id        Int         @id @default(autoincrement())
+  mesaId    Int
+  meseroId  Int
+  estado    OrdenEstado @default(ABIERTA)
+  total     Float       @default(0)
+  propina   Float       @default(0)
+  tipoPropina String    @default("") // "cantidad" o "porcentaje"
+  metodoPago String     @default("") // "efectivo" o "tarjeta"
+  cerradaPor Int?       // userId de quien cerró
+  createdAt  DateTime   @default(now())
+  closedAt   DateTime?
+
+  mesa       Mesa           @relation(fields: [mesaId], references: [id])
+  mesero     User           @relation(fields: [meseroId], references: [id])
+  detalle    DetalleOrden[]
+  pagos      Pago[]
+}
+
+// ─── DETALLE DE ORDEN ───────────────────────────────────
+model DetalleOrden {
+  id         Int     @id @default(autoincrement())
+  ordenId    Int
+  platilloId Int
+  cantidad   Int     @default(1)
+  subtotal   Float
+
+  orden     Orden      @relation(fields: [ordenId], references: [id])
+  platillo  Platillo   @relation(fields: [platilloId], references: [id])
+  extras    ExtraOrden[]
+  opciones  OpcionOrden[]
+}
+
+// ─── EXTRAS DE UN PLATILLO EN LA ORDEN ──────────────────
+model ExtraOrden {
+  id           Int    @id @default(autoincrement())
+  detalleOrdenId Int
+  nombre       String
+  precio       Float
+
+  detalleOrden DetalleOrden @relation(fields: [detalleOrdenId], references: [id])
+}
+
+// ─── OPCIONES (quitar ingredientes / notas) ──────────────
+enum OpcionTipo {
+  QUITAR
+  NOTA
+}
+
+model OpcionOrden {
+  id           Int       @id @default(autoincrement())
+  detalleOrdenId Int
+  tipo         OpcionTipo
+  valor        String
+
+  detalleOrden DetalleOrden @relation(fields: [detalleOrdenId], references: [id])
+}
+
+// ─── PAGOS ──────────────────────────────────────────────
+model Pago {
+  id          Int      @id @default(autoincrement())
+  ordenId     Int
+  meseroId    Int
+  metodo      String   // "efectivo" o "tarjeta"
+  monto       Float
+  propina     Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  orden  Orden  @relation(fields: [ordenId], references: [id])
+  mesero User   @relation(fields: [meseroId], references: [id])
+}
+
+// ─── MOVIMIENTOS DE INVENTARIO ─────────────────────────
+enum MovimientoTipo {
+  ENTRADA
+  SALIDA
+}
+
+model InventarioMovimiento {
+  id            Int            @id @default(autoincrement())
+  ingredienteId Int
+  tipo          MovimientoTipo
+  cantidad      Float
+  referencia    String         @default("")
+  createdAt     DateTime       @default(now())
+
+  ingrediente Ingrediente @relation(fields: [ingredienteId], references: [id])
+}
+
+// ─── RESERVACIONES (futuro) ────────────────────────────
+model Reservacion {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  telefono  String   @default("")
+  email     String   @default("")
+  fecha     DateTime
+  hora      String
+  personas  Int      @default(2)
+  notas     String   @default("")
+  estado    String   @default("pendiente") // pendiente, confirmada, cancelada
+  createdAt DateTime @default(now())
+}

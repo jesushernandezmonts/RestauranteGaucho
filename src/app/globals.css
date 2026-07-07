@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+/* ─── THEME TOKENS ───────────────────────────── */
+@theme inline {
+  --color-primary: #d95c2b;
+  --color-primary-light: #e87945;
+  --color-primary-dark: #b8471f;
+  --color-secondary: #f5a623;
+  --color-accent: #2d1b0e;
+  --color-surface: #1a110a;
+  --color-surface-light: #2a1d12;
+  --color-surface-lighter: #3d2b1a;
+  --color-charcoal: #0f0a07;
+  --color-warm-white: #faf3ed;
+  --color-warm-gray: #c4b5a5;
+  --color-text-primary: #faf3ed;
+  --color-text-secondary: #c4b5a5;
+  --color-text-muted: #8a7a6a;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  --font-sans: "Outfit", sans-serif;
+  --font-display: "Playfair Display", serif;
+  --animate-fade-in: fade-in 0.6s ease-out;
+  --animate-slide-up: slide-up 0.6s ease-out;
+  --animate-slide-down: slide-down 0.3s ease-out;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-scale-in: scale-in 0.3s ease-out;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 5px rgba(217, 92, 43, 0.3); }
+  to { box-shadow: 0 0 20px rgba(217, 92, 43, 0.6); }
+}
+
+/* ─── BASE ───────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-charcoal);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ─── SCROLLBAR ──────────────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-charcoal); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-lighter); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+
+/* ─── UTILITIES ──────────────────────────────── */
+.glass {
+  background: rgba(26, 17, 10, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 92, 43, 0.1);
+}
+
+.glass-light {
+  background: rgba(250, 243, 237, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(250, 243, 237, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #d95c2b, #f5a623);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all duration-300;
+  background: linear-gradient(135deg, #d95c2b, #b8471f);
+  box-shadow: 0 4px 15px rgba(217, 92, 43, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(217, 92, 43, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold transition-all duration-300;
+  border: 1px solid rgba(217, 92, 43, 0.3);
+  color: var(--color-primary-light);
+}
+
+.btn-secondary:hover {
+  background: rgba(217, 92, 43, 0.1);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.card {
+  @apply rounded-2xl p-6 transition-all duration-300;
+  background: var(--color-surface);
+  border: 1px solid rgba(217, 92, 43, 0.08);
+}
+
+.card:hover {
+  border-color: rgba(217, 92, 43, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.section-title {
+  @apply text-3xl md:text-4xl lg:text-5xl font-bold mb-4;
+  font-family: var(--font-display);
+}
+
+.section-subtitle {
+  @apply text-lg md:text-xl;
+  color: var(--color-text-secondary);
+}

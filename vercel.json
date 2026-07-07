@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npx prisma migrate deploy && npx next build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "npm install"
+}
