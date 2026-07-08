@@ -1,20 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client/.prisma/client/index.js";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-
-function createClient() {
-  const dbUrl = process.env.DATABASE_URL || "file:./dev.db";
-  let dbPath = dbUrl.replace("file:", "").trim();
-  if (!dbPath.startsWith("/") && !dbPath.startsWith("C:")) {
-    dbPath = require("path").resolve(process.cwd(), dbPath);
-  }
-  const adapter = new PrismaBetterSqlite3({ url: dbPath });
-  return new PrismaClient({ adapter });
-}
-
-const prisma = createClient();
+import { prisma } from "@/lib/prisma";
 
 export const authConfig: NextAuthConfig = {
   pages: {
