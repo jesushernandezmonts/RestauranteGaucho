@@ -1,8 +1,32 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono, Playfair_Display, Pacifico } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/components/AuthProvider";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const playfairDisplay = Playfair_Display({
+  variable: "--font-display-family",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const pacifico = Pacifico({
+  variable: "--font-script-family",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -44,17 +68,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="scroll-smooth">
+    <html lang="es-MX" className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${pacifico.variable} h-full antialiased`}>
       <head>
-        <meta name="theme-color" content="#0f0a07" />
+        <meta name="theme-color" content="#3D2A1C" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-screen flex flex-col antialiased">
+      <body className="min-h-full flex flex-col overflow-x-hidden">
         <AuthProvider>
           <Navbar />
           <main className="flex-1">{children}</main>

@@ -17,84 +17,88 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", onScroll);
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "glass shadow-lg shadow-black/20"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+    <>
+      <header
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          scrolled ? "bg-charcoal/95 backdrop-blur-xl shadow-lg" : "bg-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16 md:h-[72px]">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <span className="text-2xl">🥩</span>
-            <span className="font-display text-xl md:text-2xl font-bold text-gradient">
-              Gaucho
-            </span>
+          <Link href="/" className="flex items-center gap-2 group" aria-label="Ir al inicio">
+            <span className="text-2xl sm:text-3xl transition-transform duration-300 group-hover:scale-105">🥩</span>
+            <span className="font-script text-xl sm:text-2xl md:text-3xl text-gold tracking-wide">Gaucho</span>
           </Link>
 
+          {/* Hamburger */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden flex flex-col gap-1.5 p-1.5 z-[60] relative cursor-pointer"
+            aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={isOpen}
+          >
+            <span className={`block w-[22px] sm:w-[26px] h-[2px] bg-white rounded-full transition-all duration-300 ${isOpen ? "rotate-45 translate-y-[5px]" : ""}`} />
+            <span className={`block w-[22px] sm:w-[26px] h-[2px] bg-white rounded-full transition-all duration-300 ${isOpen ? "opacity-0 scale-x-0" : ""}`} />
+            <span className={`block w-[22px] sm:w-[26px] h-[2px] bg-white rounded-full transition-all duration-300 ${isOpen ? "-rotate-45 translate-y-[-5px]" : ""}`} />
+          </button>
+
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-text-secondary hover:text-primary-light transition-colors duration-200"
+                className="text-white/70 hover:text-white px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/5"
               >
                 {link.label}
               </Link>
             ))}
             <Link
               href="/reservacion"
-              className="btn-primary !px-5 !py-2 text-sm"
-              onClick={() => setIsOpen(false)}
+              className="ml-2 bg-gold hover:bg-gold-light text-chocolate font-bold px-4 lg:px-5 py-2.5 rounded-full text-sm transition-all duration-300 hover:scale-105 hover:shadow-gold"
             >
               📅 Reservar
             </Link>
-          </div>
-
-          {/* Mobile Hamburger */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-text-primary hover:text-primary-light transition-colors"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          </nav>
         </div>
-      </div>
+      </header>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden glass border-t border-primary/10 animate-slide-down">
-          <div className="px-4 py-4 space-y-3">
+        <div className="fixed inset-0 z-[55] md:hidden" onClick={() => setIsOpen(false)}>
+          <div className="absolute inset-0 bg-charcoal" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="block px-4 py-3 rounded-xl text-text-secondary hover:text-primary-light hover:bg-surface-light transition-all duration-200"
+                className="text-white/80 hover:text-white w-full max-w-[280px] text-center py-4 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors"
               >
                 {link.label}
               </Link>
             ))}
             <Link
-              href="/#menu"
+              href="/reservacion"
               onClick={() => setIsOpen(false)}
-              className="block btn-primary text-center mt-4"
+              className="bg-gold hover:bg-gold-light text-chocolate font-bold w-full max-w-[280px] text-center py-4 rounded-full text-lg mt-4 shadow-gold transition-colors"
             >
-              Ver Menú
+              📅 Reservar
             </Link>
           </div>
         </div>
       )}
-    </nav>
+    </>
   );
 }
