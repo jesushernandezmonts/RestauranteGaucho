@@ -17,106 +17,92 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const result = await signIn("credentials", {
         usuario,
         password,
         redirect: false,
       });
-
       if (result?.error) {
         setError("Usuario o contraseña incorrectos");
-        setLoading(false);
-        return;
+      } else {
+        router.push("/admin");
       }
-
-      router.push("/admin");
-      router.refresh();
     } catch {
-      setError("Error al iniciar sesión");
+      setError("Error de conexión");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-charcoal">
-      <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-surface to-charcoal" />
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-secondary/5 rounded-full blur-3xl" />
-
-      <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="flex justify-center mb-3">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Shield className="text-primary-light" size={32} />
+    <div className="min-h-screen flex items-center justify-center p-4 dark-section" style={{ background: "#3D2A1C" }}>
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center">
+              <Shield className="text-gold" size={28} />
             </div>
           </div>
-          <h1 className="font-display text-3xl font-bold text-gradient">
+          <h1 className="font-script text-3xl md:text-4xl text-gold leading-tight drop-shadow-[0_4px_15px_rgba(232,171,47,0.2)]">
             Admin
           </h1>
-          <p className="text-text-secondary mt-2 text-sm">
-            Panel de administración
-          </p>
+          <p className="text-white/50 text-sm mt-2">Panel de administración</p>
         </div>
 
-        <div className="card !p-8 animate-slide-up">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
-                Usuario
-              </label>
+        <form onSubmit={handleSubmit} className="space-y-5 p-6 sm:p-8 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div>
+            <label className="block text-sm font-medium text-white/60 mb-2">Usuario</label>
+            <input
+              type="text"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
+              placeholder="admin"
+              className="w-full px-4 py-3 rounded-xl text-white placeholder:text-white/30 outline-none focus:border-gold transition-colors"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
+              autoFocus
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-white/60 mb-2">Contraseña</label>
+            <div className="relative">
               <input
-                type="text"
-                value={usuario}
-                onChange={(e) => setUsuario(e.target.value)}
-                placeholder="admin"
-                className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/20 transition-all"
-                autoFocus
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••"
+                className="w-full px-4 py-3 pr-12 rounded-xl text-white placeholder:text-white/30 outline-none focus:border-gold transition-colors"
+                style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••"
-                  className="w-full px-4 py-3 pr-12 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/20 transition-all"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
+          </div>
+          {error && (
+            <div className="p-3 rounded-xl text-sm" style={{ background: "rgba(196,85,58,0.15)", border: "1px solid rgba(196,85,58,0.3)", color: "#D4715A" }}>
+              {error}
             </div>
-            {error && (
-              <div className="p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
-                {error}
-              </div>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full inline-flex items-center justify-center gap-2 bg-gold hover:bg-gold-light text-chocolate font-bold px-6 py-3.5 rounded-full transition-all duration-300 hover:shadow-gold text-base disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <LogIn size={20} />
             )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full text-base py-3.5 disabled:opacity-50"
-            >
-              {loading ? (
-                <Loader2 size={20} className="animate-spin" />
-              ) : (
-                <LogIn size={20} />
-              )}
-              {loading ? "Ingresando..." : "Entrar"}
-            </button>
-          </form>
-        </div>
+            {loading ? "Ingresando..." : "Entrar"}
+          </button>
+        </form>
       </div>
     </div>
   );

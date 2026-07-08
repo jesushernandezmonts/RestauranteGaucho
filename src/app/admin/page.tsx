@@ -120,64 +120,69 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-charcoal flex">
+    <div className="min-h-screen dark-section flex" style={{ background: "#3D2A1C", color: "rgba(255,255,255,0.85)" }}>
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-primary/10 transform transition-transform duration-200 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:z-auto`}
+        style={{ background: "#3D2A1C", borderRight: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="p-4 border-b border-primary/10">
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex items-center justify-between">
             <Link href="/admin" className="flex items-center gap-2">
-              <Shield className="text-primary" size={24} />
-              <span className="font-display text-xl font-bold text-gradient">
-                Admin
+              <span className="text-2xl">🥩</span>
+              <span className="font-script text-xl" style={{ color: "#E8AB2F" }}>
+                Gaucho
               </span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-xl hover:bg-surface-light"
+              className="lg:hidden p-2 rounded-xl" style={{ color: "rgba(255,255,255,0.5)" }}
             >
               <X size={18} />
             </button>
           </div>
         </div>
-        <nav className="p-4 space-y-1">
-          {sidebarLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive =
-              link.href === "/admin"
-                ? typeof window !== "undefined" && window.location.pathname === "/admin"
-                : typeof window !== "undefined" &&
-                  window.location.pathname.startsWith(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${
-                  isActive
-                    ? "bg-primary/10 text-primary-light font-medium"
-                    : "text-text-secondary hover:bg-surface-light hover:text-text-primary"
-                }`}
-              >
-                <Icon size={18} />
-                {link.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 space-y-1 px-3">
+          {sidebarLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200"
+              style={{
+                color:
+                  typeof window !== "undefined" &&
+                  window.location.pathname === link.href
+                    ? "#E8AB2F"
+                    : "rgba(255,255,255,0.6)",
+                background:
+                  typeof window !== "undefined" &&
+                  window.location.pathname === link.href
+                    ? "rgba(232,171,47,0.1)"
+                    : "transparent",
+              }}
+            >
+              <link.icon size={18} />
+              {link.label}
+            </Link>
+          ))}
         </nav>
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-light/50 text-sm">
+        <div className="absolute bottom-4 left-4 right-4" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)" }}>
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "rgba(232,171,47,0.2)", color: "#E8AB2F" }}>
+              {(session?.user?.nombre || "A")[0]}
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="text-text-primary truncate">
+              <p className="text-sm font-medium truncate" style={{ color: "rgba(255,255,255,0.85)" }}>
                 {session?.user?.nombre}
               </p>
-              <p className="text-text-muted text-xs">Admin</p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Admin</p>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/admin/login" })}
-              className="p-2 rounded-lg hover:bg-danger/10 text-text-muted hover:text-danger transition-colors"
+              className="p-2 rounded-lg transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}
               aria-label="Cerrar sesión"
             >
               <LogOut size={16} />
@@ -192,52 +197,52 @@ export default function AdminDashboard() {
         className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-xl glass"
         aria-label="Menú"
       >
-        <Menu size={20} />
+        <Menu size={20} style={{ color: "#E8AB2F" }} />
       </button>
 
       {/* Main */}
       <div className="flex-1 min-w-0">
         <div className="p-4 md:p-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="font-display text-2xl md:text-3xl font-bold text-text-primary">
-              Dashboard
-            </h1>
-            <p className="text-text-secondary mt-1">
-              {new Date().toLocaleDateString("es-MX", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
+          <div className="card mb-8">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl" style={{ background: "rgba(232,171,47,0.15)" }}>
+                <Shield size={20} style={{ color: "#E8AB2F" }} />
+              </div>
+              <div>
+                <h1 className="font-display text-xl font-bold" style={{ color: "#E8AB2F" }}>
+                  Gaucho
+                </h1>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Panel Admin</p>
+              </div>
+            </div>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="card">
+            <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-success/10 flex items-center justify-center">
-                  <DollarSign size={20} className="text-success" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,168,119,0.2)" }}>
+                  <DollarSign size={20} style={{ color: "#8BA877" }} />
                 </div>
-                <TrendingUp size={16} className="text-success" />
+                <TrendingUp size={16} style={{ color: "#8BA877" }} />
               </div>
-              <div className="text-2xl font-bold text-text-primary">
+              <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
                 ${stats.ventasHoy.toFixed(0)}
               </div>
-              <div className="text-xs text-text-muted mt-1">Ventas hoy</div>
+              <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Ventas hoy</div>
             </div>
-            <div className="card">
+            <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-info/10 flex items-center justify-center">
-                  <ClipboardList size={20} className="text-info" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.15)" }}>
+                  <ClipboardList size={20} style={{ color: "#E8AB2F" }} />
                 </div>
-                <TrendingDown size={16} className="text-info" />
+                <TrendingDown size={16} style={{ color: "rgba(255,255,255,0.3)" }} />
               </div>
-              <div className="text-2xl font-bold text-text-primary">
+              <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
                 {stats.ordenesHoy}
               </div>
-              <div className="text-xs text-text-muted mt-1">Órdenes hoy</div>
+              <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Órdenes hoy</div>
             </div>
             <div className="card">
               <div className="flex items-center justify-between mb-3">
@@ -254,16 +259,16 @@ export default function AdminDashboard() {
                   : "Mejor mesero"}
               </div>
             </div>
-            <div className="card">
+            <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center">
-                  <Package size={20} className="text-danger" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(196,85,58,0.2)" }}>
+                  <Package size={20} style={{ color: "#C4553A" }} />
                 </div>
               </div>
-              <div className="text-2xl font-bold text-text-primary">
+              <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
                 {stats.alertasStock}
               </div>
-              <div className="text-xs text-text-muted mt-1">
+              <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
                 Alertas de stock
               </div>
             </div>
