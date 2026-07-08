@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { GauchoLogo } from "./GauchoIcons";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -37,7 +38,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16 md:h-[72px]">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group" aria-label="Ir al inicio">
-            <span className="text-2xl sm:text-3xl transition-transform duration-300 group-hover:scale-105">🥩</span>
+            <GauchoLogo className="transition-transform duration-300 group-hover:scale-105 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
             <span className="font-script text-xl sm:text-2xl md:text-3xl text-gold tracking-wide">Gaucho</span>
           </Link>
 
@@ -59,7 +60,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-white/70 hover:text-white px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/5"
+                className="text-white/70 hover:text-white px-3 lg:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/5 tracking-wide"
               >
                 {link.label}
               </Link>
@@ -68,7 +69,7 @@ export function Navbar() {
               href="/reservacion"
               className="ml-2 bg-gold hover:bg-gold-light text-chocolate font-bold px-4 lg:px-5 py-2.5 rounded-full text-sm transition-all duration-300 hover:scale-105 hover:shadow-gold"
             >
-              📅 Reservar
+              Reservar
             </Link>
           </nav>
         </div>
@@ -84,7 +85,7 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="text-white/80 hover:text-white w-full max-w-[280px] text-center py-4 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors"
+                className="text-white/80 hover:text-white w-full max-w-[280px] text-center py-4 text-lg font-medium hover:bg-white/10 rounded-xl transition-colors tracking-wide"
               >
                 {link.label}
               </Link>
@@ -94,7 +95,7 @@ export function Navbar() {
               onClick={() => setIsOpen(false)}
               className="bg-gold hover:bg-gold-light text-chocolate font-bold w-full max-w-[280px] text-center py-4 rounded-full text-lg mt-4 shadow-gold transition-colors"
             >
-              📅 Reservar
+              Reservar
             </Link>
           </div>
         </div>

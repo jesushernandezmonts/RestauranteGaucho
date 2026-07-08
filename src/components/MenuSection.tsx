@@ -2,12 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
+import {
+  IconPlate, IconMeat, IconPasta, IconPizza, IconSoup,
+  IconDrink, IconCocktail, IconBread, IconSalad, IconFlame,
+} from "./GauchoIcons";
 
 type Categoria = {
   id: number;
   nombre: string;
   icono: string;
   platillos: { id: number; nombre: string; descripcion: string; precio: number }[];
+};
+
+const iconMap: Record<string, React.ReactNode> = {
+  "🥞": <IconBread />,
+  "🇲🇽": <IconFlame />,
+  "🍝": <IconPasta />,
+  "🍕": <IconPizza />,
+  "🥣": <IconSoup />,
+  "🥩": <IconMeat />,
+  "🥦": <IconPlate />,
+  "🥪": <IconBread />,
+  "🥗": <IconSalad />,
+  "🥤": <IconDrink />,
+  "🍹": <IconCocktail />,
 };
 
 export function MenuSection() {
@@ -34,8 +52,8 @@ export function MenuSection() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-6 sm:mb-10">
-          <span className="section-badge">Menú</span>
-          <h2 className="font-display text-xl sm:text-3xl md:text-5xl font-bold text-chocolate leading-tight">
+          <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-[3px] uppercase text-sage-dark bg-sage/20 px-2.5 sm:px-4 py-1 sm:py-2 rounded-full mb-2 sm:mb-4">Menú</span>
+          <h2 className="font-display text-xl sm:text-3xl md:text-5xl font-bold text-chocolate leading-tight tracking-tight">
             Nuestros Platillos
           </h2>
           <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-5">
@@ -53,13 +71,14 @@ export function MenuSection() {
             <button
               key={cat.id}
               onClick={() => setActiveCat(cat.id)}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
+              className={`inline-flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
                 activeCat === cat.id
                   ? "bg-gold text-chocolate shadow-gold"
                   : "bg-white/60 text-chocolate-light hover:bg-gold/20 border border-chocolate/10"
               }`}
             >
-              {cat.icono} {cat.nombre}
+              <span className="w-4 h-4">{iconMap[cat.icono] || <IconPlate />}</span>
+              {cat.nombre}
             </button>
           ))}
         </div>
@@ -81,7 +100,7 @@ export function MenuSection() {
                       {platillo.nombre}
                     </h3>
                     {platillo.descripcion && (
-                      <p className="text-xs sm:text-sm text-chocolate-light mt-1">{platillo.descripcion}</p>
+                      <p className="text-xs sm:text-sm text-chocolate-light mt-1 leading-relaxed">{platillo.descripcion}</p>
                     )}
                   </div>
                   <span className="shrink-0 font-bold text-gold-dark text-sm sm:text-base">${platillo.precio}</span>
