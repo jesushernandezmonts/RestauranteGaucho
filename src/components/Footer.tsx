@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { GauchoLogo } from "./GauchoIcons";
 
 export function Footer() {
@@ -69,10 +70,16 @@ export function Footer() {
 
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2 py-4 sm:py-5 text-[11px] sm:text-xs text-white/25 tracking-wide">
           <span>&copy; 2026 Gaucho Restaurante. Todos los derechos reservados.</span>
-          <span>Hecho con
-            <svg className="w-3 h-3 inline text-gold mx-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg>
-            para vos
-          </span>
+          <div className="flex items-center gap-3">
+            <Link href="/acceso" className="text-white/20 hover:text-gold/50 transition-colors duration-200">
+              Acceso empleados
+            </Link>
+            <span className="text-white/10">|</span>
+            <span>Hecho con
+              <svg className="w-3 h-3 inline text-gold mx-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg>
+              para vos
+            </span>
+          </div>
         </div>
       </div>
     </footer>
