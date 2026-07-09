@@ -8,6 +8,7 @@ import {
   X,
   Layers,
   FlaskConical,
+  ChevronDown,
 } from "lucide-react";
 
 type Categoria = {
@@ -37,6 +38,19 @@ export default function MenuSection() {
   const [showNewDish, setShowNewDish] = useState(false);
   const [newDishCatId, setNewDishCatId] = useState<number | null>(null);
   const [recetaModal, setRecetaModal] = useState<Platillo | null>(null);
+  const [expandedCats, setExpandedCats] = useState<Set<number>>(new Set());
+
+  function toggleCategory(catId: number) {
+    setExpandedCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(catId)) {
+        next.delete(catId);
+      } else {
+        next.add(catId);
+      }
+      return next;
+    });
+  }
 
   function broadcastMenuChange() {
     try {
@@ -62,6 +76,10 @@ export default function MenuSection() {
           platillos.find((p: Categoria) => p.id === cat.id)?.platillos || [],
       }));
       setCategorias(merged);
+      // Start with first category expanded
+      if (merged.length > 0 && expandedCats.size === 0) {
+        setExpandedCats(new Set([merged[0].id]));
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -95,108 +113,161 @@ export default function MenuSection() {
             </h1>
             <p className="text-sm text-text-muted">Platillos y categorías</p>
           </div>
-          <button
-            onClick={() => {
-              setShowCategoryModal(true);
-              setEditCategory(null);
-            }}
-            className="btn-secondary !px-4 !py-2 text-sm mr-2"
-          >
-            <Layers size={16} /> Categoría
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                // Expand all
+                setExpandedCats(new Set(categorias.map((c) => c.id)));
+              }}
+              className="text-xs text-text-muted hover:text-text-primary px-3 py-2 rounded-lg transition-colors"
+            >
+              Expandir todo
+            </button>
+            <button
+              onClick={() => {
+                // Collapse all
+                setExpandedCats(new Set());
+              }}
+              className="text-xs text-text-muted hover:text-text-primary px-3 py-2 rounded-lg transition-colors"
+            >
+              Colapsar todo
+            </button>
+            <button
+              onClick={() => {
+                setShowCategoryModal(true);
+                setEditCategory(null);
+              }}
+              className="btn-secondary !px-4 !py-2 text-sm"
+            >
+              <Layers size={16} /> Categoría
+            </button>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          {categorias.map((cat) => (
-            <div key={cat.id} className="card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{cat.icono}</span>
-                  <h3 className="font-semibold text-text-primary">
-                    {cat.nombre}
-                  </h3>
-                  <span className="text-xs text-text-muted">
-                    ({cat.platillos.length} platillos)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      setEditCategory(cat);
-                      setShowCategoryModal(true);
-                    }}
-                    className="p-1.5 rounded-lg hover:bg-surface-light"
-                    title="Editar categoría"
-                  >
-                    <Pencil size={14} className="text-text-muted" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setNewDishCatId(cat.id);
-                      setShowNewDish(true);
-                    }}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary-light text-xs font-medium hover:bg-primary/20"
-                  >
-                    <Plus size={12} /> Platillo
-                  </button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                {cat.platillos.map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-surface-light/50 group"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`font-medium text-sm ${
-                            p.activo
-                              ? "text-text-primary"
-                              : "text-text-muted line-through"
-                          }`}
-                        >
-                          {p.nombre}
-                        </span>
-                        {!p.activo && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-text-muted/10 text-text-muted">
-                            Inactivo
-                          </span>
-                        )}
-                      </div>
-                      {p.descripcion && (
-                        <p className="text-xs text-text-muted truncate mt-0.5">
-                          {p.descripcion}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-bold text-primary-light text-sm">
-                        ${p.precio}
-                      </span>
+        <div className="space-y-3">
+          {categorias.map((cat) => {
+            const isExpanded = expandedCats.has(cat.id);
+            return (
+              <div key={cat.id} className="card !p-0 overflow-hidden">
+                {/* Category Header - Clickable */}
+                <button
+                  onClick={() => toggleCategory(cat.id)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-surface-light/30 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{cat.icono}</span>
+                    <h3 className="font-semibold text-text-primary">
+                      {cat.nombre}
+                    </h3>
+                    <span className="text-xs text-text-muted px-2 py-0.5 rounded-full bg-surface-light/80">
+                      {cat.platillos.length} platillos
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1"
+                    >
                       <button
-                        onClick={() => setRecetaModal(p)}
-                        className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-surface-lighter ${
-                          (p._count?.receta ?? 0) > 0
-                            ? "text-gold"
-                            : "text-text-muted"
-                        }`}
-                        title="Receta"
-                      >
-                        <FlaskConical size={14} />
-                      </button>
-                      <button
-                        onClick={() => setEditPlatillo(p)}
-                        className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-surface-lighter transition-all"
+                        onClick={() => {
+                          setEditCategory(cat);
+                          setShowCategoryModal(true);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-surface-light"
+                        title="Editar categoría"
                       >
                         <Pencil size={14} className="text-text-muted" />
                       </button>
+                      <button
+                        onClick={() => {
+                          setNewDishCatId(cat.id);
+                          setShowNewDish(true);
+                        }}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary/10 text-primary-light text-xs font-medium hover:bg-primary/20"
+                      >
+                        <Plus size={12} /> Platillo
+                      </button>
                     </div>
+                    <ChevronDown
+                      size={18}
+                      className={`text-text-muted transition-transform duration-200 ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                    />
                   </div>
-                ))}
+                </button>
+
+                {/* Category Content - Collapsible */}
+                <div
+                  className="transition-all duration-300 ease-in-out overflow-hidden"
+                  style={{
+                    maxHeight: isExpanded ? `${(cat.platillos.length + 1) * 60}px` : "0px",
+                    opacity: isExpanded ? 1 : 0,
+                  }}
+                >
+                  <div className="space-y-2 px-4 pb-4">
+                    {cat.platillos.map((p) => (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between p-3 rounded-xl bg-surface-light/50 group"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`font-medium text-sm ${
+                                p.activo
+                                  ? "text-text-primary"
+                                  : "text-text-muted line-through"
+                              }`}
+                            >
+                              {p.nombre}
+                            </span>
+                            {!p.activo && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-text-muted/10 text-text-muted">
+                                Inactivo
+                              </span>
+                            )}
+                          </div>
+                          {p.descripcion && (
+                            <p className="text-xs text-text-muted truncate mt-0.5">
+                              {p.descripcion}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="font-bold text-primary-light text-sm">
+                            ${p.precio}
+                          </span>
+                          <button
+                            onClick={() => setRecetaModal(p)}
+                            className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-surface-lighter ${
+                              (p._count?.receta ?? 0) > 0
+                                ? "text-gold"
+                                : "text-text-muted"
+                            }`}
+                            title="Receta"
+                          >
+                            <FlaskConical size={14} />
+                          </button>
+                          <button
+                            onClick={() => setEditPlatillo(p)}
+                            className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-surface-lighter transition-all"
+                          >
+                            <Pencil size={14} className="text-text-muted" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    {cat.platillos.length === 0 && (
+                      <p className="text-sm text-text-muted text-center py-4">
+                        Sin platillos aún
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Modals */}
