@@ -117,7 +117,7 @@ export default function CuentaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-charcoal">
+      <div className="min-h-screen flex items-center justify-center dark-section">
         <Loader2 size={32} className="animate-spin text-primary" />
       </div>
     );
@@ -125,7 +125,7 @@ export default function CuentaPage() {
 
   if (completado) {
     return (
-      <div className="min-h-screen bg-charcoal flex items-center justify-center p-4">
+      <div className="min-h-screen dark-section flex items-center justify-center p-4">
         <div className="text-center max-w-md animate-fade-in">
           <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 size={48} className="text-success" />
@@ -165,7 +165,7 @@ export default function CuentaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-charcoal">
+    <div className="min-h-screen dark-section">
       {/* Header */}
       <div className="glass border-b border-primary/10 px-4 py-4">
         <div className="max-w-lg mx-auto flex items-center gap-4">

@@ -60,11 +60,11 @@ export default function AdminMenuPage() {
   }
 
   if (status === "loading" || loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-charcoal"><Loader2 size={32} className="animate-spin text-primary" /></div>;
+    return <div className="min-h-screen flex items-center justify-center dark-section"><Loader2 size={32} className="animate-spin text-primary" /></div>;
   }
 
   return (
-    <div className="min-h-screen bg-charcoal p-4 md:p-8">
+    <div className="min-h-screen dark-section p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">

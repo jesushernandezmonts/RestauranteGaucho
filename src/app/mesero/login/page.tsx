@@ -40,11 +40,11 @@ export default function MeseroLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-charcoal">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden dark-section" style={{ background: "var(--color-cream)" }}>
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-surface to-charcoal" />
-      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-secondary/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
+      <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-sage/5 rounded-full blur-3xl" />
 
       <div className="relative z-10 w-full max-w-md mx-4">
         {/* Logo */}

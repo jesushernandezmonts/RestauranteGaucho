@@ -117,7 +117,7 @@ export default function CocinaDashboard() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-charcoal">
+      <div className="min-h-screen flex items-center justify-center dark-section">
         <Loader2 size={32} className="animate-spin text-primary" />
       </div>
     );
@@ -128,7 +128,7 @@ export default function CocinaDashboard() {
   const listas = ordenes.filter((o) => o.estado === "LISTO");
 
   return (
-    <div className="min-h-screen bg-charcoal">
+    <div className="min-h-screen dark-section">
       {/* Header */}
       <div className="glass border-b border-primary/10 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

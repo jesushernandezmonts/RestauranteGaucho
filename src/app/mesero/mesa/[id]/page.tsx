@@ -165,14 +165,14 @@ export default function MesaDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-charcoal">
+      <div className="min-h-screen flex items-center justify-center dark-section">
         <Loader2 size={32} className="animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-charcoal pb-32">
+    <div className="min-h-screen dark-section pb-32">
       {/* Header */}
       <div className="glass border-b border-primary/10 px-4 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">

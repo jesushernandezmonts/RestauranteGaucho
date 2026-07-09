@@ -68,7 +68,7 @@ export default function AdminReportesPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-charcoal">
+      <div className="min-h-screen flex items-center justify-center dark-section">
         <Loader2 size={32} className="animate-spin text-primary" />
       </div>
     );
@@ -78,7 +78,7 @@ export default function AdminReportesPage() {
   const totalPropinas = meseros.reduce((s, m) => s + m.propinas, 0);
 
   return (
-    <div className="min-h-screen bg-charcoal p-4 md:p-8">
+    <div className="min-h-screen dark-section p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Link

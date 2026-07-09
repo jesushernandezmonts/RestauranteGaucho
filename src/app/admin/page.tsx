@@ -104,7 +104,7 @@ export default function AdminDashboard() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-charcoal">
+      <div className="min-h-screen flex items-center justify-center dark-section">
         <Loader2 size={32} className="animate-spin text-primary" />
       </div>
     );
@@ -120,15 +120,15 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen dark-section flex" style={{ background: "#3D2A1C", color: "rgba(255,255,255,0.85)" }}>
+    <div className="min-h-screen dark-section flex">
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:z-auto`}
-        style={{ background: "#3D2A1C", borderRight: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ background: "var(--color-cream)", borderRight: "1px solid rgba(74, 50, 40, 0.1)" }}
       >
-        <div className="p-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(74, 50, 40, 0.1)" }}>
           <div className="flex items-center justify-between">
             <Link href="/admin" className="flex items-center gap-2">
               <span className="text-2xl">🥩</span>
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
                   typeof window !== "undefined" &&
                   window.location.pathname === link.href
                     ? "#E8AB2F"
-                    : "rgba(255,255,255,0.6)",
+                    : "var(--color-text-secondary)",
                 background:
                   typeof window !== "undefined" &&
                   window.location.pathname === link.href
@@ -169,20 +169,20 @@ export default function AdminDashboard() {
             </Link>
           ))}
         </nav>
-        <div className="absolute bottom-4 left-4 right-4" style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px" }}>
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "rgba(255,255,255,0.05)" }}>
+        <div className="absolute bottom-4 left-4 right-4" style={{ borderTop: "1px solid rgba(74, 50, 40, 0.1)", paddingTop: "12px" }}>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "rgba(74, 50, 40, 0.05)" }}>
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "rgba(232,171,47,0.2)", color: "#E8AB2F" }}>
               {(session?.user?.nombre || "A")[0]}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate" style={{ color: "rgba(255,255,255,0.85)" }}>
+              <p className="text-sm font-medium truncate" style={{ color: "var(--color-chocolate)" }}>
                 {session?.user?.nombre}
               </p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Admin</p>
+              <p className="text-xs" style={{ color: "var(--color-text-muted)" }}>Admin</p>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/admin/login" })}
-              className="p-2 rounded-lg transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}
+              className="p-2 rounded-lg transition-colors" style={{ color: "var(--color-text-muted)" }}
               aria-label="Cerrar sesión"
             >
               <LogOut size={16} />
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
       {/* Mobile hamburger */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-xl glass"
+        className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-xl card"
         aria-label="Menú"
       >
         <Menu size={20} style={{ color: "#E8AB2F" }} />
