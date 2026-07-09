@@ -93,34 +93,34 @@ export default function MeseroDashboard() {
     );
   }
 
-  const areas = ["Ventanas", "Pasillo", "Terraza"];
+  const areas = ["Exterior", "Interior"];
 
   return (
     <div className="min-h-screen dark-section">
       {/* Top bar */}
-      <div className="glass border-b border-primary/10 px-4 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <UtensilsCrossed className="text-primary" size={24} />
+      <div className="glass border-b border-primary/10 px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <UtensilsCrossed className="text-primary" size={20} />
             <div>
-              <h1 className="font-display text-xl font-bold text-gradient">
+              <h1 className="font-display text-lg font-bold text-gradient">
                 Gaucho
               </h1>
-              <p className="text-xs text-text-muted">Panel de Mesero</p>
+              <p className="text-xs text-text-muted">Mesero</p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <User size={16} />
+              <User size={14} />
               <span className="font-medium text-text-primary">
                 {session?.user?.nombre || "Mesero"}
               </span>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/mesero/login" })}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-text-muted hover:text-danger hover:bg-danger/10 transition-all"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-text-muted hover:text-danger hover:bg-danger/10 transition-all"
             >
-              <LogOut size={16} />
+              <LogOut size={14} />
               Salir
             </button>
           </div>
@@ -128,21 +128,21 @@ export default function MeseroDashboard() {
       </div>
 
       {/* Mesa map */}
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-4">
         {error && (
           <div className="p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm mb-6">
             {error}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {areas.map((area) => (
             <div key={area} className="card">
-              <h3 className="font-display text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
-                {area === "Ventanas" ? "🪟" : area === "Pasillo" ? "🚪" : "🌿"}
+              <h3 className="font-display text-base font-bold text-text-primary mb-3">
+                {area === "Exterior" ? "🌿" : "🏠"}
                 {area}
               </h3>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 {mesas
                   .filter((m) => m.area === area)
                   .sort((a, b) => a.numero - b.numero)
