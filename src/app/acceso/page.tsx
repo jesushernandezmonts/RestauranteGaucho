@@ -30,7 +30,7 @@ const roles = [
 
 export default function AccesoPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 dark-section" style={{ background: "var(--color-cream)" }}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden dark-section">
       <div className="w-full max-w-lg">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-4">
@@ -39,7 +39,7 @@ export default function AccesoPage() {
           <h1 className="font-script text-3xl sm:text-4xl text-gold leading-tight drop-shadow-[0_4px_15px_rgba(232,171,47,0.2)]">
             Gaucho
           </h1>
-          <p className="text-text-muted text-sm mt-2 tracking-wide">Acceso para empleados</p>
+          <p className="text-white/50 text-sm mt-2 tracking-wide">Acceso para empleados</p>
         </div>
 
         <div className="space-y-4">
@@ -49,25 +49,21 @@ export default function AccesoPage() {
               <Link
                 key={rol.href}
                 href={rol.href}
-                className="group flex items-center gap-4 p-5 rounded-2xl transition-all duration-300"
-                  style={{
-                    background: "var(--color-cream)",
-                    border: "1px solid rgba(74, 50, 40, 0.12)",
-                  }}
+                className="group flex items-center gap-4 p-5 rounded-2xl transition-all duration-300 card"
               >
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${rol.color} transition-transform duration-300 group-hover:scale-110`}
                 >
-                  <Icon className="w-5 h-5 text-text-secondary" />
+                  <Icon className="w-5 h-5 text-white/80" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="font-display text-base sm:text-lg font-semibold text-chocolate group-hover:text-gold transition-colors">
+                  <h2 className="font-display text-base sm:text-lg font-semibold text-white/90 group-hover:text-gold transition-colors">
                     {rol.label}
                   </h2>
-                  <p className="text-xs sm:text-sm text-text-muted tracking-wide">{rol.desc}</p>
+                  <p className="text-xs sm:text-sm text-white/40 tracking-wide">{rol.desc}</p>
                 </div>
                 <svg
-                  className="w-5 h-5 text-text-muted group-hover:text-gold/50 translate-x-0 group-hover:translate-x-1 transition-all"
+                  className="w-5 h-5 text-white/20 group-hover:text-gold/50 translate-x-0 group-hover:translate-x-1 transition-all"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -80,7 +76,7 @@ export default function AccesoPage() {
         </div>
 
         <div className="text-center mt-8">
-          <Link href="/" className="text-text-muted hover:text-gold/50 text-xs tracking-wide transition-colors">
+          <Link href="/" className="text-white/30 hover:text-gold/50 text-xs tracking-wide transition-colors">
             ← Volver al inicio
           </Link>
         </div>
