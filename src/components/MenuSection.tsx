@@ -37,7 +37,7 @@ export function MenuSection() {
     let mounted = true;
     async function fetchMenu() {
       try {
-        const res = await fetch("/api/platillos");
+        const res = await fetch("/api/platillos", { cache: "no-store" });
         if (!mounted) return;
         const data = await res.json();
         setCategorias(data);
