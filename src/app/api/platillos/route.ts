@@ -9,7 +9,11 @@ export async function GET() {
       include: {
         platillos: {
           orderBy: { id: "asc" },
+          include: {
+            _count: { select: { receta: true } },
+          },
         },
+        _count: { select: { platillos: true } },
       },
     });
     return NextResponse.json(categorias);
