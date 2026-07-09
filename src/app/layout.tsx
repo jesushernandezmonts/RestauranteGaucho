@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display, Pacifico } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { LayoutShell } from "@/components/LayoutShell";
 import { AuthProvider } from "@/components/AuthProvider";
 
 const geistSans = Geist({
@@ -78,9 +77,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col overflow-x-hidden">
         <AuthProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <LayoutShell>{children}</LayoutShell>
         </AuthProvider>
         <script
           dangerouslySetInnerHTML={{
