@@ -46,15 +46,18 @@ export function MenuSection() {
     }
     fetchMenu();
 
-    // Instant refresh when admin saves changes (cross-tab broadcast)
+    // Instant refresh when admin saves changes (cross-tab within same device)
     const channel = new BroadcastChannel("gaucho_menu_changes");
     channel.onmessage = () => fetchMenu();
+
+    // Fallback: poll every 15s for cross-device sync (phone, other devices)
+    const interval = setInterval(fetchMenu, 15000);
 
     // Refetch on window focus
     const onFocus = () => fetchMenu();
     window.addEventListener("focus", onFocus);
 
-    return () => { mounted = false; channel.close(); window.removeEventListener("focus", onFocus); };
+    return () => { mounted = false; channel.close(); clearInterval(interval); window.removeEventListener("focus", onFocus); };
   }, []);
 
   // Set initial active category when data first loads
