@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { bumpMenuVersion } from "@/app/api/menu-version/route";
 
 export async function GET() {
   try {
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
   try {
     const { nombre, icono, orden } = await request.json();
     const cat = await prisma.categoria.create({ data: { nombre, icono: icono || "🍽️", orden: orden || 0 } });
+    bumpMenuVersion();
     return NextResponse.json(cat, { status: 201 });
   } catch (error) {
     console.error("Error:", error);
@@ -33,6 +35,7 @@ export async function PATCH(request: Request) {
     if (icono !== undefined) data.icono = icono;
     if (orden !== undefined) data.orden = orden;
     const cat = await prisma.categoria.update({ where: { id }, data });
+    bumpMenuVersion();
     return NextResponse.json(cat);
   } catch (error) {
     console.error("Error:", error);
@@ -48,6 +51,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Categoría tiene platillos, no se puede eliminar" }, { status: 400 });
     }
     const cat = await prisma.categoria.delete({ where: { id } });
+    bumpMenuVersion();
     return NextResponse.json(cat);
   } catch (error) {
     console.error("Error:", error);

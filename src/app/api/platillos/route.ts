@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { bumpMenuVersion } from "@/app/api/menu-version/route";
 
 // GET /api/platillos - full menu with categories
 export async function GET() {
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
     const platillo = await prisma.platillo.create({
       data: { nombre, descripcion: descripcion || "", precio, categoriaId },
     });
+    bumpMenuVersion();
     return NextResponse.json(platillo, { status: 201 });
   } catch (error) {
     console.error("Error creating platillo:", error);
@@ -60,7 +62,7 @@ export async function PATCH(request: Request) {
       where: { id },
       data: updateData,
     });
-
+    bumpMenuVersion();
     return NextResponse.json(platillo);
   } catch (error) {
     console.error("Error updating platillo:", error);

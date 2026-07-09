@@ -35,6 +35,8 @@ export function MenuSection() {
 
   useEffect(() => {
     let mounted = true;
+    let version = 0;
+
     async function fetchMenu() {
       try {
         const res = await fetch("/api/platillos", { cache: "no-store" });
@@ -44,17 +46,30 @@ export function MenuSection() {
         setLoading(false);
       } catch (e) { console.error(e); }
     }
+
+    async function checkVersion() {
+      try {
+        const res = await fetch(`/api/menu-version?v=${version}`, { cache: "no-store" });
+        if (!mounted) return;
+        const data = await res.json();
+        if (data.changed) {
+          version = data.current;
+          fetchMenu();
+        }
+      } catch {}
+    }
+
     fetchMenu();
 
-    // Instant refresh when admin saves changes (cross-tab within same device)
+    // Cross-tab instant sync
     const channel = new BroadcastChannel("gaucho_menu_changes");
     channel.onmessage = () => fetchMenu();
 
-    // Fallback: poll every 15s for cross-device sync (phone, other devices)
-    const interval = setInterval(fetchMenu, 15000);
+    // Lightweight version poll every 3 seconds (cross-device)
+    const interval = setInterval(checkVersion, 3000);
 
     // Refetch on window focus
-    const onFocus = () => fetchMenu();
+    const onFocus = () => { checkVersion(); };
     window.addEventListener("focus", onFocus);
 
     return () => { mounted = false; channel.close(); clearInterval(interval); window.removeEventListener("focus", onFocus); };

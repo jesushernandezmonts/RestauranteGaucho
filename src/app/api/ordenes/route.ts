@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { bumpMenuVersion } from "@/app/api/menu-version/route";
 import { auth } from "@/lib/auth";
 
 export async function GET(request: Request) {
@@ -124,6 +125,8 @@ export async function POST(request: Request) {
       where: { id: mesaId },
       data: { estado: "OCUPADO" },
     });
+
+    bumpMenuVersion();
 
     // Auto-deduct inventory for each item in order
     for (const item of items) {
