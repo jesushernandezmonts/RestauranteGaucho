@@ -10,7 +10,13 @@ export async function GET() {
       include: {
         platillos: {
           orderBy: { id: "asc" },
-          include: {
+          select: {
+            id: true,
+            nombre: true,
+            descripcion: true,
+            precio: true,
+            activo: true,
+            imagen: true,
             _count: { select: { receta: true } },
           },
         },
