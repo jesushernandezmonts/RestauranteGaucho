@@ -11,7 +11,7 @@ type Categoria = {
   id: number;
   nombre: string;
   icono: string;
-  platillos: { id: number; nombre: string; descripcion: string; precio: number }[];
+  platillos: { id: number; nombre: string; descripcion: string; precio: number; imagen?: string }[];
 };
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -133,13 +133,22 @@ export function MenuSection() {
                   className="group flex items-start justify-between p-4 sm:p-5 rounded-2xl bg-white/60 border border-chocolate/5 hover:border-gold/20 transition-all duration-300 hover:shadow-gold animate-reveal"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
-                  <div className="flex-1 min-w-0 pr-4">
-                    <h3 className="font-display text-base sm:text-lg font-semibold text-chocolate group-hover:text-gold-dark transition-colors">
-                      {platillo.nombre}
-                    </h3>
-                    {platillo.descripcion && (
-                      <p className="text-xs sm:text-sm text-chocolate-light mt-1 leading-relaxed">{platillo.descripcion}</p>
+                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    {platillo.imagen && (
+                      <img
+                        src={platillo.imagen}
+                        alt={platillo.nombre}
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover flex-shrink-0 border border-chocolate/5"
+                      />
                     )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-display text-base sm:text-lg font-semibold text-chocolate group-hover:text-gold-dark transition-colors">
+                        {platillo.nombre}
+                      </h3>
+                      {platillo.descripcion && (
+                        <p className="text-xs sm:text-sm text-chocolate-light mt-1 leading-relaxed">{platillo.descripcion}</p>
+                      )}
+                    </div>
                   </div>
                   <span className="shrink-0 font-bold text-gold-dark text-sm sm:text-base">${platillo.precio}</span>
                 </div>

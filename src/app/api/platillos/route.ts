@@ -27,12 +27,12 @@ export async function GET() {
 // POST /api/platillos - create a new dish
 export async function POST(request: Request) {
   try {
-    const { nombre, descripcion, precio, categoriaId } = await request.json();
+    const { nombre, descripcion, precio, categoriaId, imagen } = await request.json();
     if (!nombre || !precio || !categoriaId) {
       return NextResponse.json({ error: "Nombre, precio y categoría requeridos" }, { status: 400 });
     }
     const platillo = await prisma.platillo.create({
-      data: { nombre, descripcion: descripcion || "", precio, categoriaId },
+      data: { nombre, descripcion: descripcion || "", precio, categoriaId, imagen: imagen || "" },
     });
     bumpMenuVersion();
     return NextResponse.json(platillo, { status: 201 });
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, nombre, precio, activo, descripcion } = body;
+    const { id, nombre, precio, activo, descripcion, imagen } = body;
 
     if (!id) {
       return NextResponse.json({ error: "ID requerido" }, { status: 400 });
@@ -57,6 +57,7 @@ export async function PATCH(request: Request) {
     if (precio !== undefined) updateData.precio = precio;
     if (activo !== undefined) updateData.activo = activo;
     if (descripcion !== undefined) updateData.descripcion = descripcion;
+    if (imagen !== undefined) updateData.imagen = imagen;
 
     const platillo = await prisma.platillo.update({
       where: { id },

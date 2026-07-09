@@ -26,6 +26,7 @@ type Platillo = {
   descripcion: string;
   precio: number;
   activo: boolean;
+  imagen?: string;
   _count?: { receta: number };
 };
 
@@ -213,6 +214,13 @@ export default function MenuSection() {
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
+                            {p.imagen && (
+                              <img
+                                src={p.imagen}
+                                alt={p.nombre}
+                                className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                              />
+                            )}
                             <span
                               className={`font-medium text-sm ${
                                 p.activo
@@ -347,6 +355,8 @@ function PlatilloForm({
   const [descripcion, setDescripcion] = useState(platillo?.descripcion || "");
   const [precio, setPrecio] = useState(platillo?.precio || 0);
   const [activo, setActivo] = useState(platillo?.activo ?? true);
+  const [imagen, setImagen] = useState(platillo?.imagen || "");
+  const [uploading, setUploading] = useState(false);
   const [catId, setCatId] = useState(categoriaId || 0);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [saving, setSaving] = useState(false);
@@ -370,12 +380,14 @@ function PlatilloForm({
         body.descripcion = descripcion;
         body.precio = precio;
         body.categoriaId = catId;
+        body.imagen = imagen;
       } else {
         body.id = platillo!.id;
         body.nombre = nombre;
         body.precio = precio;
         body.activo = activo;
         body.descripcion = descripcion;
+        body.imagen = imagen;
       }
       const res = await fetch(url, {
         method,
@@ -420,6 +432,57 @@ function PlatilloForm({
         onChange={(e) => setDescripcion(e.target.value)}
         className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
       />
+
+      {/* Image Upload */}
+      <div>
+        <label className="text-xs text-text-muted mb-2 block">
+          Imagen del platillo
+        </label>
+        {imagen && (
+          <div className="mb-2 relative inline-block">
+            <img
+              src={imagen}
+              alt="Preview"
+              className="w-24 h-24 rounded-xl object-cover border border-primary/10"
+            />
+            <button
+              type="button"
+              onClick={() => setImagen("")}
+              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-danger text-white flex items-center justify-center text-xs"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        )}
+        <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-light border border-primary/10 cursor-pointer hover:bg-surface-lighter transition-colors text-sm text-text-secondary">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={uploading}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setUploading(true);
+              try {
+                const formData = new FormData();
+                formData.append("file", file);
+                const res = await fetch("/api/upload", {
+                  method: "POST",
+                  body: formData,
+                });
+                const data = await res.json();
+                if (data.url) setImagen(data.url);
+              } catch (err) {
+                console.error(err);
+              } finally {
+                setUploading(false);
+              }
+            }}
+          />
+          {uploading ? "Subiendo..." : imagen ? "Cambiar imagen" : "Subir imagen"}
+        </label>
+      </div>
       <input
         type="number"
         placeholder="Precio"
