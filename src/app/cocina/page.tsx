@@ -69,18 +69,9 @@ export default function CocinaDashboard() {
     if (status === "unauthenticated") router.push("/cocina/login");
   }, [status, router]);
 
-  useEffect(() => {
-    fetchOrdenes();
-    const interval = setInterval(() => {
-      fetchOrdenes();
-      setNow(Date.now());
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  async function fetchOrdenes() {
+  const fetchOrdenes = useCallback(async () => {
     try {
-      const res = await fetch("/api/ordenes?forKitchen=true");
+      const res = await fetch("/api/ordenes?forKitchen=true", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setOrdenes(data);
@@ -90,7 +81,23 @@ export default function CocinaDashboard() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchOrdenes();
+
+    // Cross-tab instant sync
+    const channel = new BroadcastChannel("gaucho_ordenes_changes");
+    channel.onmessage = () => fetchOrdenes();
+
+    // Poll every 3s for cross-device
+    const interval = setInterval(() => {
+      fetchOrdenes();
+      setNow(Date.now());
+    }, 3000);
+
+    return () => { channel.close(); clearInterval(interval); };
+  }, [fetchOrdenes]);
 
   const updateEstado = useCallback(
     async (ordenId: number, nuevoEstado: string) => {

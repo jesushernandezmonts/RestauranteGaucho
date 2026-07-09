@@ -150,6 +150,9 @@ export default function MesaDetailPage() {
 
       if (!res.ok) throw new Error("Error al enviar orden");
 
+      // Notify other tabs (cocina) instantly
+      try { new BroadcastChannel("gaucho_ordenes_changes").postMessage("nueva_orden"); } catch {}
+
       // Success - clear order and go back
       setOrderItems([]);
       router.push("/mesero");
