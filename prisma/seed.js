@@ -35,15 +35,15 @@ async function main() {
   console.log("✅ Usuarios");
 
   // TABLES
-  const areas = ["Ventanas", "Pasillo", "Terraza"];
+  const areas = ["Exterior", "Interior"];
   let n = 1;
   for (const area of areas) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       await prisma.mesa.create({ data: { numero: n, capacidad: 4, area, estado: "LIBRE" } });
       n++;
     }
   }
-  console.log("✅ 12 mesas");
+  console.log("✅ 10 mesas (5 Exterior, 5 Interior)");
 
   // CATEGORIES
   const cats = [
