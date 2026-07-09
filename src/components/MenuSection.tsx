@@ -34,15 +34,31 @@ export function MenuSection() {
   const [activeCat, setActiveCat] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/platillos")
-      .then((r) => r.json())
-      .then((data) => {
+    let mounted = true;
+    async function fetchMenu() {
+      try {
+        const res = await fetch("/api/platillos", { cache: "no-store" });
+        if (!mounted) return;
+        const data = await res.json();
         setCategorias(data);
-        if (data.length > 0) setActiveCat(data[0].id);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+        setLoading(false);
+      } catch (e) { console.error(e); }
+    }
+    fetchMenu();
+    // Refetch on window focus (admin tab changes)
+    const onFocus = () => { setLoading(true); fetchMenu(); };
+    window.addEventListener("focus", onFocus);
+    // Auto-refresh every 30s
+    const interval = setInterval(fetchMenu, 30000);
+    return () => { mounted = false; window.removeEventListener("focus", onFocus); clearInterval(interval); };
   }, []);
+
+  // Set initial active category when data first loads
+  useEffect(() => {
+    if (categorias.length > 0 && activeCat === null) {
+      setActiveCat(categorias[0].id);
+    }
+  }, [categorias, activeCat]);
 
   const currentCat = categorias.find((c) => c.id === activeCat);
 
