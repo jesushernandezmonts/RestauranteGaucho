@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   Shield,
   LogOut,
@@ -18,6 +17,11 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import MenuSection from "./_components/MenuSection";
+import InventarioSection from "./_components/InventarioSection";
+import ReservacionesSection from "./_components/ReservacionesSection";
+import ReportesSection from "./_components/ReportesSection";
+import UsuariosSection from "./_components/UsuariosSection";
 
 type DashboardStats = {
   ventasHoy: number;
@@ -27,9 +31,21 @@ type DashboardStats = {
   ordenesRecientes: number;
 };
 
+type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones" | "reportes";
+
+const sectionLabels: Record<Section, { label: string; icon: React.ElementType }> = {
+  dashboard: { label: "Dashboard", icon: TrendingUp },
+  menu: { label: "Menú", icon: UtensilsCrossed },
+  inventario: { label: "Inventario", icon: Package },
+  usuarios: { label: "Usuarios", icon: Users },
+  reservaciones: { label: "Reservaciones", icon: ClipboardList },
+  reportes: { label: "Reportes", icon: TrendingDown },
+};
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [activeSection, setActiveSection] = useState<Section>("dashboard");
   const [stats, setStats] = useState<DashboardStats>({
     ventasHoy: 0,
     ordenesHoy: 0,
@@ -45,10 +61,15 @@ export default function AdminDashboard() {
   }, [status, router]);
 
   useEffect(() => {
-    loadStats();
-  }, []);
+    if (activeSection === "dashboard") {
+      loadStats();
+    } else {
+      setLoading(false);
+    }
+  }, [activeSection]);
 
   async function loadStats() {
+    setLoading(true);
     try {
       const [ordenesRes, ingredientesRes] = await Promise.all([
         fetch("/api/ordenes"),
@@ -61,9 +82,7 @@ export default function AdminDashboard() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const ordenesHoy = Array.isArray(ordenes)
-        ? ordenes.filter(
-            (o: { createdAt: string }) => new Date(o.createdAt) >= today
-          )
+        ? ordenes.filter((o: { createdAt: string }) => new Date(o.createdAt) >= today)
         : [];
 
       const ventasHoy = ordenesHoy.reduce(
@@ -71,7 +90,6 @@ export default function AdminDashboard() {
         0
       );
 
-      // Get top waiter
       const meseroMap: Record<string, number> = {};
       ordenesHoy.forEach((o: { mesero?: { nombre: string }; total: number }) => {
         if (o.mesero?.nombre) {
@@ -102,7 +120,7 @@ export default function AdminDashboard() {
     }
   }
 
-  if (status === "loading" || loading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center dark-section">
         <Loader2 size={32} className="animate-spin text-primary" />
@@ -110,18 +128,187 @@ export default function AdminDashboard() {
     );
   }
 
-  const sidebarLinks = [
-    { href: "/admin", label: "Dashboard", icon: TrendingUp },
-    { href: "/admin/menu", label: "Menú", icon: UtensilsCrossed },
-    { href: "/admin/inventario", label: "Inventario", icon: Package },
-    { href: "/admin/usuarios", label: "Usuarios", icon: Users },
-    { href: "/admin/reservaciones", label: "Reservaciones", icon: ClipboardList },
-    { href: "/admin/reportes", label: "Reportes", icon: TrendingDown },
-  ];
+  const sidebarLinks = Object.entries(sectionLabels).map(([key, val]) => ({
+    section: key as Section,
+    ...val,
+  }));
+
+  function renderSection() {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 size={32} className="animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    switch (activeSection) {
+      case "menu":
+        return <MenuSection />;
+      case "inventario":
+        return <InventarioSection />;
+      case "reservaciones":
+        return <ReservacionesSection />;
+      case "reportes":
+        return <ReportesSection />;
+      case "usuarios":
+        return <UsuariosSection />;
+      default:
+        return renderDashboard();
+    }
+  }
+
+  function renderDashboard() {
+    return (
+      <div className="p-4 md:p-8">
+        {/* Header */}
+        <div className="card mb-8">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl" style={{ background: "rgba(232,171,47,0.15)" }}>
+              <Shield size={20} style={{ color: "#E8AB2F" }} />
+            </div>
+            <div>
+              <h1 className="font-display text-xl font-bold" style={{ color: "#E8AB2F" }}>
+                Gaucho
+              </h1>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Panel Admin</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,168,119,0.2)" }}>
+                <DollarSign size={20} style={{ color: "#8BA877" }} />
+              </div>
+              <TrendingUp size={16} style={{ color: "#8BA877" }} />
+            </div>
+            <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
+              ${stats.ventasHoy.toFixed(0)}
+            </div>
+            <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Ventas hoy</div>
+          </div>
+          <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.15)" }}>
+                <ClipboardList size={20} style={{ color: "#E8AB2F" }} />
+              </div>
+              <TrendingDown size={16} style={{ color: "rgba(255,255,255,0.3)" }} />
+            </div>
+            <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
+              {stats.ordenesHoy}
+            </div>
+            <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Órdenes hoy</div>
+          </div>
+          <div className="card">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
+                <Users size={20} className="text-secondary" />
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-text-primary">
+              {stats.meseroTop?.nombre || "—"}
+            </div>
+            <div className="text-xs text-text-muted mt-1">
+              {stats.meseroTop
+                ? `$${stats.meseroTop.total?.toFixed(0)} en ventas`
+                : "Mejor mesero"}
+            </div>
+          </div>
+          <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(196,85,58,0.2)" }}>
+                <Package size={20} style={{ color: "#C4553A" }} />
+              </div>
+            </div>
+            <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
+              {stats.alertasStock}
+            </div>
+            <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+              Alertas de stock
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="card">
+            <h3 className="font-semibold text-text-primary mb-4">
+              Acciones Rápidas
+            </h3>
+            <div className="space-y-3">
+              <button
+                onClick={() => setActiveSection("menu")}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-surface-light/50 hover:bg-surface-light transition-all group text-left"
+              >
+                <UtensilsCrossed
+                  size={18}
+                  className="text-primary-light group-hover:scale-110 transition-transform"
+                />
+                <span className="text-sm text-text-secondary group-hover:text-text-primary">
+                  Gestionar Menú
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveSection("inventario")}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-surface-light/50 hover:bg-surface-light transition-all group text-left"
+              >
+                <Package
+                  size={18}
+                  className="text-primary-light group-hover:scale-110 transition-transform"
+                />
+                <span className="text-sm text-text-secondary group-hover:text-text-primary">
+                  Ver Inventario
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveSection("reportes")}
+                className="w-full flex items-center gap-3 p-3 rounded-xl bg-surface-light/50 hover:bg-surface-light transition-all group text-left"
+              >
+                <ClipboardList
+                  size={18}
+                  className="text-primary-light group-hover:scale-110 transition-transform"
+                />
+                <span className="text-sm text-text-secondary group-hover:text-text-primary">
+                  Reportes de Meseros
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div className="card">
+            <h3 className="font-semibold text-text-primary mb-4">
+              Resumen del Día
+            </h3>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
+                <span className="text-sm text-text-secondary">Órdenes totales</span>
+                <span className="font-bold text-text-primary">{stats.ordenesRecientes}</span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
+                <span className="text-sm text-text-secondary">Promedio por orden</span>
+                <span className="font-bold text-text-primary">
+                  ${stats.ordenesHoy > 0 ? (stats.ventasHoy / stats.ordenesHoy).toFixed(0) : "0"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
+                <span className="text-sm text-text-secondary">Alertas de inventario</span>
+                <span className={`font-bold ${stats.alertasStock > 0 ? "text-danger" : "text-success"}`}>
+                  {stats.alertasStock > 0 ? `${stats.alertasStock} 🔴` : "0 🟢"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen dark-section flex">
-      {/* Sidebar - Dark theme */}
+      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -130,15 +317,19 @@ export default function AdminDashboard() {
       >
         <div className="p-4" style={{ borderBottom: "1px solid rgba(232, 171, 47, 0.08)" }}>
           <div className="flex items-center justify-between">
-            <Link href="/admin" className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveSection("dashboard")}
+              className="flex items-center gap-2"
+            >
               <span className="text-2xl">🥩</span>
               <span className="font-script text-xl" style={{ color: "#E8AB2F" }}>
                 Gaucho
               </span>
-            </Link>
+            </button>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-xl" style={{ color: "rgba(240,235,229,0.5)" }}
+              className="lg:hidden p-2 rounded-xl"
+              style={{ color: "rgba(240,235,229,0.5)" }}
             >
               <X size={18} />
             </button>
@@ -146,32 +337,41 @@ export default function AdminDashboard() {
         </div>
         <nav className="flex-1 space-y-1 px-3">
           {sidebarLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setSidebarOpen(false)}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200"
+            <button
+              key={link.section}
+              onClick={() => {
+                setActiveSection(link.section);
+                setSidebarOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 text-left"
               style={{
                 color:
-                  typeof window !== "undefined" &&
-                  window.location.pathname === link.href
+                  activeSection === link.section
                     ? "#F0C050"
                     : "rgba(240,235,229,0.5)",
                 background:
-                  typeof window !== "undefined" &&
-                  window.location.pathname === link.href
+                  activeSection === link.section
                     ? "rgba(232,171,47,0.1)"
                     : "transparent",
               }}
             >
               <link.icon size={18} />
               {link.label}
-            </Link>
+            </button>
           ))}
         </nav>
-        <div className="absolute bottom-4 left-4 right-4" style={{ borderTop: "1px solid rgba(232, 171, 47, 0.08)", paddingTop: "12px" }}>
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "rgba(240,235,229,0.04)" }}>
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ background: "rgba(232,171,47,0.2)", color: "#E8AB2F" }}>
+        <div
+          className="absolute bottom-4 left-4 right-4"
+          style={{ borderTop: "1px solid rgba(232, 171, 47, 0.08)", paddingTop: "12px" }}
+        >
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-xl"
+            style={{ background: "rgba(240,235,229,0.04)" }}
+          >
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+              style={{ background: "rgba(232,171,47,0.2)", color: "#E8AB2F" }}
+            >
               {(session?.user?.nombre || "A")[0]}
             </div>
             <div className="flex-1 min-w-0">
@@ -182,7 +382,8 @@ export default function AdminDashboard() {
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/admin/login" })}
-              className="p-2 rounded-lg transition-colors" style={{ color: "rgba(240,235,229,0.4)" }}
+              className="p-2 rounded-lg transition-colors"
+              style={{ color: "rgba(240,235,229,0.4)" }}
               aria-label="Cerrar sesión"
             >
               <LogOut size={16} />
@@ -201,168 +402,9 @@ export default function AdminDashboard() {
         <Menu size={20} style={{ color: "#F0C050" }} />
       </button>
 
-      {/* Main */}
+      {/* Main Content */}
       <div className="flex-1 min-w-0">
-        <div className="p-4 md:p-8">
-          {/* Header */}
-          <div className="card mb-8">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl" style={{ background: "rgba(232,171,47,0.15)" }}>
-                <Shield size={20} style={{ color: "#E8AB2F" }} />
-              </div>
-              <div>
-                <h1 className="font-display text-xl font-bold" style={{ color: "#E8AB2F" }}>
-                  Gaucho
-                </h1>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Panel Admin</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,168,119,0.2)" }}>
-                  <DollarSign size={20} style={{ color: "#8BA877" }} />
-                </div>
-                <TrendingUp size={16} style={{ color: "#8BA877" }} />
-              </div>
-              <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
-                ${stats.ventasHoy.toFixed(0)}
-              </div>
-              <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Ventas hoy</div>
-            </div>
-            <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.15)" }}>
-                  <ClipboardList size={20} style={{ color: "#E8AB2F" }} />
-                </div>
-                <TrendingDown size={16} style={{ color: "rgba(255,255,255,0.3)" }} />
-              </div>
-              <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
-                {stats.ordenesHoy}
-              </div>
-              <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Órdenes hoy</div>
-            </div>
-            <div className="card">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
-                  <Users size={20} className="text-secondary" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-text-primary">
-                {stats.meseroTop?.nombre || "—"}
-              </div>
-              <div className="text-xs text-text-muted mt-1">
-                {stats.meseroTop
-                  ? `$${stats.meseroTop.total?.toFixed(0)} en ventas`
-                  : "Mejor mesero"}
-              </div>
-            </div>
-            <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(196,85,58,0.2)" }}>
-                  <Package size={20} style={{ color: "#C4553A" }} />
-                </div>
-              </div>
-              <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
-                {stats.alertasStock}
-              </div>
-              <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
-                Alertas de stock
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="card">
-              <h3 className="font-semibold text-text-primary mb-4">
-                Acciones Rápidas
-              </h3>
-              <div className="space-y-3">
-                <Link
-                  href="/admin/menu"
-                  className="flex items-center gap-3 p-3 rounded-xl bg-surface-light/50 hover:bg-surface-light transition-all group"
-                >
-                  <UtensilsCrossed
-                    size={18}
-                    className="text-primary-light group-hover:scale-110 transition-transform"
-                  />
-                  <span className="text-sm text-text-secondary group-hover:text-text-primary">
-                    Gestionar Menú
-                  </span>
-                </Link>
-                <Link
-                  href="/admin/inventario"
-                  className="flex items-center gap-3 p-3 rounded-xl bg-surface-light/50 hover:bg-surface-light transition-all group"
-                >
-                  <Package
-                    size={18}
-                    className="text-primary-light group-hover:scale-110 transition-transform"
-                  />
-                  <span className="text-sm text-text-secondary group-hover:text-text-primary">
-                    Ver Inventario
-                  </span>
-                </Link>
-                <Link
-                  href="/admin/reportes"
-                  className="flex items-center gap-3 p-3 rounded-xl bg-surface-light/50 hover:bg-surface-light transition-all group"
-                >
-                  <ClipboardList
-                    size={18}
-                    className="text-primary-light group-hover:scale-110 transition-transform"
-                  />
-                  <span className="text-sm text-text-secondary group-hover:text-text-primary">
-                    Reportes de Meseros
-                  </span>
-                </Link>
-              </div>
-            </div>
-
-            <div className="card">
-              <h3 className="font-semibold text-text-primary mb-4">
-                Resumen del Día
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
-                  <span className="text-sm text-text-secondary">
-                    Órdenes totales
-                  </span>
-                  <span className="font-bold text-text-primary">
-                    {stats.ordenesRecientes}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
-                  <span className="text-sm text-text-secondary">
-                    Promedio por orden
-                  </span>
-                  <span className="font-bold text-text-primary">
-                    $
-                    {stats.ordenesHoy > 0
-                      ? (stats.ventasHoy / stats.ordenesHoy).toFixed(0)
-                      : "0"}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
-                  <span className="text-sm text-text-secondary">
-                    Alertas de inventario
-                  </span>
-                  <span
-                    className={`font-bold ${
-                      stats.alertasStock > 0 ? "text-danger" : "text-success"
-                    }`}
-                  >
-                    {stats.alertasStock > 0
-                      ? `${stats.alertasStock} 🔴`
-                      : "0 🟢"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {renderSection()}
       </div>
     </div>
   );
