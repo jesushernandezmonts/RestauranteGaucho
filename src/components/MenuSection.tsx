@@ -37,7 +37,7 @@ export function MenuSection() {
     let mounted = true;
     async function fetchMenu() {
       try {
-        const res = await fetch("/api/platillos", { cache: "no-store" });
+        const res = await fetch("/api/platillos");
         if (!mounted) return;
         const data = await res.json();
         setCategorias(data);
@@ -45,12 +45,16 @@ export function MenuSection() {
       } catch (e) { console.error(e); }
     }
     fetchMenu();
-    // Refetch on window focus (admin tab changes)
-    const onFocus = () => { setLoading(true); fetchMenu(); };
+
+    // Instant refresh when admin saves changes (cross-tab broadcast)
+    const channel = new BroadcastChannel("gaucho_menu_changes");
+    channel.onmessage = () => fetchMenu();
+
+    // Refetch on window focus
+    const onFocus = () => fetchMenu();
     window.addEventListener("focus", onFocus);
-    // Auto-refresh every 30s
-    const interval = setInterval(fetchMenu, 30000);
-    return () => { mounted = false; window.removeEventListener("focus", onFocus); clearInterval(interval); };
+
+    return () => { mounted = false; channel.close(); window.removeEventListener("focus", onFocus); };
   }, []);
 
   // Set initial active category when data first loads

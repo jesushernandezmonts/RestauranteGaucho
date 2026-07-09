@@ -36,6 +36,10 @@ export default function AdminMenuPage() {
   const [newDishCatId, setNewDishCatId] = useState<number | null>(null);
   const [recetaModal, setRecetaModal] = useState<Platillo | null>(null);
 
+  function broadcastMenuChange() {
+    try { new BroadcastChannel("gaucho_menu_changes").postMessage("updated"); } catch {}
+  }
+
   useEffect(() => {
     if (status === "unauthenticated") router.push("/admin/login");
   }, [status, router]);
@@ -59,6 +63,14 @@ export default function AdminMenuPage() {
       setCategorias(merged);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
+  }
+
+  function handleSaved() {
+    broadcastMenuChange();
+    setEditPlatillo(null);
+    setShowNewDish(false);
+    setShowCategoryModal(false);
+    loadMenu();
   }
 
   if (status === "loading" || loading) {
@@ -133,7 +145,7 @@ export default function AdminMenuPage() {
                 <h3 className="font-semibold text-text-primary">Editar Platillo</h3>
                 <button onClick={() => setEditPlatillo(null)} className="p-1 rounded-lg hover:bg-surface-light"><X size={18} /></button>
               </div>
-              <PlatilloForm platillo={editPlatillo} onSaved={() => { setEditPlatillo(null); loadMenu(); }} />
+              <PlatilloForm platillo={editPlatillo} onSaved={handleSaved} />
             </div>
           </div>
         )}
@@ -146,13 +158,13 @@ export default function AdminMenuPage() {
                 <h3 className="font-semibold text-text-primary">Nuevo Platillo</h3>
                 <button onClick={() => setShowNewDish(false)} className="p-1 rounded-lg hover:bg-surface-light"><X size={18} /></button>
               </div>
-              <PlatilloForm isNew={true} categoriaId={newDishCatId || undefined} onSaved={() => { setShowNewDish(false); loadMenu(); }} />
+              <PlatilloForm isNew={true} categoriaId={newDishCatId || undefined} onSaved={handleSaved} />
             </div>
           </div>
         )}
 
         {/* Category Modal */}
-        {showCategoryModal && <CategoryModal cat={editCategory} onClose={() => setShowCategoryModal(false)} onSaved={() => { setShowCategoryModal(false); loadMenu(); }} />}
+        {showCategoryModal && <CategoryModal cat={editCategory} onClose={() => setShowCategoryModal(false)} onSaved={handleSaved} />}
 
         {/* Receta Modal */}
         {recetaModal && <RecetaModal platillo={recetaModal} onClose={() => setRecetaModal(null)} />}
@@ -337,6 +349,7 @@ function RecetaModal({ platillo, onClose }: { platillo: Platillo; onClose: () =>
           ingredientes: ingredientes.map((i) => ({ ingredienteId: i.ingredienteId, cantidad: i.cantidad })),
         }),
       });
+      try { new BroadcastChannel("gaucho_menu_changes").postMessage("updated"); } catch {}
       onClose();
     } catch (e) { console.error(e); }
     finally { setSaving(false); }
