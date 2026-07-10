@@ -1,12 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import webpush from "web-push";
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || "mailto:admin@gaucho.com",
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "",
-  process.env.VAPID_PRIVATE_KEY || ""
-);
-
 export type PushPayload = {
   title: string;
   body: string;
@@ -16,11 +10,35 @@ export type PushPayload = {
 };
 
 /**
+ * Initialize web-push lazily (only at runtime, never at build time).
+ */
+function ensureVapid() {
+  if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+    console.warn("VAPID keys not configured — push notifications disabled");
+    return false;
+  }
+  try {
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || "mailto:admin@gaucho.com",
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Send a push notification to all subscribed devices.
  */
 export async function sendPushToAll(payload: PushPayload) {
   try {
+    const ok = ensureVapid();
+    if (!ok) return { success: false, sent: 0, failed: 0 };
+
     const subscriptions = await prisma.pushSubscription.findMany();
+    if (subscriptions.length === 0) return { success: true, sent: 0, failed: 0 };
 
     const results = await Promise.allSettled(
       subscriptions.map((sub) => {
@@ -51,7 +69,6 @@ export async function sendPushToAll(payload: PushPayload) {
       const result = results[i];
       if (result.status === "rejected") {
         const err = result.reason;
-        // If subscription is expired/invalid, delete it
         if (
           err?.statusCode === 410 ||
           err?.statusCode === 404 ||

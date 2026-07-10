@@ -2,13 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import webpush from "web-push";
 
-// Initialize web-push with VAPID keys
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || "mailto:admin@gaucho.com",
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "",
-  process.env.VAPID_PRIVATE_KEY || ""
-);
-
 // POST /api/push/subscribe — Guardar suscripción
 export async function POST(request: Request) {
   try {
