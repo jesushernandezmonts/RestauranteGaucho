@@ -70,9 +70,9 @@ export default function RootLayout({
     <html lang="es-MX" className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${pacifico.variable} h-full antialiased`}>
       <head>
         <meta name="theme-color" content="#3D2A1C" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
+        <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
       <body className="min-h-full flex flex-col overflow-x-hidden">
