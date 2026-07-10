@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -12,6 +12,11 @@ import {
   Clock,
   User,
 } from "lucide-react";
+import {
+  playNotificationSound,
+  showNotification,
+  requestNotifyPermission,
+} from "@/lib/notifications";
 
 type Orden = {
   id: number;
@@ -64,16 +69,37 @@ export default function CocinaDashboard() {
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(Date.now());
+  const prevNuevasRef = useRef(0);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/cocina/login");
   }, [status, router]);
 
+  // Pedir permiso de notificaciones al montar
+  useEffect(() => {
+    requestNotifyPermission();
+  }, []);
+
   const fetchOrdenes = useCallback(async () => {
     try {
       const res = await fetch("/api/ordenes?forKitchen=true", { cache: "no-store" });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as Orden[];
+        const nuevas = data.filter((o) => o.estado === "EN_COCINA");
+
+        // Detectar si llegaron nuevas órdenes
+        if (nuevas.length > prevNuevasRef.current && prevNuevasRef.current !== 0) {
+          const recienLlegadas = nuevas.slice(0, nuevas.length - prevNuevasRef.current);
+          playNotificationSound();
+          for (const orden of recienLlegadas.slice(0, 3)) {
+            showNotification(
+              "🍳 Nueva orden",
+              `Mesa ${orden.mesa.numero} — ${orden.detalle.map((d) => `${d.cantidad}x ${d.platillo.nombre}`).join(", ")}`
+            );
+          }
+        }
+        prevNuevasRef.current = nuevas.length;
+
         setOrdenes(data);
       }
     } catch (e) {

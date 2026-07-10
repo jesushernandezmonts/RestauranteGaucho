@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User, Loader2, UtensilsCrossed } from "lucide-react";
+import { LogOut, User, Loader2, UtensilsCrossed, Bell } from "lucide-react";
+import {
+  playNotificationSound,
+  showNotification,
+  requestNotifyPermission,
+} from "@/lib/notifications";
 
 type MesaEstado = "LIBRE" | "OCUPADO" | "CUENTA";
 type Mesa = {
@@ -39,6 +44,16 @@ export default function MeseroDashboard() {
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [ordenesListas, setOrdenesListas] = useState<
+    { id: number; mesaNumero: number; createdAt: string }[]
+  >([]);
+  const prevListasRef = useRef(0);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -47,9 +62,56 @@ export default function MeseroDashboard() {
     }
   }, [status, router]);
 
+  // Pedir permiso de notificaciones al montar
+  useEffect(() => {
+    requestNotifyPermission();
+  }, []);
+
   useEffect(() => {
     fetchMesas();
+    fetchOrdenesListas();
+
+    // Poll cada 4s
+    const interval = setInterval(() => {
+      fetchMesas();
+      fetchOrdenesListas();
+    }, 4000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  async function fetchOrdenesListas() {
+    try {
+      const res = await fetch("/api/ordenes?estado=LISTO&forKitchen=true");
+      if (!res.ok) return;
+      const data = await res.json();
+
+      if (!mountedRef.current) return;
+
+      const listas = data.map((o: { id: number; mesa: { numero: number }; createdAt: string }) => ({
+        id: o.id,
+        mesaNumero: o.mesa.numero,
+        createdAt: o.createdAt,
+      }));
+
+      // Detectar si hay nuevas órdenes listas
+      if (listas.length > prevListasRef.current && prevListasRef.current !== 0) {
+        const nuevas = listas.slice(0, listas.length - prevListasRef.current);
+        playNotificationSound();
+        for (const orden of nuevas.slice(0, 3)) {
+          showNotification(
+            "✅ Orden lista",
+            `Mesa ${orden.mesaNumero} — ¡Listo para servir!`
+          );
+        }
+      }
+      prevListasRef.current = listas.length;
+
+      setOrdenesListas(listas);
+    } catch {
+      // Silently fail
+    }
+  }
 
   async function fetchMesas() {
     try {
@@ -110,6 +172,16 @@ export default function MeseroDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {/* Badge de órdenes listas */}
+            {ordenesListas.length > 0 && (
+              <Link
+                href={"/mesero"}
+                className="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-success/20 border border-success/30 text-success text-sm font-medium animate-pulse-soft"
+              >
+                <Bell size={16} />
+                <span>{ordenesListas.length} lista{ordenesListas.length > 1 ? "s" : ""}</span>
+              </Link>
+            )}
             <div className="flex items-center gap-2 text-sm text-text-secondary">
               <User size={14} />
               <span className="font-medium text-text-primary">
