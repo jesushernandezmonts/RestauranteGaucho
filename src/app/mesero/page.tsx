@@ -92,11 +92,11 @@ export default function MeseroDashboard() {
     fetchMesas();
     fetchOrdenesListas();
 
-    // Poll cada 4s
+    // Poll cada 1s (toasts casi instantáneos)
     const interval = setInterval(() => {
       fetchMesas();
       fetchOrdenesListas();
-    }, 4000);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, []);

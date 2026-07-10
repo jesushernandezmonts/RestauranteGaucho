@@ -148,11 +148,11 @@ export default function CocinaDashboard() {
     const channel = new BroadcastChannel("gaucho_ordenes_changes");
     channel.onmessage = () => fetchOrdenes();
 
-    // Poll every 3s for cross-device
+    // Poll every 1s for near-instant toast updates
     const interval = setInterval(() => {
       fetchOrdenes();
       setNow(Date.now());
-    }, 3000);
+    }, 1000);
 
     return () => { channel.close(); clearInterval(interval); };
   }, [fetchOrdenes]);
