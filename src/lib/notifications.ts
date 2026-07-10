@@ -1,6 +1,7 @@
 "use client";
 
 let audioContext: AudioContext | null = null;
+let permissionRequested = false;
 
 function getAudioContext(): AudioContext {
   if (!audioContext) {
@@ -74,12 +75,46 @@ export async function showNotification(
 
 /**
  * Pide permiso para notificaciones (ideal llamarlo tras un click).
+ * En móvil es obligatorio que sea por interacción del usuario.
  */
 export async function requestNotifyPermission(): Promise<boolean> {
   if (typeof window === "undefined" || !("Notification" in window)) return false;
   if (Notification.permission === "granted") return true;
   if (Notification.permission === "denied") return false;
 
-  const permission = await Notification.requestPermission();
-  return permission === "granted";
+  // En móvil solo se puede pedir permiso tras interacción del usuario
+  // Chrome bloquea automaticamente si se llama sin un click/tap
+  try {
+    const permission = await Notification.requestPermission();
+    permissionRequested = true;
+    return permission === "granted";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Verifica si podemos mostrar notificaciones.
+ */
+export function canNotify(): boolean {
+  if (typeof window === "undefined" || !("Notification" in window)) return false;
+  return Notification.permission === "granted";
+}
+
+/**
+ * Detecta si el dispositivo es móvil.
+ */
+export function isMobile(): boolean {
+  if (typeof window === "undefined") return false;
+  return /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+}
+
+/**
+ * Detecta si la app está instalada (PWA).
+ */
+export function isAppInstalled(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(display-mode: standalone)").matches;
 }

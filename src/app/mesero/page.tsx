@@ -9,6 +9,9 @@ import {
   playNotificationSound,
   showNotification,
   requestNotifyPermission,
+  canNotify,
+  isMobile,
+  isAppInstalled,
 } from "@/lib/notifications";
 import { ToastContainer, useToasts } from "@/components/Toast";
 
@@ -51,6 +54,8 @@ export default function MeseroDashboard() {
   const prevListasRef = useRef(0);
   const mountedRef = useRef(true);
   const { toasts, addToast, dismiss } = useToasts();
+  const [notifyGranted, setNotifyGranted] = useState(false);
+  const [showInstallTip, setShowInstallTip] = useState(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -64,9 +69,18 @@ export default function MeseroDashboard() {
     }
   }, [status, router]);
 
-  // Pedir permiso de notificaciones al montar
+  // Pedir permiso de notificaciones al montar (solo funciona si hubo interacción)
   useEffect(() => {
-    requestNotifyPermission();
+    const checkNotify = async () => {
+      if (canNotify()) {
+        setNotifyGranted(true);
+      }
+      // En móvil mostrar sugerencia de instalar app si no está instalada
+      if (isMobile() && !isAppInstalled()) {
+        setShowInstallTip(true);
+      }
+    };
+    checkNotify();
   }, []);
 
   useEffect(() => {
@@ -184,6 +198,19 @@ export default function MeseroDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {/* Botón activar notificaciones */}
+            {!notifyGranted && (
+              <button
+                onClick={async () => {
+                  const ok = await requestNotifyPermission();
+                  if (ok) setNotifyGranted(true);
+                }}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-info/20 text-info border border-info/30 hover:bg-info/30 transition-all"
+              >
+                <Bell size={16} />
+                Activar notif.
+              </button>
+            )}
             {/* Badge de órdenes listas */}
             {ordenesListas.length > 0 && (
               <Link
@@ -216,6 +243,25 @@ export default function MeseroDashboard() {
         {error && (
           <div className="p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm mb-6">
             {error}
+          </div>
+        )}
+
+        {/* Tip para instalar app en móvil */}
+        {showInstallTip && (
+          <div className="mb-6 p-4 rounded-xl bg-info/10 border border-info/20 flex items-start gap-3">
+            <span className="text-xl mt-0.5">📱</span>
+            <div className="flex-1 text-sm text-info">
+              <p className="font-medium mb-1">Instala la app para recibir notificaciones</p>
+              <p className="opacity-80">
+                En Chrome: Menú ⋮ → "Instalar app" o "Agregar a pantalla de inicio"
+              </p>
+            </div>
+            <button
+              onClick={() => setShowInstallTip(false)}
+              className="p-1 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
+            >
+              ✕
+            </button>
           </div>
         )}
 
