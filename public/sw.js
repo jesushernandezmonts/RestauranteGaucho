@@ -68,3 +68,61 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+// ─── PUSH NOTIFICATIONS ───────────────────────
+
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  try {
+    const data = event.data.json();
+
+    const options: NotificationOptions = {
+      body: data.body,
+      icon: data.icon || "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: data.tag || "gaucho",
+      vibrate: [200, 100, 200],
+      data: {
+        url: data.data?.url || "/",
+      },
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(data.title || "Gaucho", options)
+    );
+  } catch {
+    // If it's not valid JSON, show raw text
+    event.waitUntil(
+      self.registration.showNotification(event.data.text(), {
+        icon: "/favicon.ico",
+      })
+    );
+  }
+});
+
+// Click on notification → open the app
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+      // If we already have a window open, focus it
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
+          return client.focus().then((client) => {
+            if ("navigate" in client) {
+              client.navigate(urlToOpen);
+            }
+          });
+        }
+      }
+      // Otherwise open a new window
+      if ("openWindow" in self.clients) {
+        return self.clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});

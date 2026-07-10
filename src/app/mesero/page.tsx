@@ -14,6 +14,7 @@ import {
   isAppInstalled,
 } from "@/lib/notifications";
 import { ToastContainer, useToasts } from "@/components/Toast";
+import { subscribeToPush, isPushSubscribed } from "@/lib/pushClient";
 
 type MesaEstado = "LIBRE" | "OCUPADO" | "CUENTA";
 type Mesa = {
@@ -56,6 +57,7 @@ export default function MeseroDashboard() {
   const { toasts, addToast, dismiss } = useToasts();
   const [notifyGranted, setNotifyGranted] = useState(false);
   const [showInstallTip, setShowInstallTip] = useState(false);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -75,6 +77,9 @@ export default function MeseroDashboard() {
       if (canNotify()) {
         setNotifyGranted(true);
       }
+      // Check if already subscribed to push
+      const subscribed = await isPushSubscribed();
+      setPushSubscribed(subscribed);
       // En móvil mostrar sugerencia de instalar app si no está instalada
       if (isMobile() && !isAppInstalled()) {
         setShowInstallTip(true);
@@ -199,16 +204,20 @@ export default function MeseroDashboard() {
           </div>
           <div className="flex items-center gap-3">
             {/* Botón activar notificaciones */}
-            {!notifyGranted && (
+            {!pushSubscribed && (
               <button
                 onClick={async () => {
                   const ok = await requestNotifyPermission();
-                  if (ok) setNotifyGranted(true);
+                  if (ok) {
+                    setNotifyGranted(true);
+                    const subscribed = await subscribeToPush();
+                    setPushSubscribed(subscribed);
+                  }
                 }}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-info/20 text-info border border-info/30 hover:bg-info/30 transition-all"
               >
                 <Bell size={16} />
-                Activar notif.
+                🔔 Activar notif.
               </button>
             )}
             {/* Badge de órdenes listas */}

@@ -21,6 +21,7 @@ import {
   isAppInstalled,
 } from "@/lib/notifications";
 import { ToastContainer, useToasts } from "@/components/Toast";
+import { subscribeToPush, isPushSubscribed } from "@/lib/pushClient";
 
 type Orden = {
   id: number;
@@ -77,6 +78,7 @@ export default function CocinaDashboard() {
   const { toasts, addToast, dismiss } = useToasts();
   const [notifyGranted, setNotifyGranted] = useState(false);
   const [showInstallTip, setShowInstallTip] = useState(false);
+  const [pushSubscribed, setPushSubscribed] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/cocina/login");
@@ -88,6 +90,9 @@ export default function CocinaDashboard() {
       if (canNotify()) {
         setNotifyGranted(true);
       }
+      // Check if already subscribed to push
+      const subscribed = await isPushSubscribed();
+      setPushSubscribed(subscribed);
       // En móvil mostrar sugerencia de instalar app si no está instalada
       if (isMobile() && !isAppInstalled()) {
         setShowInstallTip(true);
@@ -235,16 +240,21 @@ export default function CocinaDashboard() {
               </span>
             </div>
             {/* Botón activar notificaciones (solo si no están activas) */}
-            {!notifyGranted && (
+            {!pushSubscribed && (
               <button
                 onClick={async () => {
                   const ok = await requestNotifyPermission();
-                  if (ok) setNotifyGranted(true);
+                  if (ok) {
+                    setNotifyGranted(true);
+                    // Also subscribe to push
+                    const subscribed = await subscribeToPush();
+                    setPushSubscribed(subscribed);
+                  }
                 }}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-info/20 text-info border border-info/30 hover:bg-info/30 transition-all"
               >
                 <Bell size={16} />
-                Activar notificaciones
+                🔔 Activar notif.
               </button>
             )}
             <button

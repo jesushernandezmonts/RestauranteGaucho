@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { bumpMenuVersion } from "@/app/api/menu-version/route";
 import { auth } from "@/lib/auth";
+import { sendPushToAll } from "@/lib/push";
 
 export async function GET(request: Request) {
   try {
@@ -151,6 +152,9 @@ export async function POST(request: Request) {
       }
     }
 
+    // Notify push subscribers (chef devices)
+    notifyKitchenNewOrder(orden);
+
     return NextResponse.json(orden, { status: 201 });
   } catch (error) {
     console.error("Error creating orden:", error);
@@ -158,6 +162,21 @@ export async function POST(request: Request) {
       { error: "Error al crear la orden" },
       { status: 500 }
     );
+  }
+}
+
+// Después de crear orden, enviar push a cocina
+async function notifyKitchenNewOrder(orden: { id: number; mesa: { numero: number }; detalle: { cantidad: number; platillo: { nombre: string } }[] }) {
+  try {
+    const items = orden.detalle.map((d) => `${d.cantidad}x ${d.platillo.nombre}`).join(", ");
+    await sendPushToAll({
+      title: "🍳 Nueva orden",
+      body: `Mesa ${orden.mesa.numero} — ${items}`,
+      tag: "nueva-orden",
+      url: "/cocina",
+    });
+  } catch {
+    // Silently fail
   }
 }
 
@@ -197,6 +216,30 @@ export async function PATCH(request: Request) {
         where: { id: orden.mesaId },
         data: { estado: "LIBRE" },
       });
+    }
+
+    // If the order is marked as ready, notify waitstaff
+    if (estado === "LISTO") {
+      const ordenCompleta = await prisma.orden.findUnique({
+        where: { id },
+        include: {
+          mesa: true,
+          detalle: {
+            include: {
+              platillo: { select: { nombre: true } },
+            },
+          },
+        },
+      });
+      if (ordenCompleta) {
+        const items = ordenCompleta.detalle.map((d) => `${d.cantidad}x ${d.platillo.nombre}`).join(", ");
+        await sendPushToAll({
+          title: "✅ Orden lista",
+          body: `Mesa ${ordenCompleta.mesa.numero} — ${items}`,
+          tag: "orden-lista",
+          url: "/mesero",
+        });
+      }
     }
 
     return NextResponse.json(orden);

@@ -210,3 +210,13 @@ model Reservacion {
   estado    String   @default("pendiente") // pendiente, confirmada, cancelada
   createdAt DateTime @default(now())
 }
+
+// ─── PUSH SUBSCRIPTIONS (Web Push) ────────────
+model PushSubscription {
+  id        Int      @id @default(autoincrement())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
