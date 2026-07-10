@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
+// VAPID public key is meant to be public — hardcoded fallback for Vercel builds
+const VAPID_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
+  "BE8auyzwTIMceUmL9eP7T3QiLTb1bl0YK1BY0zmF87_FuyW0C0Kz9pq2U_u-Ez9CbHTRJU0oHsgQuDeaYbk864M";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);

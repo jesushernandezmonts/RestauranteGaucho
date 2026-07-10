@@ -79,6 +79,7 @@ export default function CocinaDashboard() {
   const [notifyGranted, setNotifyGranted] = useState(false);
   const [showInstallTip, setShowInstallTip] = useState(false);
   const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [subscribing, setSubscribing] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/cocina/login");
@@ -242,19 +243,24 @@ export default function CocinaDashboard() {
             {/* Botón activar notificaciones (solo si no están activas) */}
             {!pushSubscribed && (
               <button
+                disabled={subscribing}
                 onClick={async () => {
-                  const ok = await requestNotifyPermission();
-                  if (ok) {
-                    setNotifyGranted(true);
-                    // Also subscribe to push
-                    const subscribed = await subscribeToPush();
-                    setPushSubscribed(subscribed);
+                  setSubscribing(true);
+                  try {
+                    const ok = await requestNotifyPermission();
+                    if (ok) {
+                      setNotifyGranted(true);
+                      const subscribed = await subscribeToPush();
+                      setPushSubscribed(subscribed);
+                    }
+                  } finally {
+                    setSubscribing(false);
                   }
                 }}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-info/20 text-info border border-info/30 hover:bg-info/30 transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-info/20 text-info border border-info/30 hover:bg-info/30 transition-all disabled:opacity-50"
               >
                 <Bell size={16} />
-                🔔 Activar notif.
+                {subscribing ? "Suscribiendo..." : "🔔 Activar notif."}
               </button>
             )}
             <button

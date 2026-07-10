@@ -13,18 +13,24 @@ export type PushPayload = {
  * Initialize web-push lazily (only at runtime, never at build time).
  */
 function ensureVapid() {
-  if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
-    console.warn("VAPID keys not configured — push notifications disabled");
+  const publicKey =
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
+    "BE8auyzwTIMceUmL9eP7T3QiLTb1bl0YK1BY0zmF87_FuyW0C0Kz9pq2U_u-Ez9CbHTRJU0oHsgQuDeaYbk864M";
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+
+  if (!privateKey) {
+    console.warn("⚠️ VAPID_PRIVATE_KEY no configurada en Vercel — push desactivadas");
     return false;
   }
   try {
     webpush.setVapidDetails(
       process.env.VAPID_SUBJECT || "mailto:admin@gaucho.com",
-      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-      process.env.VAPID_PRIVATE_KEY
+      publicKey,
+      privateKey
     );
     return true;
-  } catch {
+  } catch (e) {
+    console.error("❌ Error inicializando VAPID:", e);
     return false;
   }
 }
@@ -38,6 +44,8 @@ export async function sendPushToAll(payload: PushPayload) {
     if (!ok) return { success: false, sent: 0, failed: 0 };
 
     const subscriptions = await prisma.pushSubscription.findMany();
+    console.log(`📋 Push: ${subscriptions.length} suscripciones encontradas`);
+
     if (subscriptions.length === 0) return { success: true, sent: 0, failed: 0 };
 
     const results = await Promise.allSettled(
@@ -64,11 +72,12 @@ export async function sendPushToAll(payload: PushPayload) {
       })
     );
 
-    // Remove invalid subscriptions
+    let removed = 0;
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.status === "rejected") {
         const err = result.reason;
+        console.log(`❌ Push falló para suscripción #${i}:`, err?.statusCode, err?.message);
         if (
           err?.statusCode === 410 ||
           err?.statusCode === 404 ||
@@ -77,17 +86,21 @@ export async function sendPushToAll(payload: PushPayload) {
           await prisma.pushSubscription.deleteMany({
             where: { endpoint: subscriptions[i].endpoint },
           });
+          removed++;
         }
       }
     }
 
+    const sent = results.filter((r) => r.status === "fulfilled").length;
+    console.log(`📨 Push enviadas: ${sent} exitosas, ${results.length - sent} fallaron, ${removed} eliminadas`);
+
     return {
-      success: true,
-      sent: results.filter((r) => r.status === "fulfilled").length,
-      failed: results.filter((r) => r.status === "rejected").length,
+      success: sent > 0,
+      sent,
+      failed: results.length - sent,
     };
   } catch (error) {
-    console.error("Error sending push notifications:", error);
+    console.error("❌ Error en sendPushToAll:", error);
     return { success: false, sent: 0, failed: 0 };
   }
 }
