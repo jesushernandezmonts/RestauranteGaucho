@@ -10,6 +10,7 @@ import {
   showNotification,
   requestNotifyPermission,
 } from "@/lib/notifications";
+import { ToastContainer, useToasts } from "@/components/Toast";
 
 type MesaEstado = "LIBRE" | "OCUPADO" | "CUENTA";
 type Mesa = {
@@ -49,6 +50,7 @@ export default function MeseroDashboard() {
   >([]);
   const prevListasRef = useRef(0);
   const mountedRef = useRef(true);
+  const { toasts, addToast, dismiss } = useToasts();
 
   useEffect(() => {
     mountedRef.current = true;
@@ -98,6 +100,16 @@ export default function MeseroDashboard() {
       if (listas.length > prevListasRef.current && prevListasRef.current !== 0) {
         const nuevas = listas.slice(0, listas.length - prevListasRef.current);
         playNotificationSound();
+        // Toast estilo WhatsApp
+        for (const orden of nuevas.slice(0, 2)) {
+          addToast({
+            type: "success",
+            title: "Orden lista",
+            message: `Mesa ${orden.mesaNumero} — ¡Listo para servir!`,
+            icon: "✅",
+          });
+        }
+        // Notificación del sistema
         for (const orden of nuevas.slice(0, 3)) {
           showNotification(
             "✅ Orden lista",
@@ -266,6 +278,9 @@ export default function MeseroDashboard() {
           </span>
         </div>
       </div>
+
+      {/* Toasts estilo WhatsApp */}
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   );
 }

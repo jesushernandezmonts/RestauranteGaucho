@@ -17,6 +17,7 @@ import {
   showNotification,
   requestNotifyPermission,
 } from "@/lib/notifications";
+import { ToastContainer, useToasts } from "@/components/Toast";
 
 type Orden = {
   id: number;
@@ -70,6 +71,7 @@ export default function CocinaDashboard() {
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(Date.now());
   const prevNuevasRef = useRef(0);
+  const { toasts, addToast, dismiss } = useToasts();
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/cocina/login");
@@ -91,6 +93,16 @@ export default function CocinaDashboard() {
         if (nuevas.length > prevNuevasRef.current && prevNuevasRef.current !== 0) {
           const recienLlegadas = nuevas.slice(0, nuevas.length - prevNuevasRef.current);
           playNotificationSound();
+          // Toast estilo WhatsApp
+          for (const orden of recienLlegadas.slice(0, 2)) {
+            addToast({
+              type: "warning",
+              title: "Nueva orden",
+              message: `Mesa ${orden.mesa.numero} — ${orden.detalle.map((d) => `${d.cantidad}x ${d.platillo.nombre}`).join(", ")}`,
+              icon: "🍳",
+            });
+          }
+          // Notificación del sistema (para cuando están en otra pestaña)
           for (const orden of recienLlegadas.slice(0, 3)) {
             showNotification(
               "🍳 Nueva orden",
@@ -308,6 +320,9 @@ export default function CocinaDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Toasts estilo WhatsApp */}
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   );
 }
