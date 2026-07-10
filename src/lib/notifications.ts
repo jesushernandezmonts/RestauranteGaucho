@@ -16,6 +16,7 @@ export function playNotificationSound() {
   try {
     const ctx = getAudioContext();
 
+
     // Primer tono (A5 – agradable)
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
