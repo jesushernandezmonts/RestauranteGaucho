@@ -35,7 +35,7 @@ type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones
 
 const sectionLabels: Record<Section, { label: string; icon: React.ElementType }> = {
   dashboard: { label: "Dashboard", icon: TrendingUp },
-  menu: { label: "Men├║", icon: UtensilsCrossed },
+  menu: { label: "MenÔö£Ôòæ", icon: UtensilsCrossed },
   inventario: { label: "Inventario", icon: Package },
   usuarios: { label: "Usuarios", icon: Users },
   reservaciones: { label: "Reservaciones", icon: ClipboardList },
@@ -164,14 +164,14 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="card mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl" style={{ background: "rgba(212,168,71,0.12)" }}>
-              <Shield size={20} style={{ color: "#D4A847" }} />
+            <div className="p-2 rounded-xl" style={{ background: "rgba(212,162,58,0.12)" }}>
+              <Shield size={20} style={{ color: "#D4A23A" }} />
             </div>
             <div>
-              <h1 className="font-display text-xl font-bold" style={{ color: "#E8AB2F" }}>
+              <h1 className="font-display text-xl font-bold" style={{ color: "#D4A23A" }}>
                 Gaucho
               </h1>
-              <p className="text-xs" style={{ color: "#A09080" }}>Panel Admin</p>
+              <p className="text-xs" style={{ color: "#8A9A8E" }}>Admin</p>
             </div>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function AdminDashboard() {
             <div className="text-2xl font-bold" style={{ color: "#F2E8D5" }}>
               {stats.ordenesHoy}
             </div>
-            <div className="text-xs mt-1" style={{ color: "#7A6A5A" }}>├ôrdenes hoy</div>
+            <div className="text-xs mt-1" style={{ color: "#7A6A5A" }}>Ôö£├┤rdenes hoy</div>
           </div>
           <div className="p-5 rounded-2xl" style={{ background: "#221A16", border: "1px solid rgba(232,171,47,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="text-2xl font-bold" style={{ color: "#F2E8D5" }}>
-              {stats.meseroTop?.nombre || "ÔÇö"}
+              {stats.meseroTop?.nombre || "├ö├ç├Â"}
             </div>
             <div className="text-xs mt-1" style={{ color: "#7A6A5A" }}>
               {stats.meseroTop
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="card">
             <h3 className="font-semibold text-text-primary mb-4">
-              Acciones R├ípidas
+              Acciones RÔö£├¡pidas
             </h3>
             <div className="space-y-3">
               <button
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                   className="text-primary-light group-hover:scale-110 transition-transform"
                 />
                 <span className="text-sm text-text-secondary group-hover:text-text-primary">
-                  Gestionar Men├║
+                  Gestionar MenÔö£Ôòæ
                 </span>
               </button>
               <button
@@ -280,11 +280,11 @@ export default function AdminDashboard() {
 
           <div className="card">
             <h3 className="font-semibold text-text-primary mb-4">
-              Resumen del D├¡a
+              Resumen del DÔö£┬ía
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
-                <span className="text-sm text-text-secondary">├ôrdenes totales</span>
+                <span className="text-sm text-text-secondary">Ôö£├┤rdenes totales</span>
                 <span className="font-bold text-text-primary">{stats.ordenesRecientes}</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
               <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
                 <span className="text-sm text-text-secondary">Alertas de inventario</span>
                 <span className={`font-bold ${stats.alertasStock > 0 ? "text-danger" : "text-success"}`}>
-                  {stats.alertasStock > 0 ? `${stats.alertasStock} ­ƒö┤` : "0 ­ƒƒó"}
+                  {stats.alertasStock > 0 ? `${stats.alertasStock} ┬¡ãÆ├ÂÔöñ` : "0 ┬¡ãÆãÆ├│"}
                 </span>
               </div>
             </div>
@@ -313,23 +313,23 @@ export default function AdminDashboard() {
         className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:z-auto`}
-        style={{ background: "#0F0808", borderRight: "1px solid rgba(212,168,71,0.08)" }}
+        style={{ background: "#0A110C", borderRight: "1px solid rgba(212,162,58,0.08)" }}
       >
-        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,168,71,0.08)" }}>
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,162,58,0.08)" }}>
           <div className="flex items-center justify-between">
             <button
               onClick={() => setActiveSection("dashboard")}
               className="flex items-center gap-2"
             >
-              <span className="text-2xl">­ƒÑ®</span>
-              <span className="font-script text-xl" style={{ color: "#E8AB2F" }}>
+              <span className="text-2xl">┬¡ãÆ├æ┬«</span>
+              <span className="font-script text-xl" style={{ color: "#D4A23A" }}>
                 Gaucho
               </span>
             </button>
             <button
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden p-2 rounded-xl"
-              style={{ color: "#B89878" }}
+              style={{ color: "#8A9A8E" }}
             >
               <X size={18} />
             </button>
@@ -347,11 +347,11 @@ export default function AdminDashboard() {
               style={{
                 color:
                   activeSection === link.section
-                    ? "#E8C060"
-                    : "#B89878",
+                    ? "#E0C060"
+                    : "#8A9A8E",
                 background:
                   activeSection === link.section
-                    ? "rgba(232,171,47,0.10)"
+                    ? "rgba(212,162,58,0.10)"
                     : "transparent",
               }}
             >
@@ -362,15 +362,15 @@ export default function AdminDashboard() {
         </nav>
         <div
           className="absolute bottom-4 left-4 right-4"
-          style={{ borderTop: "1px solid rgba(212,168,71,0.08)", paddingTop: "12px" }}
+          style={{ borderTop: "1px solid rgba(212,162,58,0.08)", paddingTop: "12px" }}
         >
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-xl"
-            style={{ background: "rgba(212,168,71,0.08)" }}
+            style={{ background: "rgba(212,162,58,0.08)" }}
           >
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-              style={{ background: "rgba(212,168,71,0.2)", color: "#D4A847" }}
+              style={{ background: "rgba(212,162,58,0.2)", color: "#D4A23A" }}
             >
               {(session?.user?.nombre || "A")[0]}
             </div>
@@ -384,7 +384,7 @@ export default function AdminDashboard() {
               onClick={() => signOut({ callbackUrl: "/admin/login" })}
               className="p-2 rounded-lg transition-colors"
               style={{ color: "#C4553A" }}
-              aria-label="Cerrar sesión"
+              aria-label="Cerrar sesi├│n"
             >
               <LogOut size={16} />
             </button>
@@ -396,10 +396,10 @@ export default function AdminDashboard() {
       <button
         onClick={() => setSidebarOpen(true)}
         className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-xl"
-        style={{ background: "#2A1010", border: "1px solid rgba(212,168,71,0.08)" }}
-        aria-label="Men├║"
+        style={{ background: "#1A2A1E", border: "1px solid rgba(212,162,58,0.08)" }}
+        aria-label="MenÔö£Ôòæ"
       >
-        <Menu size={20} style={{ color: "#E8C060" }} />
+        <Menu size={20} style={{ color: "#E0C060" }} />
       </button>
 
       {/* Main Content */}
