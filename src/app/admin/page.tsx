@@ -164,69 +164,69 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="card mb-8">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl" style={{ background: "rgba(232,171,47,0.15)" }}>
+            <div className="p-2 rounded-xl" style={{ background: "rgba(232,171,47,0.12)" }}>
               <Shield size={20} style={{ color: "#E8AB2F" }} />
             </div>
             <div>
               <h1 className="font-display text-xl font-bold" style={{ color: "#E8AB2F" }}>
                 Gaucho
               </h1>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>Panel Admin</p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Panel Admin</p>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,168,119,0.2)" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,168,119,0.15)" }}>
                 <DollarSign size={20} style={{ color: "#8BA877" }} />
               </div>
               <TrendingUp size={16} style={{ color: "#8BA877" }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
+            <div className="text-2xl font-bold" style={{ color: "#F5F5F5" }}>
               ${stats.ventasHoy.toFixed(0)}
             </div>
-            <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Ventas hoy</div>
+            <div className="text-xs mt-1" style={{ color: "#5A5A5A" }}>Ventas hoy</div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.15)" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.12)" }}>
                 <ClipboardList size={20} style={{ color: "#E8AB2F" }} />
               </div>
-              <TrendingDown size={16} style={{ color: "rgba(255,255,255,0.3)" }} />
+              <TrendingDown size={16} style={{ color: "#5A5A5A" }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
+            <div className="text-2xl font-bold" style={{ color: "#F5F5F5" }}>
               {stats.ordenesHoy}
             </div>
-            <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Órdenes hoy</div>
+            <div className="text-xs mt-1" style={{ color: "#5A5A5A" }}>Órdenes hoy</div>
           </div>
-          <div className="card">
+          <div className="p-5 rounded-2xl" style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center">
-                <Users size={20} className="text-secondary" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.08)" }}>
+                <Users size={20} style={{ color: "#E8AB2F" }} />
               </div>
             </div>
-            <div className="text-2xl font-bold text-text-primary">
+            <div className="text-2xl font-bold" style={{ color: "#F5F5F5" }}>
               {stats.meseroTop?.nombre || "—"}
             </div>
-            <div className="text-xs text-text-muted mt-1">
+            <div className="text-xs mt-1" style={{ color: "#5A5A5A" }}>
               {stats.meseroTop
                 ? `$${stats.meseroTop.total?.toFixed(0)} en ventas`
                 : "Mejor mesero"}
             </div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.06)" }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(196,85,58,0.2)" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(196,85,58,0.15)" }}>
                 <Package size={20} style={{ color: "#C4553A" }} />
               </div>
             </div>
-            <div className="text-2xl font-bold" style={{ color: "rgba(255,255,255,0.9)" }}>
+            <div className="text-2xl font-bold" style={{ color: "#F5F5F5" }}>
               {stats.alertasStock}
             </div>
-            <div className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <div className="text-xs mt-1" style={{ color: "#5A5A5A" }}>
               Alertas de stock
             </div>
           </div>
@@ -313,9 +313,9 @@ export default function AdminDashboard() {
         className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:z-auto`}
-        style={{ background: "#1A1410", borderRight: "1px solid rgba(232, 171, 47, 0.1)" }}
+        style={{ background: "#0A0A0A", borderRight: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="p-4" style={{ borderBottom: "1px solid rgba(232, 171, 47, 0.08)" }}>
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <div className="flex items-center justify-between">
             <button
               onClick={() => setActiveSection("dashboard")}
@@ -329,7 +329,7 @@ export default function AdminDashboard() {
             <button
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden p-2 rounded-xl"
-              style={{ color: "rgba(240,235,229,0.5)" }}
+              style={{ color: "rgba(255,255,255,0.3)" }}
             >
               <X size={18} />
             </button>
@@ -348,10 +348,10 @@ export default function AdminDashboard() {
                 color:
                   activeSection === link.section
                     ? "#F0C050"
-                    : "rgba(240,235,229,0.5)",
+                    : "rgba(255,255,255,0.4)",
                 background:
                   activeSection === link.section
-                    ? "rgba(232,171,47,0.1)"
+                    ? "rgba(232,171,47,0.10)"
                     : "transparent",
               }}
             >
@@ -362,11 +362,11 @@ export default function AdminDashboard() {
         </nav>
         <div
           className="absolute bottom-4 left-4 right-4"
-          style={{ borderTop: "1px solid rgba(232, 171, 47, 0.08)", paddingTop: "12px" }}
+          style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}
         >
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-xl"
-            style={{ background: "rgba(240,235,229,0.04)" }}
+            style={{ background: "rgba(255,255,255,0.03)" }}
           >
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
@@ -375,15 +375,15 @@ export default function AdminDashboard() {
               {(session?.user?.nombre || "A")[0]}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate" style={{ color: "rgba(240,235,229,0.9)" }}>
+              <p className="text-sm font-medium truncate" style={{ color: "#F5F5F5" }}>
                 {session?.user?.nombre}
               </p>
-              <p className="text-xs" style={{ color: "rgba(240,235,229,0.4)" }}>Admin</p>
+              <p className="text-xs" style={{ color: "#5A5A5A" }}>Admin</p>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/admin/login" })}
               className="p-2 rounded-lg transition-colors"
-              style={{ color: "rgba(240,235,229,0.4)" }}
+              style={{ color: "#5A5A5A" }}
               aria-label="Cerrar sesión"
             >
               <LogOut size={16} />
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
       <button
         onClick={() => setSidebarOpen(true)}
         className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-xl"
-        style={{ background: "#241C17", border: "1px solid rgba(232,171,47,0.15)" }}
+        style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.08)" }}
         aria-label="Menú"
       >
         <Menu size={20} style={{ color: "#F0C050" }} />
