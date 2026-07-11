@@ -35,7 +35,7 @@ type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones
 
 const sectionLabels: Record<Section, { label: string; icon: React.ElementType }> = {
   dashboard: { label: "Dashboard", icon: TrendingUp },
-  menu: { label: "MenÔö£Ôòæ", icon: UtensilsCrossed },
+  menu: { label: "Menú", icon: UtensilsCrossed },
   inventario: { label: "Inventario", icon: Package },
   usuarios: { label: "Usuarios", icon: Users },
   reservaciones: { label: "Reservaciones", icon: ClipboardList },
@@ -171,62 +171,62 @@ export default function AdminDashboard() {
               <h1 className="font-display text-xl font-bold" style={{ color: "#D4A23A" }}>
                 Gaucho
               </h1>
-              <p className="text-xs" style={{ color: "#8A9A8E" }}>Admin</p>
+              <p className="text-xs" style={{ color: "#A0A0A0" }}>Admin</p>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="p-5 rounded-2xl" style={{ background: "#221A16", border: "1px solid rgba(232,171,47,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,168,119,0.15)" }}>
                 <DollarSign size={20} style={{ color: "#8BA877" }} />
               </div>
               <TrendingUp size={16} style={{ color: "#8BA877" }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color: "#F2E8D5" }}>
+            <div className="text-2xl font-bold" style={{ color: "#FFFFFF" }}>
               ${stats.ventasHoy.toFixed(0)}
             </div>
-            <div className="text-xs mt-1" style={{ color: "#7A6A5A" }}>Ventas hoy</div>
+            <div className="text-xs mt-1" style={{ color: "#A0A0A0" }}>Ventas hoy</div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "#221A16", border: "1px solid rgba(232,171,47,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.12)" }}>
-                <ClipboardList size={20} style={{ color: "#E8AB2F" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(212,162,58,0.12)" }}>
+                <ClipboardList size={20} style={{ color: "#D4A23A" }} />
               </div>
-              <TrendingDown size={16} style={{ color: "#A09080" }} />
+              <TrendingDown size={16} style={{ color: "#A0A0A0" }} />
             </div>
-            <div className="text-2xl font-bold" style={{ color: "#F2E8D5" }}>
+            <div className="text-2xl font-bold" style={{ color: "#FFFFFF" }}>
               {stats.ordenesHoy}
             </div>
-            <div className="text-xs mt-1" style={{ color: "#7A6A5A" }}>Ôö£├┤rdenes hoy</div>
+            <div className="text-xs mt-1" style={{ color: "#A0A0A0" }}>Órdenes hoy</div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "#221A16", border: "1px solid rgba(232,171,47,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(232,171,47,0.08)" }}>
-                <Users size={20} style={{ color: "#E8AB2F" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(212,162,58,0.08)" }}>
+                <Users size={20} style={{ color: "#D4A23A" }} />
               </div>
             </div>
-            <div className="text-2xl font-bold" style={{ color: "#F2E8D5" }}>
-              {stats.meseroTop?.nombre || "├ö├ç├Â"}
+            <div className="text-2xl font-bold" style={{ color: "#FFFFFF" }}>
+              {stats.meseroTop?.nombre || "—"}
             </div>
-            <div className="text-xs mt-1" style={{ color: "#7A6A5A" }}>
+            <div className="text-xs mt-1" style={{ color: "#A0A0A0" }}>
               {stats.meseroTop
                 ? `$${stats.meseroTop.total?.toFixed(0)} en ventas`
                 : "Mejor mesero"}
             </div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "#221A16", border: "1px solid rgba(232,171,47,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(196,85,58,0.15)" }}>
-                <Package size={20} style={{ color: "#C4553A" }} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,77,77,0.15)" }}>
+                <Package size={20} style={{ color: "#FF4D4D" }} />
               </div>
             </div>
-            <div className="text-2xl font-bold" style={{ color: "#F2E8D5" }}>
+            <div className="text-2xl font-bold" style={{ color: stats.alertasStock > 0 ? "#FF4D4D" : "#FFFFFF" }}>
               {stats.alertasStock}
             </div>
-            <div className="text-xs mt-1" style={{ color: "#7A6A5A" }}>
+            <div className="text-xs mt-1" style={{ color: "#A0A0A0" }}>
               Alertas de stock
             </div>
           </div>

@@ -188,55 +188,55 @@ body {
   @apply inline-block text-[10px] sm:text-xs font-semibold tracking-[3px] uppercase text-sage-dark bg-sage/20 px-3 py-1.5 rounded-full mb-3;
 }
 
-/* ─── DARK SECTION (admin/internal panels — bosque & amber) ──── */
+/* ─── DARK SECTION (admin/internal panels — high contrast) ──── */
 
 .dark-section {
-  background: #0F1A12;
-  color: #E5EAE6;
+  background: #121212;
+  color: #FFFFFF;
 }
 .dark-section .card {
-  background: #14201A;
-  border-color: rgba(212,162,58,0.08);
+  background: #1E1E1E;
+  border-color: rgba(212,162,58,0.10);
 }
 .dark-section .card:hover {
-  border-color: rgba(212,162,58,0.20);
-  box-shadow: 0 4px 24px rgba(212, 162, 58, 0.06);
+  border-color: rgba(212,162,58,0.22);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 /* Theme utility overrides for dark background */
-.dark-section .text-text-primary { color: #E5EAE6; }
-.dark-section .text-text-secondary { color: #8A9A8E; }
-.dark-section .text-text-muted { color: #5A6A5E; }
-.dark-section .bg-surface { background: #14201A; }
-.dark-section .bg-surface-light { background: #1A2A1E; }
-.dark-section .bg-surface-lighter { background: #243428; }
-.dark-section .border-primary\/10 { border-color: rgba(212,162,58,0.1); }
-.dark-section .border-primary\/20 { border-color: rgba(212,162,58,0.15); }
-.dark-section .border-primary\/30 { border-color: rgba(212,162,58,0.2); }
-.dark-section .divide-primary\/5 { border-color: rgba(212,162,58,0.06); }
-.dark-section .text-primary-light { color: #E0C060; }
-.dark-section .bg-primary\/10 { background: rgba(212,162,58,0.10); }
-.dark-section .bg-primary\/20 { background: rgba(212,162,58,0.15); }
-.dark-section .hover\:bg-surface-light:hover { background: #1A2A1E; }
-.dark-section .hover\:bg-surface-lighter:hover { background: #243428; }
-.dark-section .hover\:text-text-primary:hover { color: #E5EAE6; }
+.dark-section .text-text-primary { color: #FFFFFF; }
+.dark-section .text-text-secondary { color: #A0A0A0; }
+.dark-section .text-text-muted { color: #707070; }
+.dark-section .bg-surface { background: #1E1E1E; }
+.dark-section .bg-surface-light { background: #2D2D2D; }
+.dark-section .bg-surface-lighter { background: #383838; }
+.dark-section .border-primary\/10 { border-color: rgba(212,162,58,0.12); }
+.dark-section .border-primary\/20 { border-color: rgba(212,162,58,0.18); }
+.dark-section .border-primary\/30 { border-color: rgba(212,162,58,0.25); }
+.dark-section .divide-primary\/5 { border-color: rgba(212,162,58,0.08); }
+.dark-section .text-primary-light { color: #D4A23A; }
+.dark-section .bg-primary\/10 { background: rgba(212,162,58,0.12); }
+.dark-section .bg-primary\/20 { background: rgba(212,162,58,0.18); }
+.dark-section .hover\:bg-surface-light:hover { background: #2D2D2D; }
+.dark-section .hover\:bg-surface-lighter:hover { background: #383838; }
+.dark-section .hover\:text-text-primary:hover { color: #FFFFFF; }
 
 .dark-section input, .dark-section select, .dark-section textarea {
-  background: #1A2A1E;
-  border-color: rgba(212,162,58,0.1);
-  color: #E5EAE6;
+  background: #2D2D2D;
+  border-color: rgba(212,162,58,0.12);
+  color: #FFFFFF;
 }
 .dark-section input::placeholder {
-  color: #5A6A5E;
+  color: #707070;
 }
 .dark-section .btn-primary {
   @apply bg-gold hover:bg-gold-light text-chocolate;
 }
 .dark-section .btn-secondary {
-  border-color: rgba(229,234,230,0.12);
-  color: #8A9A8E;
+  border-color: rgba(255,255,255,0.12);
+  color: #A0A0A0;
 }
 .dark-section .btn-secondary:hover {
-  border-color: var(--color-gold);
-  color: var(--color-gold);
+  border-color: #D4A23A;
+  color: #D4A23A;
 }
