@@ -123,9 +123,13 @@ export default function ReservacionPage() {
   const validateForm = (): string[] => {
     const errors: string[] = [];
     if (!nombre.trim()) errors.push("Nombre");
-    if (!dia || !mes || !anio) errors.push("Fecha");
+    if (!telefono.trim()) errors.push("Teléfono");
+    if (!email.trim()) errors.push("Email");
+    if (!dia) errors.push("Día");
+    if (!mes) errors.push("Mes");
+    if (!anio) errors.push("Año");
     if (!hora) errors.push("Hora");
-    if (telefono && !/^[0-9+\s]+$/.test(telefono)) errors.push("El teléfono solo debe contener números");
+    if (!personas) errors.push("Personas");
     return errors;
   };
 
@@ -212,9 +216,9 @@ export default function ReservacionPage() {
       <div className="relative pt-28 pb-16 px-4 text-center">
         <a
           href="/"
-          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-white/40 hover:text-gold transition-all duration-200"
+          className="absolute top-6 left-6 flex items-center gap-2 text-base font-medium text-white/70 bg-white/5 hover:bg-white/10 hover:text-gold px-4 py-2 rounded-xl border border-white/10 hover:border-gold/30 transition-all duration-200"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           Volver
         </a>
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
@@ -244,7 +248,7 @@ export default function ReservacionPage() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                <Phone size={14} /> Teléfono
+                <Phone size={14} /> Teléfono *
               </label>
               <input
                 value={telefono}
@@ -256,7 +260,7 @@ export default function ReservacionPage() {
             </div>
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-                <Mail size={14} /> Email
+                <Mail size={14} /> Email *
               </label>
               <input
                 type="email"
