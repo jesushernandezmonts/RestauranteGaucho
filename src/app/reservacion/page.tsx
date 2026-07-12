@@ -138,19 +138,19 @@ export default function ReservacionPage() {
         year: "numeric",
       });
       const mensaje = encodeURIComponent(
-        `🥩🔥 *NUEVA RESERVACIÓN* 🔥🥩\n` +
-        `━━━━━━━━━━━━━━━━━━\n\n` +
-        `👤 *Cliente:* ${nombre}\n` +
-        `📅 *Fecha:* ${fechaFormateada}\n` +
-        `⏰ *Hora:* ${hora} hrs\n` +
-        `👥 *Personas:* ${personas}\n` +
-        `${telefono ? `📞 *Teléfono:* ${telefono}\n` : ""}` +
-        `${email ? `📧 *Email:* ${email}\n` : ""}` +
-        `${notas ? `\n📝 *Notas:* ${notas}` : ""}\n\n` +
-        `━━━━━━━━━━━━━━━━━━\n` +
-        `🏆 *Niño Gaucho* 🏆\n` +
-        `📍 Huamantla, Tlaxcala\n` +
-        `🍖 Restaurante & Parrilla`
+        `*NUEVA RESERVACION - Nino Gaucho*` +
+        `\n\n- - - - - - - - - - - - - - - - -` +
+        `\n\n👤 Cliente: ${nombre}` +
+        `\n📅 Fecha: ${fechaFormateada}` +
+        `\n⏰ Hora: ${hora} hrs` +
+        `\n👥 Personas: ${personas}` +
+        `${telefono ? `\n📞 Telefono: ${telefono}` : ""}` +
+        `${email ? `\n✉️ Email: ${email}` : ""}` +
+        `${notas ? `\n\n📝 Notas: ${notas}` : ""}` +
+        `\n\n- - - - - - - - - - - - - - - - -` +
+        `\n\n*Nino Gaucho*` +
+        `\n📍 Huamantla, Tlaxcala` +
+        `\n🍖 Restaurante & Parrilla`
       );
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${mensaje}`, "_blank");
     } catch {
