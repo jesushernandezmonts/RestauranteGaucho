@@ -27,6 +27,7 @@ type Platillo = {
   precio: number;
   activo: boolean;
   imagen?: string;
+  ingredientesDestacados?: string;
   _count?: { receta: number };
 };
 
@@ -356,6 +357,7 @@ function PlatilloForm({
   const [precio, setPrecio] = useState(platillo?.precio || 0);
   const [activo, setActivo] = useState(platillo?.activo ?? true);
   const [imagen, setImagen] = useState(platillo?.imagen || "");
+  const [ingredientesDestacados, setIngredientesDestacados] = useState(platillo?.ingredientesDestacados || "");
   const [uploading, setUploading] = useState(false);
   const [catId, setCatId] = useState(categoriaId || 0);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -388,6 +390,7 @@ function PlatilloForm({
         body.activo = activo;
         body.descripcion = descripcion;
         body.imagen = imagen;
+        body.ingredientesDestacados = ingredientesDestacados;
       }
       const res = await fetch(url, {
         method,
@@ -432,6 +435,20 @@ function PlatilloForm({
         onChange={(e) => setDescripcion(e.target.value)}
         className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
       />
+
+      {/* Ingredientes Destacados */}
+      <div>
+        <label className="text-xs text-text-muted mb-2 block">
+          Ingredientes destacados
+        </label>
+        <textarea
+          placeholder="Ej: Carne, Queso, Chimichurri, Papas"
+          value={ingredientesDestacados}
+          onChange={(e) => setIngredientesDestacados(e.target.value)}
+          rows={2}
+          className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm resize-none"
+        />
+      </div>
 
       {/* Image Upload */}
       <div>

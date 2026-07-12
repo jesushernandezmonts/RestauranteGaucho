@@ -65,6 +65,7 @@ model Platillo {
   precio       Float
   imagen       String  @default("")
   activo       Boolean @default(true)
+  ingredientesDestacados String @default("")
   createdAt    DateTime @default(now())
 
   categoria    Categoria        @relation(fields: [categoriaId], references: [id])

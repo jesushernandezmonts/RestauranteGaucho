@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import {
   IconPlate, IconMeat, IconPasta, IconPizza, IconSoup,
   IconDrink, IconCocktail, IconBread, IconSalad, IconFlame,
@@ -11,7 +11,16 @@ type Categoria = {
   id: number;
   nombre: string;
   icono: string;
-  platillos: { id: number; nombre: string; descripcion: string; precio: number; imagen?: string }[];
+  platillos: { id: number; nombre: string; descripcion: string; precio: number; imagen?: string; ingredientesDestacados?: string }[];
+};
+
+type Platillo = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  imagen?: string;
+  ingredientesDestacados?: string;
 };
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -28,10 +37,112 @@ const iconMap: Record<string, React.ReactNode> = {
   "🍹": <IconCocktail />,
 };
 
+function DishModal({ platillo, onClose }: { platillo: Platillo; onClose: () => void }) {
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  // Parse ingredients from comma-separated string
+  const ingredientes = platillo.ingredientesDestacados
+    ? platillo.ingredientesDestacados.split(",").map((s) => s.trim()).filter(Boolean)
+    : [];
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg bg-cream rounded-3xl overflow-hidden shadow-2xl animate-slide-up"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Image */}
+        {platillo.imagen ? (
+          <div className="relative w-full h-64 sm:h-80 bg-chocolate/5">
+            <img
+              src={platillo.imagen}
+              alt={platillo.nombre}
+              className="w-full h-full object-cover"
+            />
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-all"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        ) : (
+          <div className="relative w-full h-48 bg-gradient-to-br from-gold/10 to-sage/10 flex items-center justify-center">
+            <IconPlate />
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 transition-all"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="p-6 sm:p-8">
+          <h3 className="font-display text-2xl sm:text-3xl font-bold text-chocolate mb-2">
+            {platillo.nombre}
+          </h3>
+
+          {platillo.descripcion && (
+            <p className="text-sm sm:text-base text-chocolate-light leading-relaxed mb-5">
+              {platillo.descripcion}
+            </p>
+          )}
+
+          {/* Ingredients */}
+          {ingredientes.length > 0 && (
+            <div className="mb-5">
+              <span className="text-xs font-semibold tracking-widest uppercase text-sage-dark mb-2 block">
+                Ingredientes destacados
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {ingredientes.map((ing, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sage/15 text-chocolate text-xs sm:text-sm font-medium"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold" />
+                    {ing}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Price & close */}
+          <div className="flex items-center justify-between pt-4 border-t border-chocolate/10">
+            <span className="font-display text-2xl font-bold text-gold-dark">
+              ${platillo.precio}
+            </span>
+            <button
+              onClick={onClose}
+              className="px-6 py-2.5 rounded-xl bg-gold text-chocolate font-semibold text-sm hover:bg-gold-light transition-all"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MenuSection() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCat, setActiveCat] = useState<number | null>(null);
+  const [selectedPlatillo, setSelectedPlatillo] = useState<Platillo | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -128,9 +239,10 @@ export function MenuSection() {
           <div className="max-w-3xl mx-auto">
             <div className="grid gap-3 sm:gap-4">
               {currentCat.platillos.map((platillo, i) => (
-                <div
+                <button
                   key={platillo.id}
-                  className="group flex items-start justify-between p-4 sm:p-5 rounded-2xl bg-white/60 border border-chocolate/5 hover:border-gold/20 transition-all duration-300 hover:shadow-gold animate-reveal"
+                  onClick={() => setSelectedPlatillo(platillo)}
+                  className="group flex items-start justify-between p-4 sm:p-5 rounded-2xl bg-white/60 border border-chocolate/5 hover:border-gold/20 transition-all duration-300 hover:shadow-gold animate-reveal text-left w-full cursor-pointer"
                   style={{ animationDelay: `${i * 50}ms` }}
                 >
                   <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
@@ -146,17 +258,22 @@ export function MenuSection() {
                         {platillo.nombre}
                       </h3>
                       {platillo.descripcion && (
-                        <p className="text-xs sm:text-sm text-chocolate-light mt-1 leading-relaxed">{platillo.descripcion}</p>
+                        <p className="text-xs sm:text-sm text-chocolate-light mt-1 leading-relaxed line-clamp-2">{platillo.descripcion}</p>
                       )}
                     </div>
                   </div>
                   <span className="shrink-0 font-bold text-gold-dark text-sm sm:text-base">${platillo.precio}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
         ) : null}
       </div>
+
+      {/* Dish Detail Modal */}
+      {selectedPlatillo && (
+        <DishModal platillo={selectedPlatillo} onClose={() => setSelectedPlatillo(null)} />
+      )}
     </section>
   );
 }
