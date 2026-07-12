@@ -201,10 +201,10 @@ export default function CocinaDashboard() {
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 flex-shrink-0">
               <Image
-                src="/gaucho-logo.png"
+                src="/gaucho-logo.svg"
                 alt="Gaucho Restaurante"
                 width={40}
-                height={40}
+                height={44}
                 className="object-contain"
                 priority
               />

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" width="200" height="220">
+  <!-- Background circle -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a0f0a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d1810;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="scarfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7db8d9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5a9abf;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgGrad)" stroke="#c9a96e" stroke-width="2"/>
+  
+  <!-- Gaucho hat - wide brim -->
+  <ellipse cx="100" cy="62" rx="58" ry="10" fill="#1a0f0a" stroke="#3d2a1c" stroke-width="1.5"/>
+  
+  <!-- Hat crown -->
+  <path d="M70 62 Q72 30 100 25 Q128 30 130 62" fill="#1a0f0a" stroke="#3d2a1c" stroke-width="1"/>
+  
+  <!-- Hat band -->
+  <path d="M72 58 Q100 52 128 58" fill="none" stroke="#c9a96e" stroke-width="2.5" opacity="0.8"/>
+  
+  <!-- Head silhouette - side profile facing right -->
+  <path d="M95 62 Q90 65 87 75 Q84 85 88 95 Q90 100 88 105 Q86 112 90 118 Q95 125 98 130 Q100 135 96 140 L92 145 Q88 148 90 152 Q95 155 105 155 Q112 152 114 148 Q116 142 112 138 Q108 132 110 125 Q112 118 114 110 Q116 100 115 90 Q114 80 110 72 Q107 65 100 62 Z" 
+        fill="#1a0f0a" stroke="#3d2a1c" stroke-width="0.5"/>
+  
+  <!-- Scarf/neckerchief -->
+  <path d="M88 148 Q95 155 105 158 Q115 155 118 148 Q120 145 122 148 Q118 158 105 165 Q92 158 84 148 Q82 145 88 148 Z" 
+        fill="url(#scarfGrad)" opacity="0.95"/>
+  
+  <!-- Scarf knot/tail -->
+  <path d="M95 162 Q92 170 88 178 Q85 185 90 180 Q95 172 98 165 Z" 
+        fill="url(#scarfGrad)" opacity="0.85"/>
+  <path d="M100 165 Q102 175 105 185 Q107 190 110 184 Q108 172 104 165 Z" 
+        fill="url(#scarfGrad)" opacity="0.75"/>
+</svg>
