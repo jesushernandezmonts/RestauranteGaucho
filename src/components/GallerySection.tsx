@@ -1,17 +1,41 @@
 "use client";
 
-const images = [
-  { src: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80", alt: "Parrilla argentina con cortes de carne", label: "Parrilla" },
-  { src: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80", alt: "Interior del restaurante", label: "Ambiente" },
-  { src: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80", alt: "Plato gourmet servido", label: "Platillos" },
-  { src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80", alt: "Carne a la parrilla con guarniciones", label: "Cortes" },
-  { src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80", alt: "Plato de pasta artesanal", label: "Pastas", span: true },
-  { src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80", alt: "Barra y ambiente lounge", label: "Bar" },
-  { src: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&q=80", alt: "Copas de vino", label: "Vinos" },
-  { src: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80", alt: "Postres artesanales", label: "Postres" },
+import { useEffect, useState } from "react";
+
+const DEFAULT_ITEMS = [
+  { src: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80", label: "Parrilla" },
+  { src: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80", label: "Ambiente" },
+  { src: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80", label: "Platillos" },
+  { src: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80", label: "Cortes" },
+  { src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80", label: "Pastas", span: true },
+  { src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80", label: "Bar" },
+  { src: "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&q=80", label: "Vinos" },
+  { src: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80", label: "Postres" },
 ];
 
 export function GallerySection() {
+  const [config, setConfig] = useState<Record<string, string>>({});
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((data) => {
+        setConfig(data);
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
+
+  const items = DEFAULT_ITEMS.map((item, i) => {
+    const idx = i + 1;
+    return {
+      src: config[`galeria_${idx}_img`] || item.src,
+      label: config[`galeria_${idx}_label`] || item.label,
+      span: item.span,
+    };
+  });
+
   return (
     <section id="galeria" className="py-14 sm:py-20 md:py-28 bg-cream relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-cream-warm/50 to-transparent pointer-events-none" />
@@ -34,19 +58,23 @@ export function GallerySection() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-2 px-1 md:px-2">
-        {images.map((img, i) => (
+        {items.map((img, i) => (
           <div
-            key={img.alt}
+            key={img.label}
             className={`relative overflow-hidden rounded-lg cursor-pointer group ${
               img.span && "md:col-span-2 md:row-span-2"
             }`}
           >
-            <img
-              src={img.src}
-              alt={img.alt}
-              loading="lazy"
-              className="w-full h-full min-h-[120px] sm:min-h-[180px] object-cover transition-transform duration-700 group-hover:scale-105"
-            />
+            {loaded ? (
+              <img
+                src={img.src}
+                alt={img.label}
+                loading="lazy"
+                className="w-full h-full min-h-[120px] sm:min-h-[180px] object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-full min-h-[120px] sm:min-h-[180px] bg-chocolate/10 animate-pulse" />
+            )}
             <div className="hidden md:flex absolute inset-0 bg-gradient-to-t from-charcoal/85 via-charcoal/10 to-transparent items-end p-3 md:p-6 opacity-0 group-hover:opacity-100 transition-all duration-400">
               <span className="font-display text-white text-lg md:text-xl font-semibold translate-y-4 group-hover:translate-y-0 transition-transform duration-400">
                 {img.label}

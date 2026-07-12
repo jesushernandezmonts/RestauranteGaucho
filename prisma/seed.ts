@@ -148,6 +148,37 @@ async function main() {
     });
   }
   console.log(`✅ ${dishData.length} platillos`);
+
+  // DEFAULT CONFIGURATION (appearence)
+  const defaults: [string, string][] = [
+    ["hero_fondo", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80"],
+    ["logo_url", "/gaucho-logo.png"],
+    ["about_imagen", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80"],
+    ["galeria_1_img", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80"],
+    ["galeria_1_label", "Parrilla"],
+    ["galeria_2_img", "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80"],
+    ["galeria_2_label", "Ambiente"],
+    ["galeria_3_img", "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80"],
+    ["galeria_3_label", "Platillos"],
+    ["galeria_4_img", "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80"],
+    ["galeria_4_label", "Cortes"],
+    ["galeria_5_img", "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80"],
+    ["galeria_5_label", "Pastas"],
+    ["galeria_6_img", "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80"],
+    ["galeria_6_label", "Bar"],
+    ["galeria_7_img", "https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&q=80"],
+    ["galeria_7_label", "Vinos"],
+    ["galeria_8_img", "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80"],
+    ["galeria_8_label", "Postres"],
+  ];
+  for (const [clave, valor] of defaults) {
+    await prisma.configuracion.upsert({
+      where: { clave },
+      update: { valor },
+      create: { clave, valor },
+    });
+  }
+  console.log("✅ Configuración de apariencia");
 }
 
 main()

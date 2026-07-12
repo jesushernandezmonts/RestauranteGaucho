@@ -62,8 +62,8 @@ export function ContactSection() {
             </div>
             <h3 className="font-display text-base sm:text-lg font-semibold text-chocolate mb-2">Horarios</h3>
             <p className="text-sm text-chocolate-light leading-relaxed">
-              Lun - Vie: 1:00 PM - 11:00 PM<br />
-              Sáb - Dom: 12:00 PM - 12:00 AM
+              Martes a Domingo<br />
+              10:00 AM - 8:30 PM
             </p>
           </div>
         </div>

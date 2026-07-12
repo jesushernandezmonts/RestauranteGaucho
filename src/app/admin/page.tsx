@@ -16,12 +16,14 @@ import {
   UtensilsCrossed,
   Menu,
   X,
+  ImageIcon,
 } from "lucide-react";
 import MenuSection from "./_components/MenuSection";
 import InventarioSection from "./_components/InventarioSection";
 import ReservacionesSection from "./_components/ReservacionesSection";
 import ReportesSection from "./_components/ReportesSection";
 import UsuariosSection from "./_components/UsuariosSection";
+import AparienciaSection from "./_components/AparienciaSection";
 
 type DashboardStats = {
   ventasHoy: number;
@@ -31,7 +33,7 @@ type DashboardStats = {
   ordenesRecientes: number;
 };
 
-type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones" | "reportes";
+type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones" | "reportes" | "apariencia";
 
 const sectionLabels: Record<Section, { label: string; icon: React.ElementType }> = {
   dashboard: { label: "Dashboard", icon: TrendingUp },
@@ -40,6 +42,7 @@ const sectionLabels: Record<Section, { label: string; icon: React.ElementType }>
   usuarios: { label: "Usuarios", icon: Users },
   reservaciones: { label: "Reservaciones", icon: ClipboardList },
   reportes: { label: "Reportes", icon: TrendingDown },
+  apariencia: { label: "Apariencia", icon: ImageIcon },
 };
 
 export default function AdminDashboard() {
@@ -153,6 +156,8 @@ export default function AdminDashboard() {
         return <ReportesSection />;
       case "usuarios":
         return <UsuariosSection />;
+      case "apariencia":
+        return <AparienciaSection />;
       default:
         return renderDashboard();
     }

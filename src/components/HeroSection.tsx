@@ -1,12 +1,31 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export function HeroSection() {
+  const [config, setConfig] = useState<Record<string, string>>({});
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((data) => {
+        setConfig(data);
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
+
+  const heroFondo = config.hero_fondo || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80";
+  const logoUrl = config.logo_url || "/gaucho-logo.png";
+
   return (
     <section
       id="inicio"
       className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-cover bg-center"
       style={{
-        backgroundImage: "linear-gradient(135deg, rgba(61,42,28,0.92) 0%, rgba(74,50,40,0.7) 50%, rgba(61,42,28,0.92) 100%), url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80')",
+        backgroundImage: `linear-gradient(135deg, rgba(61,42,28,0.92) 0%, rgba(74,50,40,0.7) 50%, rgba(61,42,28,0.92) 100%), url('${heroFondo}')`,
       }}
     >
       {/* Pattern */}
@@ -20,14 +39,18 @@ export function HeroSection() {
       <div className="relative z-10 text-center px-4 sm:px-6 w-full max-w-4xl mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[100dvh] py-16 sm:py-20 md:py-24">
         {/* Logo flotante */}
         <div className="animate-float mb-4 sm:mb-5 md:mb-6 inline-block">
-          <Image
-            src="/gaucho-logo.png"
-            alt="Gaucho Restaurante"
-            width={260}
-            height={260}
-            className="w-[140px] sm:w-[180px] md:w-[260px] mx-auto drop-shadow-[0_0_40px_rgba(232,171,47,0.3)] object-contain"
-            priority
-          />
+          {loaded ? (
+            <Image
+              src={logoUrl}
+              alt="Gaucho Restaurante"
+              width={260}
+              height={260}
+              className="w-[140px] sm:w-[180px] md:w-[260px] mx-auto drop-shadow-[0_0_40px_rgba(232,171,47,0.3)] object-contain"
+              priority
+            />
+          ) : (
+            <div className="w-[140px] sm:w-[180px] md:w-[260px] h-[140px] sm:h-[180px] md:h-[260px] rounded-full bg-chocolate/20 animate-pulse" />
+          )}
         </div>
 
         <p className="text-white/60 text-[10px] sm:text-xs md:text-sm tracking-[4px] sm:tracking-[6px] uppercase font-medium mb-1 sm:mb-2">

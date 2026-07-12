@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function AboutSection() {
   const statsRef = useRef<HTMLDivElement>(null);
+  const [config, setConfig] = useState<Record<string, string>>({});
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then((data) => {
+        setConfig(data);
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
 
   useEffect(() => {
     const el = statsRef.current;
@@ -42,6 +54,8 @@ export function AboutSection() {
     }, duration / steps);
   }
 
+  const aboutImage = config.about_imagen || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80";
+
   return (
     <section id="nosotros" className="py-14 sm:py-20 md:py-28 bg-cream relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
@@ -63,12 +77,16 @@ export function AboutSection() {
         <div className="grid md:grid-cols-2 gap-6 sm:gap-10 md:gap-16 items-center">
           <div className="relative order-2 md:order-1">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl group">
-              <img
-                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80"
-                alt="Gaucho Restaurante"
-                loading="lazy"
-                className="w-full h-[220px] sm:h-[320px] md:h-[460px] object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              {loaded ? (
+                <img
+                  src={aboutImage}
+                  alt="Gaucho Restaurante"
+                  loading="lazy"
+                  className="w-full h-[220px] sm:h-[320px] md:h-[460px] object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              ) : (
+                <div className="w-full h-[220px] sm:h-[320px] md:h-[460px] bg-chocolate/10 animate-pulse rounded-2xl" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-tr from-chocolate/20 via-transparent to-transparent" />
             </div>
             <div className="absolute -bottom-3 -right-3 w-full h-full border-2 border-gold/30 rounded-2xl -z-10 hidden md:block" />

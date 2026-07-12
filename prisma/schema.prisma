@@ -221,3 +221,10 @@ model PushSubscription {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
+
+// ─── CONFIGURACIÓN DE APARIENCIA ─────────────
+model Configuracion {
+  id    Int    @id @default(autoincrement())
+  clave String @unique
+  valor String @default("")
+}
