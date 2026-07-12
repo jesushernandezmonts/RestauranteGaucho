@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Menu, X } from "lucide-react";
+import { GauchoLogo } from "./GauchoIcons";
 
 const navLinks = [
   { href: "/", label: "Inicio" },
@@ -38,14 +38,7 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16 md:h-[72px]">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group" aria-label="Ir al inicio">
-            <Image
-              src="/gaucho-logo.png"
-              alt="Gaucho Restaurante"
-              width={36}
-              height={36}
-              className="transition-transform duration-300 group-hover:scale-105 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain"
-              priority
-            />
+            <GauchoLogo className="transition-transform duration-300 group-hover:scale-105 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
             <span className="font-script text-xl sm:text-2xl md:text-3xl text-gold tracking-wide">Gaucho</span>
           </Link>
 

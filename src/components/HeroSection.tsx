@@ -23,9 +23,9 @@ export function HeroSection() {
           <Image
             src="/gaucho-logo.png"
             alt="Gaucho Restaurante"
-            width={160}
-            height={160}
-            className="w-[100px] sm:w-[130px] md:w-[160px] mx-auto drop-shadow-[0_0_30px_rgba(232,171,47,0.25)] object-contain"
+            width={260}
+            height={260}
+            className="w-[140px] sm:w-[180px] md:w-[260px] mx-auto drop-shadow-[0_0_40px_rgba(232,171,47,0.3)] object-contain"
             priority
           />
         </div>
