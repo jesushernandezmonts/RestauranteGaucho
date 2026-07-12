@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -198,7 +199,15 @@ export default function CocinaDashboard() {
       <div className="glass border-b border-primary/10 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <ChefHat className="text-primary" size={28} />
+            <div className="relative w-11 h-11 rounded-full overflow-hidden ring-2 ring-primary/30 flex-shrink-0">
+              <Image
+                src="/gaucho-logo.png"
+                alt="Gaucho Restaurante"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
             <div>
               <h1 className="font-display text-xl font-bold text-gradient">
                 Cocina
