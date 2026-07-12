@@ -90,6 +90,12 @@ export default function AparienciaSection() {
       if (res.ok) {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
+        // Notify other tabs instantly
+        try {
+          const bc = new BroadcastChannel("gaucho_config_changes");
+          bc.postMessage({ changed: true });
+          bc.close();
+        } catch {}
       }
     } catch (e) {
       console.error(e);

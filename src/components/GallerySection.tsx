@@ -18,13 +18,24 @@ export function GallerySection() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("/api/config")
-      .then((r) => r.json())
-      .then((data) => {
-        setConfig(data);
-        setLoaded(true);
-      })
-      .catch(() => setLoaded(true));
+    function fetchConfig() {
+      fetch("/api/config")
+        .then((r) => r.json())
+        .then((data) => {
+          setConfig(data);
+          setLoaded(true);
+        })
+        .catch(() => setLoaded(true));
+    }
+
+    fetchConfig();
+
+    // Cross-tab instant sync
+    try {
+      const bc = new BroadcastChannel("gaucho_config_changes");
+      bc.onmessage = () => fetchConfig();
+      return () => bc.close();
+    } catch {}
   }, []);
 
   const items = DEFAULT_ITEMS.map((item, i) => {

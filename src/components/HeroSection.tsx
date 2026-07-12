@@ -8,13 +8,24 @@ export function HeroSection() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch("/api/config")
-      .then((r) => r.json())
-      .then((data) => {
-        setConfig(data);
-        setLoaded(true);
-      })
-      .catch(() => setLoaded(true));
+    function fetchConfig() {
+      fetch("/api/config")
+        .then((r) => r.json())
+        .then((data) => {
+          setConfig(data);
+          setLoaded(true);
+        })
+        .catch(() => setLoaded(true));
+    }
+
+    fetchConfig();
+
+    // Cross-tab instant sync
+    try {
+      const bc = new BroadcastChannel("gaucho_config_changes");
+      bc.onmessage = () => fetchConfig();
+      return () => bc.close();
+    } catch {}
   }, []);
 
   const heroFondo = config.hero_fondo || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80";
