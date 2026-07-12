@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Playfair_Display, Pacifico } from "next/font/google"
 import "./globals.css";
 import { LayoutShell } from "@/components/LayoutShell";
 import { AuthProvider } from "@/components/AuthProvider";
+import { FestividadProvider } from "@/contexts/FestividadContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,9 +77,11 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
       <body className="min-h-full flex flex-col overflow-x-hidden">
-        <AuthProvider>
-          <LayoutShell>{children}</LayoutShell>
-        </AuthProvider>
+        <FestividadProvider>
+          <AuthProvider>
+            <LayoutShell>{children}</LayoutShell>
+          </AuthProvider>
+        </FestividadProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `

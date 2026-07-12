@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, BadgePercent } from "lucide-react";
+import { useFestividad } from "../hooks/useFestividad";
 import {
   IconPlate, IconMeat, IconPasta, IconPizza, IconSoup,
   IconDrink, IconCocktail, IconBread, IconSalad, IconFlame,
@@ -11,7 +12,7 @@ type Categoria = {
   id: number;
   nombre: string;
   icono: string;
-  platillos: { id: number; nombre: string; descripcion: string; precio: number; imagen?: string; ingredientesDestacados?: string }[];
+  platillos: Platillo[];
 };
 
 type Platillo = {
@@ -21,6 +22,7 @@ type Platillo = {
   precio: number;
   imagen?: string;
   ingredientesDestacados?: string;
+  descuento?: boolean; // Discount overlay applied
 };
 
 const iconMap: Record<string, React.ReactNode> = {

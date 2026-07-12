@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import MenuSection from "./_components/MenuSection";
+import InventarioSection from "./_components/InventarioSection";
+import ReservacionesSection from "./_components/ReservacionesSection";
+import ReportesSection from "./_components/ReportesSection";
+import UsuariosSection from "./_components/UsuariosSection";
+import AparienciaSection from "./_components/AparienciaSection";
+import FestividadesSection from "./_components/FestividadesSection";
+import PromocionesSection from "./_components/PromocionesSection";
 import {
   Shield,
   LogOut,
@@ -17,13 +25,9 @@ import {
   Menu,
   X,
   ImageIcon,
+  Sparkles,
+  Tag,
 } from "lucide-react";
-import MenuSection from "./_components/MenuSection";
-import InventarioSection from "./_components/InventarioSection";
-import ReservacionesSection from "./_components/ReservacionesSection";
-import ReportesSection from "./_components/ReportesSection";
-import UsuariosSection from "./_components/UsuariosSection";
-import AparienciaSection from "./_components/AparienciaSection";
 
 type DashboardStats = {
   ventasHoy: number;
@@ -33,7 +37,7 @@ type DashboardStats = {
   ordenesRecientes: number;
 };
 
-type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones" | "reportes" | "apariencia";
+type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones" | "reportes" | "apariencia" | "festividades" | "promociones";
 
 const sectionLabels: Record<Section, { label: string; icon: React.ElementType }> = {
   dashboard: { label: "Dashboard", icon: TrendingUp },
@@ -43,6 +47,8 @@ const sectionLabels: Record<Section, { label: string; icon: React.ElementType }>
   reservaciones: { label: "Reservaciones", icon: ClipboardList },
   reportes: { label: "Reportes", icon: TrendingDown },
   apariencia: { label: "Apariencia", icon: ImageIcon },
+  festividades: { label: "Festividades", icon: Sparkles },
+  promociones: { label: "Promociones", icon: Tag },
 };
 
 export default function AdminDashboard() {
@@ -158,6 +164,10 @@ export default function AdminDashboard() {
         return <UsuariosSection />;
       case "apariencia":
         return <AparienciaSection />;
+      case "festividades":
+        return <FestividadesSection />;
+      case "promociones":
+        return <PromocionesSection />;
       default:
         return renderDashboard();
     }

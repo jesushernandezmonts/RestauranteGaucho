@@ -228,3 +228,17 @@ model Configuracion {
   clave String @unique
   valor String @default("")
 }
+
+// ─── PROMOCIONES ─────────────────────────────
+model Promocion {
+  id          Int      @id @default(autoincrement())
+  titulo      String
+  descripcion String   @default("")
+  descuento   String   @default("")
+  imagen      String   @default("")
+  fechaInicio DateTime @default(now())
+  fechaFin    DateTime?
+  activo      Boolean  @default(true)
+  destacado   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
