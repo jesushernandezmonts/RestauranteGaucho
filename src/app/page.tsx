@@ -3,7 +3,6 @@ import { AboutSection } from "@/components/AboutSection";
 import { MenuWrapper } from "@/components/MenuWrapper";
 import { GallerySection } from "@/components/GallerySection";
 import { ContactSection } from "@/components/ContactSection";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export default function Home() {
   return (
@@ -13,7 +12,6 @@ export default function Home() {
       <MenuWrapper />
       <GallerySection />
       <ContactSection />
-      <WhatsAppButton />
     </>
   );
 }

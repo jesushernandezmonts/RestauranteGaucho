@@ -616,14 +616,14 @@ export default function ReservacionPage() {
           </div>
 
           {fieldErrors.length > 0 && (
-            <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-red-500/10 border border-amber-500/20 animate-shake">
-              <p className="text-amber-400 text-sm font-semibold mb-2">
+            <div className="p-4 rounded-xl bg-gradient-to-r from-[#C49A3C]/10 to-[#8B6914]/10 border border-[#C49A3C]/20 animate-shake">
+              <p className="text-[#D4A843] text-sm font-semibold mb-2">
                 ⚠️ Completa los siguientes campos:
               </p>
               <ul className="space-y-1">
                 {fieldErrors.map((err, i) => (
-                  <li key={i} className="text-amber-300/80 text-xs flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-amber-400 inline-block" />
+                  <li key={i} className="text-[#B8860B]/80 text-xs flex items-center gap-2">
+                    <span className="w-1 h-1 rounded-full bg-[#C49A3C] inline-block" />
                     {err}
                   </li>
                 ))}
