@@ -110,15 +110,36 @@ export default function ReservacionPage() {
     setSelectedHour(null);
   };
 
+  const [fieldErrors, setFieldErrors] = useState<string[]>([]);
+
+  // ── Validar teléfono (solo números) ───────────────────────────
+  const handleTelefonoChange = (value: string) => {
+    if (value === "" || /^[0-9+\s]*$/.test(value)) {
+      setTelefono(value);
+    }
+  };
+
+  // ── Validar formulario con alertas bonitas ────────────────────
+  const validateForm = (): string[] => {
+    const errors: string[] = [];
+    if (!nombre.trim()) errors.push("Nombre");
+    if (!dia || !mes || !anio) errors.push("Fecha");
+    if (!hora) errors.push("Hora");
+    if (telefono && !/^[0-9+\s]+$/.test(telefono)) errors.push("El teléfono solo debe contener números");
+    return errors;
+  };
+
   // ── Submit ────────────────────────────────────────────────────
   const fecha = getFechaStr();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nombre || !dia || !mes || !anio || !hora) {
-      setError("Completa todos los campos requeridos");
+    const errors = validateForm();
+    if (errors.length > 0) {
+      setFieldErrors(errors);
       return;
     }
+    setFieldErrors([]);
     setSending(true);
     setError("");
     try {
@@ -221,8 +242,9 @@ export default function ReservacionPage() {
               </label>
               <input
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                onChange={(e) => handleTelefonoChange(e.target.value)}
                 placeholder="+52 247 120 9374"
+                inputMode="numeric"
                 className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/20 transition-all"
               />
             </div>
@@ -582,7 +604,7 @@ export default function ReservacionPage() {
           {/* Notas */}
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-2">
-              <MessageSquare size={16} /> Notas
+              <MessageSquare size={16} /> Notas <span className="text-text-muted font-normal">(Opcional)</span>
             </label>
             <textarea
               value={notas}
@@ -592,6 +614,22 @@ export default function ReservacionPage() {
               className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30 text-sm resize-none transition-all"
             />
           </div>
+
+          {fieldErrors.length > 0 && (
+            <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-red-500/10 border border-amber-500/20 animate-shake">
+              <p className="text-amber-400 text-sm font-semibold mb-2">
+                ⚠️ Completa los siguientes campos:
+              </p>
+              <ul className="space-y-1">
+                {fieldErrors.map((err, i) => (
+                  <li key={i} className="text-amber-300/80 text-xs flex items-center gap-2">
+                    <span className="w-1 h-1 rounded-full bg-amber-400 inline-block" />
+                    {err}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {error && <div className="p-3 rounded-xl bg-danger/10 text-danger text-sm">{error}</div>}
 
