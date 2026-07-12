@@ -209,7 +209,14 @@ export default function ReservacionPage() {
   return (
     <div className="min-h-screen bg-charcoal">
       {/* Hero */}
-      <div className="relative pt-32 pb-16 px-4 text-center">
+      <div className="relative pt-28 pb-16 px-4 text-center">
+        <a
+          href="/"
+          className="absolute top-6 left-6 flex items-center gap-2 text-sm text-white/40 hover:text-gold transition-all duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          Volver
+        </a>
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="relative z-10 max-w-lg mx-auto">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-gradient mb-4">Reservación</h1>
@@ -230,7 +237,6 @@ export default function ReservacionPage() {
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Tu nombre"
               className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/20 transition-all"
-              required
             />
           </div>
 
@@ -281,7 +287,6 @@ export default function ReservacionPage() {
                   value={dia}
                   onChange={(e) => setDia(e.target.value)}
                   className="w-full px-3 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary appearance-none cursor-pointer focus:outline-none focus:border-primary/30 text-sm"
-                  required
                 >
                   <option value="">Día</option>
                   {diasValidos.map((d) => (
@@ -323,7 +328,6 @@ export default function ReservacionPage() {
                   value={anio}
                   onChange={(e) => setAnio(e.target.value)}
                   className="w-full px-3 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary appearance-none cursor-pointer focus:outline-none focus:border-primary/30 text-sm"
-                  required
                 >
                   <option value="">Año</option>
                   {ANIOS.map((a) => (
