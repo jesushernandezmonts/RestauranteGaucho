@@ -199,13 +199,13 @@ export default function CocinaDashboard() {
       <div className="glass border-b border-primary/10 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 flex-shrink-0">
+            <div className="relative w-12 h-12 flex-shrink-0">
               <Image
                 src="/gaucho-logo.png"
                 alt="Gaucho Restaurante"
-                width={40}
-                height={40}
-                className="object-contain"
+                width={48}
+                height={48}
+                className="object-contain rounded-lg"
                 priority
               />
             </div>
