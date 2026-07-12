@@ -1,4 +1,4 @@
-import { GauchoLogo } from "./GauchoIcons";
+import Image from "next/image";
 
 export function HeroSection() {
   return (
@@ -20,7 +20,14 @@ export function HeroSection() {
       <div className="relative z-10 text-center px-4 sm:px-6 w-full max-w-4xl mx-auto animate-fade-in flex flex-col items-center justify-center min-h-[100dvh] py-16 sm:py-20 md:py-24">
         {/* Logo flotante */}
         <div className="animate-float mb-4 sm:mb-5 md:mb-6 inline-block">
-          <GauchoLogo className="w-[100px] sm:w-[130px] md:w-[160px] mx-auto drop-shadow-[0_0_30px_rgba(232,171,47,0.25)]" />
+          <Image
+            src="/gaucho-logo.png"
+            alt="Gaucho Restaurante"
+            width={160}
+            height={160}
+            className="w-[100px] sm:w-[130px] md:w-[160px] mx-auto drop-shadow-[0_0_30px_rgba(232,171,47,0.25)] object-contain"
+            priority
+          />
         </div>
 
         <p className="text-white/60 text-[10px] sm:text-xs md:text-sm tracking-[4px] sm:tracking-[6px] uppercase font-medium mb-1 sm:mb-2">
