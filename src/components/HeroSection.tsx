@@ -34,12 +34,12 @@ export function HeroSection() {
           Bienvenido a
         </p>
         <h1 className="font-script text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-gold leading-tight mb-1 sm:mb-2 drop-shadow-[0_4px_15px_rgba(232,171,47,0.2)]">
-          Gaucho
+          Niño Gaucho
         </h1>
-        <p className="font-display text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 tracking-wide mb-1 sm:mb-2">
+        <p className="font-display text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 tracking-wide mb-1 sm:mb-2 mt-2">
           Restaurante &amp; Parrilla
         </p>
-        <p className="text-white/50 text-sm sm:text-base md:text-lg max-w-xs sm:max-w-sm md:max-w-lg mx-auto font-light px-4">
+        <p className="text-white/70 text-sm sm:text-base md:text-lg max-w-xs sm:max-w-sm md:max-w-lg mx-auto font-normal px-4 tracking-wide">
           Donde la tradición gaucha se encuentra con la más alta cocina
         </p>
 

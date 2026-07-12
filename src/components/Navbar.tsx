@@ -31,14 +31,12 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          scrolled ? "bg-charcoal/95 backdrop-blur-xl shadow-lg" : "bg-transparent"
-        }`}
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-charcoal/95 backdrop-blur-xl shadow-lg" : "bg-transparent"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14 sm:h-16 md:h-[72px]">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group" aria-label="Ir al inicio">
-            <GauchoLogo className="transition-transform duration-300 group-hover:scale-105 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" />
             <span className="font-script text-xl sm:text-2xl md:text-3xl text-gold tracking-wide">Gaucho</span>
           </Link>
 

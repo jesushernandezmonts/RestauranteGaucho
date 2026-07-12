@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 
 export function WhatsAppButton() {
   const [visible, setVisible] = useState(false);
-  const phone = "5212472055070";
-  const message = encodeURIComponent("¡Hola! 👋 Quiero hacer una reservación en Gaucho Restaurante. ¿Me podrían ayudar?");
+  const phone = "5212471209374";
+  const message = encodeURIComponent("¡Hola! 👋 Quiero hacer una reservación en Niño Gaucho. ¿Me podrían ayudar?");
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 1000);
