@@ -138,7 +138,7 @@ export default function ReservacionPage() {
         year: "numeric",
       });
       const mensaje = encodeURIComponent(
-        `NUEVA RESERVACION - Nino Gaucho` +
+        `NUEVA RESERVACION - Niño Gaucho` +
         `\n------------------------------------` +
         `\n\nCliente: ${nombre}` +
         `\nFecha: ${fechaFormateada}` +
@@ -148,7 +148,7 @@ export default function ReservacionPage() {
         `${email ? `\nEmail: ${email}` : ""}` +
         `${notas ? `\nNotas: ${notas}` : ""}` +
         `\n\n------------------------------------` +
-        `\nNino Gaucho - Huamantla, Tlaxcala`
+        `\nNiño Gaucho - Huamantla, Tlaxcala`
       );
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${mensaje}`, "_blank");
     } catch {
