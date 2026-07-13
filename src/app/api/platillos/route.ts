@@ -81,3 +81,41 @@ export async function PATCH(request: Request) {
     );
   }
 }
+
+// DELETE /api/platillos - delete a dish
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID requerido" }, { status: 400 });
+    }
+
+    // Delete related records first
+    await prisma.opcionOrden.deleteMany({
+      where: { detalleOrden: { platilloId: parseInt(id) } },
+    });
+    await prisma.extraOrden.deleteMany({
+      where: { detalleOrden: { platilloId: parseInt(id) } },
+    });
+    await prisma.detalleOrden.deleteMany({
+      where: { platilloId: parseInt(id) },
+    });
+    await prisma.receta.deleteMany({
+      where: { platilloId: parseInt(id) },
+    });
+    await prisma.platillo.delete({
+      where: { id: parseInt(id) },
+    });
+
+    bumpMenuVersion();
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting platillo:", error);
+    return NextResponse.json(
+      { error: "Error al eliminar platillo" },
+      { status: 500 }
+    );
+  }
+}
