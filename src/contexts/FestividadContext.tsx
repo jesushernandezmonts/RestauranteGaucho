@@ -72,8 +72,31 @@ interface FestividadProviderProps {
 export function FestividadProvider({ children }: FestividadProviderProps) {
   const [state, dispatch] = useReducer(festividadReducer, initialState);
 
-  // Cargar configuración inicial desde la API
+  // Cache key for localStorage
+  const CACHE_KEY = "gaucho_festividad_cache";
+
+  // Cargar configuración — primero desde cache local, luego desde API
   const cargarConfiguracion = useCallback(async () => {
+    // 1️⃣ Cargar instantáneo desde localStorage
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        dispatch({
+          type: "LOAD_FROM_CONFIG",
+          payload: {
+            festividadActiva: parsed.festividad_activa || "ninguna",
+            titulo: parsed.festividad_titulo || "",
+            mensaje: parsed.festividad_mensaje || "",
+            esFestividad: (parsed.festividad_activa || "ninguna") !== "ninguna",
+          },
+        });
+      }
+    } catch {
+      // Ignorar errores de cache
+    }
+
+    // 2️⃣ Fetch desde API (actualiza en segundo plano)
     try {
       const res = await fetch("/api/config");
       const data = await res.json();
@@ -87,6 +110,10 @@ export function FestividadProvider({ children }: FestividadProviderProps) {
             esFestividad: (data.festividad_activa || "ninguna") !== "ninguna",
           },
         });
+        // Guardar en cache local
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        } catch {}
       }
     } catch (e) {
       console.error("Error cargando configuración de festividad:", e);
