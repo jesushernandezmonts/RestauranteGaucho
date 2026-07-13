@@ -195,7 +195,7 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#252018", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(139,168,119,0.15)" }}>
                 <DollarSign size={20} style={{ color: "#8BA877" }} />
@@ -207,7 +207,7 @@ export default function AdminDashboard() {
             </div>
             <div className="text-xs mt-1" style={{ color: "#A0A0A0" }}>Ventas hoy</div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#252018", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(212,162,58,0.12)" }}>
                 <ClipboardList size={20} style={{ color: "#D4A23A" }} />
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
             </div>
             <div className="text-xs mt-1" style={{ color: "#A0A0A0" }}>Órdenes hoy</div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#252018", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(212,162,58,0.08)" }}>
                 <Users size={20} style={{ color: "#D4A23A" }} />
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
                 : "Mejor mesero"}
             </div>
           </div>
-          <div className="p-5 rounded-2xl" style={{ background: "#2D2D2D", border: "1px solid rgba(212,162,58,0.08)" }}>
+          <div className="p-5 rounded-2xl" style={{ background: "#252018", border: "1px solid rgba(212,162,58,0.08)" }}>
             <div className="flex items-center justify-between mb-3">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,77,77,0.15)" }}>
                 <Package size={20} style={{ color: "#FF4D4D" }} />
