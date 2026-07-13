@@ -3,6 +3,10 @@
 import { usePathname } from "next/navigation";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
+import dynamic from "next/dynamic";
+
+const PromoBanner = dynamic(() => import("./PromoBanner").then(m => ({ default: m.PromoBanner })), { ssr: false });
+const FestivityDecorations = dynamic(() => import("./FestivityDecorations"), { ssr: false });
 
 /** Routes where the landing Navbar & Footer should be hidden */
 const INTERNAL_ROUTES = ["/admin", "/cocina", "/mesero", "/acceso"];
@@ -22,6 +26,8 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       {!isInternal && <Navbar />}
       <main className="flex-1">{children}</main>
       {!isInternal && <Footer />}
+      {!isInternal && <PromoBanner />}
+      {!isInternal && <FestivityDecorations />}
     </>
   );
 }

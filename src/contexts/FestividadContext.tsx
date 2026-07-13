@@ -102,10 +102,9 @@ export function FestividadProvider({ children }: FestividadProviderProps) {
     let channel: BroadcastChannel | null = null;
     try {
       channel = new BroadcastChannel("gaucho_config_changes");
-      channel.onmessage = (event) => {
-        if (event.data?.type === "festividad_update") {
-          dispatch({ type: "BROADCAST_UPDATE", payload: event.data.payload });
-        }
+      channel.onmessage = () => {
+        // Reload config from API on any change notification
+        cargarConfiguracion();
       };
     } catch (e) {
       console.warn("BroadcastChannel no disponible:", e);
@@ -113,7 +112,7 @@ export function FestividadProvider({ children }: FestividadProviderProps) {
     return () => {
       try { channel?.close(); } catch {}
     };
-  }, []);
+  }, [cargarConfiguracion]);
 
   // Notificar cambios a otras pestañas
   const broadcastUpdate = useCallback((payload: Partial<FestividadState>) => {

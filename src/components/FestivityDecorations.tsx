@@ -1,130 +1,131 @@
-import React, { useState, useEffect } from 'react';
+"use client";
 
-const huamantlaColors = ['#FF4081', '#FFD740', '#1A0A2E', '#F5E6F5'];
+import React, { useEffect, useState } from "react";
+import { useFestividad } from "@/hooks/useFestividad";
 
-const FestivityDecorations = () => {
-  const [showMessage, setShowMessage] = useState(false);
-
-  const handleCelebrate = () => setShowMessage(prev => !prev);
-  const [particles, setParticles] = useState<React.ReactNode[]>([]);
-
-  useEffect(() => {
-    const generateParticles = () => {
-      const newParticles: React.ReactNode[] = [];
-      for (let i = 0; i < 20; i++) {
-        const left = Math.random() * 100;
-        const animationDelay = Math.random() * 2;
-        const color = huamantlaColors[Math.floor(Math.random() * huamantlaColors.length)];
-        const size = Math.random() * 20 + 10;
-        const shape = Math.random() > 0.5 ? '50%' : '0';
-
-        const style = {
-          left: `${left}%`,
-          animationDelay: `${animationDelay}s`,
-          backgroundColor: color,
-          width: `${size}px`,
-          height: `${size}px`,
-          borderRadius: shape,
-        };
-
-        newParticles.push(
-          <div style={style} className="particle">
-            {Math.random() > 0.5 ? '✨' : '🍊'}
-          </div>
-        );
-      }
-      setParticles(newParticles);
-    };
-
-    generateParticles();
-    const interval = setInterval(generateParticles, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="festivity-container">
-      <style jsx>{`
-        .festivity-container {
-          background: linear-gradient(135deg, #FF6F00, #FFB300, #009688, #8BC34A);
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          color: #fff;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-          padding: 20px;
-          position: relative;
-          overflow: hidden;
-        }
-        .particle {
-          position: absolute;
-          top: -20px;
-          font-size: 1.5rem;
-          animation: fall linear infinite;
-          animation-duration: 3s;
-        }
-        @keyframes fall {
-          to {
-            transform: translateY(100vh);
-            opacity: 0;
-          }
-        }
-        .decorations {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 20px;
-          margin: 20px 0;
-          font-size: 3rem;
-        }
-        .message {
-          margin-top: 20px;
-          font-size: 1.5rem;
-          animation: fadeIn 1s ease-in;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        button {
-          padding: 12px 24px;
-          font-size: 1.2rem;
-          border: none;
-          border-radius: 8px;
-          background: #fff;
-          color: #ff1493;
-          cursor: pointer;
-          transition: transform 0.2s;
-        }
-        button:hover {
-          transform: scale(1.05);
-        }
-      `}</style>
-
-      <div className="festivity-decorations">
-        <h1>Happy Celebrations!</h1>
-        <div className="decorations">
-          <span role="img" aria-label="balloon">🎉</span>
-          <span role="img" aria-label="confetti">🎊</span>
-          <span role="img" aria-label="fireworks">🎆</span>
-          <span role="img" aria-label="ribbon">🎀</span>
-          <span role="img" aria-label="gift">🎁</span>
-          <span role="img" aria-label="party hat">🎊</span>
-          <span role="img" aria-label="tada">🎉</span>
-          <span role="img" aria-label="sparkles">✨</span>
-          <span role="img" aria-label="crown">👑</span>
-          <span role="img" aria-label="cake">🎂</span>
-        </div>
-        <p>Let the celebrations begin with joy and sparkle!</p>
-        <button onClick={handleCelebrate}>
-          {showMessage ? 'Hide Message' : 'Join the Party'}
-        </button>
-        {showMessage && <div className="message">You&apos;re part of the celebration! 🎈</div>}
-      </div>
-    </div>
-  );
+const FESTIVAL_THEMES: Record<string, {
+  emojis: string[];
+  colors: string[];
+  bgOverlay: string;
+}> = {
+  navidad: {
+    emojis: ["🎄", "❄️", "🎅", "⭐", "🎁", "🦌", "✨", "🔔"],
+    colors: ["#C41E3A", "#FFD700", "#228B22"],
+    bgOverlay: "linear-gradient(180deg, rgba(20,60,30,0.15) 0%, transparent 30%)",
+  },
+  diademuertos: {
+    emojis: ["💀", "🌸", "🕯️", "🦋", "💐", "☠️", "🌼", "🎭"],
+    colors: ["#FF6B35", "#E8A838", "#9B59B6"],
+    bgOverlay: "linear-gradient(180deg, rgba(26,10,46,0.25) 0%, transparent 30%)",
+  },
+  sanvalentin: {
+    emojis: ["❤️", "🌹", "💕", "🍫", "💝", "💌", "💘", "🥂"],
+    colors: ["#E91E63", "#FF80AB", "#AD1457"],
+    bgOverlay: "linear-gradient(180deg, rgba(45,10,26,0.2) 0%, transparent 30%)",
+  },
+  fiestaspatrias: {
+    emojis: ["🦅", "🇲🇽", "🌵", "🎺", "🪅", "⭐", "🌟", "🎶"],
+    colors: ["#006847", "#CE1126", "#FFFFFF"],
+    bgOverlay: "linear-gradient(180deg, rgba(10,45,26,0.2) 0%, transparent 30%)",
+  },
+  semanasanta: {
+    emojis: ["✝️", "🌷", "🕊️", "🌿", "💜", "🔮", "🌸", "🕯️"],
+    colors: ["#7B2D8E", "#E8A838", "#4A0E6B"],
+    bgOverlay: "linear-gradient(180deg, rgba(26,26,46,0.2) 0%, transparent 30%)",
+  },
+  anonuevo: {
+    emojis: ["🎆", "🎇", "🥂", "🍾", "⭐", "✨", "🎊", "🌟"],
+    colors: ["#FFD700", "#C0C0C0", "#1A1A5E"],
+    bgOverlay: "linear-gradient(180deg, rgba(10,10,46,0.2) 0%, transparent 30%)",
+  },
+  feriahuamantla: {
+    emojis: ["🌸", "🎭", "💃", "🌺", "🎨", "🌼", "🎪", "🦚"],
+    colors: ["#FF4081", "#FFD740", "#E91E63"],
+    bgOverlay: "linear-gradient(180deg, rgba(26,10,46,0.2) 0%, transparent 30%)",
+  },
+  halloween: {
+    emojis: ["🎃", "👻", "🦇", "🕷️", "🕸️", "☠️", "🌙", "🍬"],
+    colors: ["#FF6D00", "#7C4DFF", "#212121"],
+    bgOverlay: "linear-gradient(180deg, rgba(10,10,10,0.3) 0%, transparent 30%)",
+  },
 };
 
-export default FestivityDecorations;
+interface Particle {
+  id: number;
+  emoji: string;
+  left: number;
+  delay: number;
+  duration: number;
+  size: number;
+}
+
+export default function FestivityDecorations() {
+  const { esFestividad, festividadActiva } = useFestividad();
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    if (!esFestividad || !festividadActiva || festividadActiva === "ninguna") {
+      setParticles([]);
+      return;
+    }
+
+    const theme = FESTIVAL_THEMES[festividadActiva];
+    if (!theme) return;
+
+    const newParticles: Particle[] = Array.from({ length: 18 }, (_, i) => ({
+      id: i,
+      emoji: theme.emojis[i % theme.emojis.length],
+      left: Math.random() * 100,
+      delay: Math.random() * 8,
+      duration: 6 + Math.random() * 6,
+      size: 16 + Math.random() * 14,
+    }));
+    setParticles(newParticles);
+  }, [esFestividad, festividadActiva]);
+
+  if (!esFestividad || !festividadActiva || festividadActiva === "ninguna") return null;
+
+  const theme = FESTIVAL_THEMES[festividadActiva];
+  if (!theme) return null;
+
+  return (
+    <>
+      {/* Top gradient overlay */}
+      <div
+        className="fixed inset-0 pointer-events-none z-[5]"
+        style={{ background: theme.bgOverlay }}
+      />
+
+      {/* Floating particles */}
+      <div className="fixed inset-0 pointer-events-none z-[6] overflow-hidden">
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="absolute top-0"
+            style={{
+              left: `${p.left}%`,
+              fontSize: `${p.size}px`,
+              animationName: "festivity-fall",
+              animationDuration: `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
+              opacity: 0,
+            }}
+          >
+            {p.emoji}
+          </div>
+        ))}
+      </div>
+
+      <style>{`
+        @keyframes festivity-fall {
+          0%   { transform: translateY(-40px) rotate(0deg);   opacity: 0; }
+          10%  { opacity: 0.85; }
+          90%  { opacity: 0.6; }
+          100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+      `}</style>
+    </>
+  );
+}
