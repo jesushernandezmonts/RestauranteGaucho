@@ -55,7 +55,8 @@ export default function CuentaPage() {
     try {
       const res = await fetch(`/api/ordenes`);
       const ordenes = await res.json();
-      const found = ordenes.find((o: { id: number }) => o.id === ordenId);
+      // Buscar la orden activa (no cerrada) para esta mesa (ordenId aquí es en realidad params.id que es mesaId)
+      const found = ordenes.find((o: any) => o.mesaId === ordenId && o.estado !== "CERRADA");
       if (found) setOrden(found);
     } catch (e) {
       console.error(e);
@@ -176,45 +177,62 @@ export default function CuentaPage() {
           >
             <ArrowLeft size={20} />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="font-display text-xl font-bold text-gradient">
-              Cerrar Cuenta
+              Cuenta — Mesa {orden?.mesa.numero}
             </h1>
             <p className="text-xs text-text-muted">
-              Mesa {orden?.mesa.numero} · {orden?.mesero.nombre}
+              Atendida por {orden?.mesero.nombre}
             </p>
+          </div>
+          <div className="text-right">
+            <div className="text-xs text-text-muted">Total</div>
+            <div className="font-bold text-lg text-gradient">${totalConPropina.toFixed(0)}</div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
-        {/* Resumen */}
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+        {/* Desglose por platillo */}
         <div className="card">
-          <h3 className="font-semibold text-text-primary mb-4">Resumen</h3>
-          <div className="space-y-3">
+          <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
+            🧾 Desglose de la orden
+          </h3>
+          <div className="space-y-2">
             {orden?.detalle.map((det) => (
-              <div key={det.id} className="flex justify-between text-sm">
-                <span className="text-text-secondary">
-                  {det.cantidad}x {det.platillo.nombre}
-                  {det.extras.length > 0 && (
-                    <span className="text-xs text-secondary block">
-                      ✚ {det.extras.map((e) => e.nombre).join(", ")}
-                    </span>
-                  )}
-                </span>
-                <span className="text-text-primary font-medium">
-                  ${det.subtotal.toFixed(0)}
-                </span>
+              <div key={det.id} className="text-sm">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-primary/20 text-primary-light text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                        {det.cantidad}
+                      </span>
+                      <span className="text-text-primary font-medium">{det.platillo.nombre}</span>
+                    </div>
+                    {det.extras.length > 0 && (
+                      <div className="ml-7 mt-0.5 space-y-0.5">
+                        {det.extras.map((e, i) => (
+                          <div key={i} className="flex justify-between text-xs text-text-muted">
+                            <span>✚ {e.nombre}</span>
+                            <span>+${e.precio}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-text-primary font-semibold ml-4">${det.subtotal.toFixed(0)}</span>
+                </div>
               </div>
             ))}
-            <div className="border-t border-primary/10 pt-3 flex justify-between font-bold">
-              <span>Subtotal</span>
-              <span className="text-text-primary">${orden?.total.toFixed(0)}</span>
-            </div>
+          </div>
+          <div className="border-t border-primary/10 mt-4 pt-3 flex justify-between font-bold">
+            <span className="text-text-secondary">Subtotal</span>
+            <span className="text-text-primary">${orden?.total.toFixed(0)}</span>
           </div>
         </div>
 
         {/* Propina */}
+
         <div className="card">
           <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
             <DollarSign size={18} className="text-warning" />
@@ -335,29 +353,53 @@ export default function CuentaPage() {
         </div>
 
         {/* Total */}
-        <div className="card !p-6 bg-primary/10 border-primary/20">
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
+        <div className="card !p-0 overflow-hidden border-primary/20">
+          <div className="bg-primary/10 px-5 py-4 space-y-2">
+            <div className="flex justify-between text-sm items-center">
               <span className="text-text-secondary">Subtotal</span>
-              <span>${orden?.total.toFixed(0)}</span>
+              <span className="text-text-primary">${orden?.total.toFixed(0)}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-text-secondary">Propina</span>
-              <span className="text-warning">+${propina.toFixed(0)}</span>
+            <div className="flex justify-between text-sm items-center">
+              <span className="text-text-secondary flex items-center gap-1">
+                <span>Propina</span>
+                {propina > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full bg-warning/20 text-warning text-[10px] font-bold">
+                    {tipoPropina === "porcentaje" ? `${propinaPorcentaje}%` : "fija"}
+                  </span>
+                )}
+              </span>
+              <span className={propina > 0 ? "text-warning font-semibold" : "text-text-muted"}>
+                {propina > 0 ? `+$${propina.toFixed(0)}` : "Sin propina"}
+              </span>
             </div>
-            <div className="border-t border-primary/20 pt-3 flex justify-between font-bold text-lg">
-              <span>Total</span>
-              <span className="text-gradient">${totalConPropina.toFixed(0)}</span>
-            </div>
+          </div>
+          <div className="px-5 py-4 flex justify-between items-center">
+            <span className="font-bold text-text-primary text-lg">Total a cobrar</span>
+            <span className="font-bold text-2xl text-gradient">${totalConPropina.toFixed(0)}</span>
           </div>
         </div>
 
         {/* Efectivo recibido (solo si es efectivo) */}
         {metodoPago === "efectivo" && (
           <div className="card">
-            <label className="text-sm text-text-secondary mb-2 block">
-              Efectivo recibido
+            <label className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
+              💵 Efectivo recibido
             </label>
+            <div className="flex gap-3 mb-3">
+              {[Math.ceil(totalConPropina / 50) * 50, Math.ceil(totalConPropina / 100) * 100, Math.ceil(totalConPropina / 200) * 200].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setEfectivoRecibido(v)}
+                  className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${
+                    efectivoRecibido === v
+                      ? "bg-success/10 text-success border-success/30"
+                      : "bg-surface-light text-text-secondary border-primary/10 hover:border-primary/20"
+                  }`}
+                >
+                  ${v}
+                </button>
+              ))}
+            </div>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
               <input
@@ -368,10 +410,16 @@ export default function CuentaPage() {
                 className="w-full pl-8 pr-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30"
               />
             </div>
+            {efectivoRecibido > 0 && efectivoRecibido < totalConPropina && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-danger">
+                <span>⚠️</span>
+                <span>Faltan ${(totalConPropina - efectivoRecibido).toFixed(0)}</span>
+              </div>
+            )}
             {efectivoRecibido >= totalConPropina && (
-              <div className="mt-2 flex justify-between text-sm">
-                <span className="text-success">Cambio</span>
-                <span className="font-bold text-success">${cambio.toFixed(0)}</span>
+              <div className="mt-2 flex justify-between p-3 rounded-xl bg-success/10 border border-success/20">
+                <span className="text-success font-medium">💚 Cambio</span>
+                <span className="font-bold text-success text-lg">${cambio.toFixed(0)}</span>
               </div>
             )}
           </div>
@@ -396,3 +444,4 @@ export default function CuentaPage() {
     </div>
   );
 }
+

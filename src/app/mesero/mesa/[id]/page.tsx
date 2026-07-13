@@ -208,24 +208,65 @@ export default function MesaDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto px-4 py-4">
         {/* Search */}
-        <div className="relative mb-6">
+        <div className="relative mb-4">
           <Search
             size={18}
             className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted"
           />
           <input
             type="text"
-            placeholder="Buscar platillo..."
+            placeholder="Buscar platillo o ingrediente..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-12 pr-4 py-3 rounded-xl bg-surface border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30 transition-all"
           />
         </div>
 
+        {/* Quick category nav */}
+        {!search && (
+          <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-none">
+            <button
+              onClick={() => setExpandedCat(null)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
+                expandedCat === null
+                  ? "bg-primary/20 text-primary-light border-primary/40"
+                  : "bg-surface-light text-text-secondary border-primary/10 hover:border-primary/30"
+              }`}
+            >
+              🗂️ Todas
+            </button>
+            {menu.map((cat) => {
+              const catCount = orderItems.reduce((s, item) => {
+                const inCat = cat.platillos.some((p) => p.id === item.platilloId);
+                return inCat ? s + item.cantidad : s;
+              }, 0);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setExpandedCat(cat.id)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
+                    expandedCat === cat.id
+                      ? "bg-primary/20 text-primary-light border-primary/40"
+                      : "bg-surface-light text-text-secondary border-primary/10 hover:border-primary/30"
+                  }`}
+                >
+                  <span>{cat.icono}</span>
+                  {cat.nombre}
+                  {catCount > 0 && (
+                    <span className="ml-1 w-4 h-4 rounded-full bg-primary/80 text-chocolate text-[10px] font-bold flex items-center justify-center">
+                      {catCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Menu */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {menu
             .filter((cat) => {
               if (!search) return true;
@@ -244,8 +285,16 @@ export default function MesaDetailPage() {
                   )
                 : cat.platillos;
 
+              // Count total dishes already ordered from this category
+              const catOrderedCount = orderItems.reduce((s, item) => {
+                const inCat = cat.platillos.some((p) => p.id === item.platilloId);
+                return inCat ? s + item.cantidad : s;
+              }, 0);
+
               return (
-                <div key={cat.id} className="card !p-4">
+                <div key={cat.id} className={`card !p-4 transition-all duration-200 ${
+                  expandedCat === cat.id ? "border-primary/20 shadow-sm shadow-primary/5" : ""
+                }`}>
                   <button
                     onClick={() =>
                       setExpandedCat(expandedCat === cat.id ? null : cat.id)
@@ -253,52 +302,74 @@ export default function MesaDetailPage() {
                     className="w-full flex items-center justify-between"
                   >
                     <div className="flex items-center gap-2">
-                      <span>{cat.icono}</span>
+                      <span className="text-lg">{cat.icono}</span>
                       <h3 className="font-semibold text-text-primary">
                         {cat.nombre}
                       </h3>
+                      {catOrderedCount > 0 && (
+                        <span className="ml-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary-light text-[10px] font-bold">
+                          {catOrderedCount} en pedido
+                        </span>
+                      )}
                     </div>
-                    {expandedCat === cat.id ? (
-                      <ChevronUp size={18} className="text-text-muted" />
-                    ) : (
-                      <ChevronDown size={18} className="text-text-muted" />
-                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text-muted">{cat.platillos.length} platillos</span>
+                      {expandedCat === cat.id ? (
+                        <ChevronUp size={18} className="text-primary-light" />
+                      ) : (
+                        <ChevronDown size={18} className="text-text-muted" />
+                      )}
+                    </div>
                   </button>
 
                   {expandedCat === cat.id && (
-                    <div className="mt-4 space-y-2 animate-slide-down">
-                      {filtered.map((p) => (
-                        <div
-                          key={p.id}
-                          className="flex items-center justify-between p-3 rounded-xl bg-surface-light/50 hover:bg-surface-light transition-all group"
-                        >
-                          <div className="flex-1 min-w-0 pr-3">
-                            <div className="font-medium text-text-primary text-sm">
-                              {p.nombre}
-                            </div>
-                            {p.descripcion && (
-                              <div className="text-xs text-text-muted truncate">
-                                {p.descripcion}
+                    <div className="mt-4 space-y-2">
+                      {filtered.map((p) => {
+                        const dishCount = orderItems
+                          .filter((item) => item.platilloId === p.id)
+                          .reduce((s, item) => s + item.cantidad, 0);
+                        return (
+                          <div
+                            key={p.id}
+                            className={`flex items-center justify-between p-3 rounded-xl transition-all group cursor-default border ${
+                              dishCount > 0
+                                ? "bg-primary/5 border-primary/20 hover:bg-primary/10"
+                                : "bg-surface-light/40 border-transparent hover:bg-surface-light hover:border-primary/10"
+                            }`}
+                          >
+                            <div className="flex-1 min-w-0 pr-3">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-text-primary text-sm">{p.nombre}</span>
+                                {dishCount > 0 && (
+                                  <span className="w-5 h-5 rounded-full bg-primary text-chocolate text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                                    {dishCount}
+                                  </span>
+                                )}
                               </div>
-                            )}
+                              {p.descripcion && (
+                                <div className="text-xs text-text-secondary/70 mt-0.5 truncate">
+                                  {p.descripcion}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <span className="font-bold text-primary-light text-sm whitespace-nowrap">
+                                ${p.precio}
+                              </span>
+                              <button
+                                onClick={() => addToOrder(p)}
+                                className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary-light hover:bg-primary/20 active:scale-95 transition-all"
+                                aria-label={`Agregar ${p.nombre}`}
+                              >
+                                <Plus size={16} />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="font-bold text-primary-light text-sm whitespace-nowrap">
-                              ${p.precio}
-                            </span>
-                            <button
-                              onClick={() => addToOrder(p)}
-                              className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary-light hover:bg-primary/20 transition-all"
-                              aria-label={`Agregar ${p.nombre}`}
-                            >
-                              <Plus size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       {filtered.length === 0 && (
-                        <p className="text-sm text-text-muted text-center py-2">
-                          Sin resultados
+                        <p className="text-sm text-text-muted text-center py-3">
+                          Sin resultados para "{search}"
                         </p>
                       )}
                     </div>
@@ -320,55 +391,58 @@ export default function MesaDetailPage() {
 
       {/* Bottom Bar */}
       {orderItems.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 glass border-t border-primary/10 p-4 animate-slide-up">
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-4 overflow-x-auto pb-1">
-                {orderItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-light/50 text-xs text-text-secondary whitespace-nowrap"
-                  >
-                    <span>
-                      {item.nombre} x{item.cantidad}
-                    </span>
-                    <button
-                      onClick={() => removeItem(idx)}
-                      className="text-text-muted hover:text-danger transition-colors"
-                      aria-label={`Eliminar ${item.nombre}`}
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-4 flex-shrink-0">
-              <div className="text-right">
-                <div className="text-xs text-text-muted">Total</div>
-                <div className="font-bold text-lg text-gradient">
-                  ${total.toFixed(0)}
-                </div>
-              </div>
-              <button
-                onClick={sendToKitchen}
-                disabled={sending}
-                className="btn-primary !px-6 !py-3 text-sm disabled:opacity-50"
+        <div className="fixed bottom-0 left-0 right-0 glass border-t border-primary/10 animate-slide-up">
+          {/* Item chips row */}
+          <div className="flex gap-2 overflow-x-auto px-4 pt-3 pb-2 scrollbar-none">
+            {orderItems.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs text-primary-light whitespace-nowrap flex-shrink-0"
               >
-                {sending ? (
-                  <Loader2 size={18} className="animate-spin" />
-                ) : (
-                  <Send size={18} />
-                )}
-                {sending ? "Enviando..." : "Enviar a Cocina"}
-              </button>
+                <span className="w-4 h-4 rounded-full bg-primary text-chocolate text-[10px] font-bold flex items-center justify-center">
+                  {item.cantidad}
+                </span>
+                <span className="font-medium">{item.nombre}</span>
+                <span className="text-text-muted">${item.subtotal.toFixed(0)}</span>
+                <button
+                  onClick={() => removeItem(idx)}
+                  className="ml-1 text-text-muted hover:text-danger transition-colors"
+                  aria-label={`Eliminar ${item.nombre}`}
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+          {/* Action row */}
+          <div className="flex items-center justify-between gap-4 px-4 pb-4">
+            <div>
+              <div className="text-xs text-text-muted">
+                {orderItems.reduce((s, i) => s + i.cantidad, 0)} platillos
+              </div>
+              <div className="font-bold text-lg text-gradient">
+                ${total.toFixed(0)}
+              </div>
             </div>
+            <button
+              onClick={sendToKitchen}
+              disabled={sending}
+              className="btn-primary !px-6 !py-3 text-sm disabled:opacity-50 flex-shrink-0"
+            >
+              {sending ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Send size={18} />
+              )}
+              {sending ? "Enviando..." : "Enviar a Cocina"}
+            </button>
           </div>
         </div>
       )}
     </div>
   );
 }
+
 
 // ─── Customize Modal ────────────────────────────
 function CustomizeModal({
