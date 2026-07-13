@@ -65,6 +65,7 @@ export default function FestivityDecorations() {
 
   useEffect(() => {
     if (!esFestividad || !festividadActiva || festividadActiva === "ninguna") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setParticles([]);
       return;
     }
@@ -80,6 +81,7 @@ export default function FestivityDecorations() {
       duration: 6 + Math.random() * 6,
       size: 16 + Math.random() * 14,
     }));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setParticles(newParticles);
   }, [esFestividad, festividadActiva]);
 

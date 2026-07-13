@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-charcoal: #3D2A1C;
-  --color-chocolate: #4A3228;
-  --color-chocolate-light: #7A6455;
+  --color-charcoal: var(--charcoal);
+  --color-chocolate: var(--chocolate);
+  --color-chocolate-light: var(--chocolate-light);
   --color-sage: #A4BB8E;
   --color-sage-light: #C2D4AF;
   --color-sage-dark: #8BA877;
-  --color-gold: #E8AB2F;
-  --color-gold-light: #F0C050;
-  --color-gold-dark: #C48F1B;
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
   --color-terracotta: #C4553A;
   --color-terracotta-light: #D4715A;
-  --color-cream: #F5EDE3;
-  --color-cream-warm: #EDE0D0;
-  --color-dark-section: #3D2A1C;
+  --color-cream: var(--cream);
+  --color-cream-warm: var(--cream-warm);
+  --color-dark-section: var(--charcoal);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -32,24 +32,36 @@
   --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   --shadow-gold: 0 4px 14px rgba(232, 171, 47, 0.3);
   --shadow-gold-lg: 0 8px 30px rgba(232, 171, 47, 0.35);
-  --color-surface: #F5EDE3;
-  --color-surface-light: #EDE0D0;
-  --color-surface-lighter: #E0D0BC;
-  --color-text-primary: #4A3228;
-  --color-text-secondary: #7A6455;
+  --color-surface: var(--cream);
+  --color-surface-light: var(--cream-warm);
+  --color-surface-lighter: var(--chocolate-light);
+  --color-text-primary: var(--chocolate);
+  --color-text-secondary: var(--chocolate-light);
   --color-text-muted: #A09080;
-  --color-primary: #E8AB2F;
-  --color-primary-light: #F0C050;
-  --color-primary-dark: #C48F1B;
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
   --color-success: #8BA877;
-  --color-warning: #E8AB2F;
+  --color-warning: var(--primary);
   --color-danger: #C4553A;
-  --color-accent: #E8AB2F;
+  --color-accent: var(--accent);
 }
 
 :root {
-  --background: #F5EDE3;
-  --foreground: #4A3228;
+  --background: var(--cream, #F5EDE3);
+  --foreground: var(--chocolate, #4A3228);
+  --charcoal: #3D2A1C;
+  --chocolate: #4A3228;
+  --chocolate-light: #7A6455;
+  --gold: #E8AB2F;
+  --gold-light: #F0C050;
+  --gold-dark: #C48F1B;
+  --cream: #F5EDE3;
+  --cream-warm: #EDE0D0;
+  --primary: #E8AB2F;
+  --primary-light: #F0C050;
+  --primary-dark: #C48F1B;
+  --accent: #E8AB2F;
 }
 
 /* ─── KEYFRAMES ─────────────────────────────────────────── */
