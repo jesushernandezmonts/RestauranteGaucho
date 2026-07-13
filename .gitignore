@@ -39,3 +39,6 @@ prisma/dev.db-journal
 
 # scratch
 scratch/
+
+eslint*.json
+eslint_errors.txt
