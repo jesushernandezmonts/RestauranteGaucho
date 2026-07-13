@@ -186,7 +186,7 @@ export default function AdminDashboard() {
             </div>
             <div>
               <h1 className="font-display text-xl font-bold" style={{ color: "#D4A23A" }}>
-                Gaucho
+                Niño Gaucho
               </h1>
               <p className="text-xs" style={{ color: "#A0A0A0" }}>Admin</p>
             </div>
@@ -297,11 +297,11 @@ export default function AdminDashboard() {
 
           <div className="card">
             <h3 className="font-semibold text-text-primary mb-4">
-              Resumen del DÔö£┬ía
+              Resumen del Día
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
-                <span className="text-sm text-text-secondary">Ôö£├┤rdenes totales</span>
+                <span className="text-sm text-text-secondary">Órdenes totales</span>
                 <span className="font-bold text-text-primary">{stats.ordenesRecientes}</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
               <div className="flex justify-between items-center p-3 rounded-xl bg-surface-light/50">
                 <span className="text-sm text-text-secondary">Alertas de inventario</span>
                 <span className={`font-bold ${stats.alertasStock > 0 ? "text-danger" : "text-success"}`}>
-                  {stats.alertasStock > 0 ? `${stats.alertasStock} ┬¡ãÆ├ÂÔöñ` : "0 ┬¡ãÆãÆ├│"}
+                  {stats.alertasStock > 0 ? `${stats.alertasStock} críticas` : "0 críticas"}
                 </span>
               </div>
             </div>
@@ -330,7 +330,7 @@ export default function AdminDashboard() {
         className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 lg:static lg:z-auto`}
-        style={{ background: "#0A110C", borderRight: "1px solid rgba(212,162,58,0.08)" }}
+        style={{ background: "#1B1512", borderRight: "1px solid rgba(212,162,58,0.08)" }}
       >
         <div className="p-4" style={{ borderBottom: "1px solid rgba(212,162,58,0.08)" }}>
           <div className="flex items-center justify-between">
@@ -338,9 +338,9 @@ export default function AdminDashboard() {
               onClick={() => setActiveSection("dashboard")}
               className="flex items-center gap-2"
             >
-              <span className="text-2xl">┬¡ãÆ├æ┬«</span>
+              <span className="text-2xl">🐮</span>
               <span className="font-script text-xl" style={{ color: "#D4A23A" }}>
-                Gaucho
+                Niño Gaucho
               </span>
             </button>
             <button
@@ -401,7 +401,7 @@ export default function AdminDashboard() {
               onClick={() => signOut({ callbackUrl: "/admin/login" })}
               className="p-2 rounded-lg transition-colors"
               style={{ color: "#C4553A" }}
-              aria-label="Cerrar sesi├│n"
+              aria-label="Cerrar sesión"
             >
               <LogOut size={16} />
             </button>
@@ -413,8 +413,8 @@ export default function AdminDashboard() {
       <button
         onClick={() => setSidebarOpen(true)}
         className="lg:hidden fixed top-4 left-4 z-40 p-2 rounded-xl"
-        style={{ background: "#1A2A1E", border: "1px solid rgba(212,162,58,0.08)" }}
-        aria-label="MenÔö£Ôòæ"
+        style={{ background: "#2A1B12", border: "1px solid rgba(212,162,58,0.08)" }}
+        aria-label="Menú"
       >
         <Menu size={20} style={{ color: "#E0C060" }} />
       </button>

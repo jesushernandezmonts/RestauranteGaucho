@@ -194,7 +194,7 @@ export default function CocinaDashboard() {
   const listas = ordenes.filter((o) => o.estado === "LISTO");
 
   return (
-    <div className="min-h-screen dark-section">
+    <div className="min-h-screen dark-section" style={{ background: "#121212" }}>
       {/* Header */}
       <div className="glass border-b border-primary/10 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

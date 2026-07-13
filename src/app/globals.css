@@ -203,15 +203,15 @@ body {
 /* ─── DARK SECTION (admin/internal panels — high contrast) ──── */
 
 .dark-section {
-  background: #121212;
+  background: #0F0C0A;
   color: #FFFFFF;
 }
 .dark-section .card {
-  background: #1E1E1E;
-  border-color: rgba(212,162,58,0.10);
+  background: #1E1512;
+  border-color: rgba(232,171,47,0.10);
 }
 .dark-section .card:hover {
-  border-color: rgba(212,162,58,0.22);
+  border-color: rgba(232,171,47,0.22);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 

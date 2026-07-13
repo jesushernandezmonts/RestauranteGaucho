@@ -199,7 +199,7 @@ export default function MeseroDashboard() {
             <UtensilsCrossed className="text-primary" size={20} />
             <div>
               <h1 className="font-display text-lg font-bold text-gradient">
-                Gaucho
+                Niño Gaucho
               </h1>
               <p className="text-xs text-text-muted">Mesero</p>
             </div>

@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export function AboutSection() {
+export function AboutSection({ initialConfig = {} }: { initialConfig?: Record<string, string> }) {
   const statsRef = useRef<HTMLDivElement>(null);
-  const [config, setConfig] = useState<Record<string, string>>({});
-  const [loaded, setLoaded] = useState(false);
+  const [config, setConfig] = useState<Record<string, string>>(initialConfig);
+  const [loaded, setLoaded] = useState(Object.keys(initialConfig).length > 0);
 
   useEffect(() => {
     function fetchConfig() {

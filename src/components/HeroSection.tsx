@@ -69,9 +69,9 @@ const FESTIVAL_STYLES: Record<string, {
   },
 };
 
-export function HeroSection() {
-  const [config, setConfig] = useState<Record<string, string>>({});
-  const [loaded, setLoaded] = useState(false);
+export function HeroSection({ initialConfig = {} }: { initialConfig?: Record<string, string> }) {
+  const [config, setConfig] = useState<Record<string, string>>(initialConfig);
+  const [loaded, setLoaded] = useState(Object.keys(initialConfig).length > 0);
   const { esFestividad, festividadActiva, titulo, mensaje } = useFestividad();
 
   useEffect(() => {
