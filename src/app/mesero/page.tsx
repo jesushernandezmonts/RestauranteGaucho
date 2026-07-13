@@ -1,10 +1,18 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User, Loader2, UtensilsCrossed, Bell } from "lucide-react";
+import {
+  LogOut,
+  User,
+  Loader2,
+  UtensilsCrossed,
+  Bell,
+  Clock,
+  Users,
+} from "lucide-react";
 import {
   playNotificationSound,
   showNotification,
@@ -23,25 +31,57 @@ type Mesa = {
   capacidad: number;
   area: string;
   estado: MesaEstado;
+  updatedAt: string;
 };
 
-const statusColors: Record<MesaEstado, string> = {
-  LIBRE: "bg-success/20 text-success border-success/30 hover:bg-success/30",
-  OCUPADO: "bg-warning/20 text-warning border-warning/30 hover:bg-warning/30",
-  CUENTA: "bg-danger/20 text-danger border-danger/30 hover:bg-danger/30",
+type OrdenLista = {
+  id: number;
+  mesaNumero: number;
+  createdAt: string;
 };
 
-const statusLabels: Record<MesaEstado, string> = {
-  LIBRE: "Libre",
-  OCUPADO: "Ocupado",
-  CUENTA: "Cuenta",
+const statusConfig: Record<
+  MesaEstado,
+  { label: string; emoji: string; border: string; bg: string; text: string; dot: string }
+> = {
+  LIBRE: {
+    label: "Libre",
+    emoji: "🟢",
+    border: "border-success/40",
+    bg: "bg-success/10",
+    text: "text-success",
+    dot: "bg-success",
+  },
+  OCUPADO: {
+    label: "Ocupado",
+    emoji: "🟡",
+    border: "border-warning/40",
+    bg: "bg-warning/10",
+    text: "text-warning",
+    dot: "bg-warning",
+  },
+  CUENTA: {
+    label: "Cuenta",
+    emoji: "🔴",
+    border: "border-danger/40",
+    bg: "bg-danger/10",
+    text: "text-danger",
+    dot: "bg-danger",
+  },
 };
 
-const statusEmojis: Record<MesaEstado, string> = {
-  LIBRE: "🟢",
-  OCUPADO: "🟡",
-  CUENTA: "🔴",
-};
+function getOccupationTime(updatedAt: string): string {
+  const now = Date.now();
+  const updated = new Date(updatedAt).getTime();
+  const diffMs = now - updated;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "Ahora";
+  if (mins < 60) return `${mins} min`;
+  const hours = Math.floor(mins / 60);
+  const remainingMins = mins % 60;
+  if (hours < 1) return `${mins} min`;
+  return `${hours}h ${remainingMins}m`;
+}
 
 export default function MeseroDashboard() {
   const { data: session, status } = useSession();
@@ -49,25 +89,32 @@ export default function MeseroDashboard() {
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [ordenesListas, setOrdenesListas] = useState<
-    { id: number; mesaNumero: number; createdAt: string }[]
-  >([]);
+  const [ordenesListas, setOrdenesListas] = useState<OrdenLista[]>([]);
   const prevListasRef = useRef(0);
   const mountedRef = useRef(true);
   const { toasts, addToast, dismiss } = useToasts();
   const [notifyGranted, setNotifyGranted] = useState(false);
   const [showInstallTip, setShowInstallTip] = useState(false);
   const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [filterArea, setFilterArea] = useState<string | null>(null);
+  const [now, setNow] = useState(Date.now());
+
+  // Update "now" every 30s to refresh occupation times
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; };
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/mesero/login");
-      return;
     }
   }, [status, router]);
 
@@ -77,10 +124,8 @@ export default function MeseroDashboard() {
       if (canNotify()) {
         setNotifyGranted(true);
       }
-      // Check if already subscribed to push
       const subscribed = await isPushSubscribed();
       setPushSubscribed(subscribed);
-      // En móvil mostrar sugerencia de instalar app si no está instalada
       if (isMobile() && !isAppInstalled()) {
         setShowInstallTip(true);
       }
@@ -93,20 +138,20 @@ export default function MeseroDashboard() {
       const res = await fetch("/api/ordenes?estado=LISTO&forKitchen=true");
       if (!res.ok) return;
       const data = await res.json();
-
       if (!mountedRef.current) return;
 
-      const listas = data.map((o: { id: number; mesa: { numero: number }; createdAt: string }) => ({
-        id: o.id,
-        mesaNumero: o.mesa.numero,
-        createdAt: o.createdAt,
-      }));
+      const listas = data.map(
+        (o: { id: number; mesa: { numero: number }; createdAt: string }) => ({
+          id: o.id,
+          mesaNumero: o.mesa.numero,
+          createdAt: o.createdAt,
+        })
+      );
 
       // Detectar si hay nuevas órdenes listas
       if (listas.length > prevListasRef.current && prevListasRef.current !== 0) {
         const nuevas = listas.slice(0, listas.length - prevListasRef.current);
         playNotificationSound();
-        // Toast estilo WhatsApp
         for (const orden of nuevas.slice(0, 2)) {
           addToast({
             type: "success",
@@ -115,7 +160,6 @@ export default function MeseroDashboard() {
             icon: "✅",
           });
         }
-        // Notificación del sistema
         for (const orden of nuevas.slice(0, 3)) {
           showNotification(
             "✅ Orden lista",
@@ -124,7 +168,6 @@ export default function MeseroDashboard() {
         }
       }
       prevListasRef.current = listas.length;
-
       setOrdenesListas(listas);
     } catch {
       // Silently fail
@@ -146,18 +189,16 @@ export default function MeseroDashboard() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMesas();
-     
     fetchOrdenesListas();
 
-    // Poll cada 1s (toasts casi instantáneos)
     const interval = setInterval(() => {
       fetchMesas();
       fetchOrdenesListas();
     }, 1000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function toggleMesaEstado(mesa: Mesa) {
@@ -180,6 +221,36 @@ export default function MeseroDashboard() {
     }
   }
 
+  // ─── Derived state ──────────────────────────────────────
+
+  const stats = useMemo(() => {
+    const libres = mesas.filter((m) => m.estado === "LIBRE").length;
+    const ocupadas = mesas.filter((m) => m.estado === "OCUPADO").length;
+    const cuentas = mesas.filter((m) => m.estado === "CUENTA").length;
+    return { libres, ocupadas, cuentas, total: mesas.length };
+  }, [mesas]);
+
+  const mesasConListas = useMemo(() => {
+    return new Set(ordenesListas.map((o) => o.mesaNumero));
+  }, [ordenesListas]);
+
+  const areas = useMemo(() => {
+    const unique = [...new Set(mesas.map((m) => m.area))];
+    return unique.sort();
+  }, [mesas]);
+
+  const filteredAreas = useMemo(() => {
+    if (filterArea) return [filterArea];
+    return areas;
+  }, [filterArea, areas]);
+
+  const areaIcons: Record<string, string> = {
+    Exterior: "🌿",
+    Interior: "🏠",
+    Salón: "🏠",
+    Terraza: "🌿",
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center dark-section">
@@ -188,13 +259,11 @@ export default function MeseroDashboard() {
     );
   }
 
-  const areas = ["Exterior", "Interior"];
-
   return (
     <div className="min-h-screen dark-section">
-      {/* Top bar */}
+      {/* ─── Top bar ───────────────────────────────────── */}
       <div className="glass border-b border-primary/10 px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <UtensilsCrossed className="text-primary" size={20} />
             <div>
@@ -229,7 +298,10 @@ export default function MeseroDashboard() {
                 className="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-success/20 border border-success/30 text-success text-sm font-medium animate-pulse-soft"
               >
                 <Bell size={16} />
-                <span>{ordenesListas.length} lista{ordenesListas.length > 1 ? "s" : ""}</span>
+                <span>
+                  {ordenesListas.length} lista
+                  {ordenesListas.length > 1 ? "s" : ""}
+                </span>
               </Link>
             )}
             <div className="flex items-center gap-2 text-sm text-text-secondary">
@@ -249,22 +321,25 @@ export default function MeseroDashboard() {
         </div>
       </div>
 
-      {/* Mesa map */}
-      <div className="max-w-4xl mx-auto px-4 py-4">
+      {/* ─── Content ───────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4 py-4 space-y-4">
         {error && (
-          <div className="p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm mb-6">
+          <div className="p-4 rounded-xl bg-danger/10 border border-danger/20 text-danger text-sm">
             {error}
           </div>
         )}
 
         {/* Tip para instalar app en móvil */}
         {showInstallTip && (
-          <div className="mb-6 p-4 rounded-xl bg-info/10 border border-info/20 flex items-start gap-3">
+          <div className="p-4 rounded-xl bg-info/10 border border-info/20 flex items-start gap-3">
             <span className="text-xl mt-0.5">📱</span>
             <div className="flex-1 text-sm text-info">
-              <p className="font-medium mb-1">Instala la app para recibir notificaciones</p>
+              <p className="font-medium mb-1">
+                Instala la app para recibir notificaciones
+              </p>
               <p className="opacity-80">
-                En Chrome: Menú ⋮ → &quot;Instalar app&quot; o &quot;Agregar a pantalla de inicio&quot;
+                En Chrome: Menú ⋮ → &quot;Instalar app&quot; o &quot;Agregar a
+                pantalla de inicio&quot;
               </p>
             </div>
             <button
@@ -276,51 +351,195 @@ export default function MeseroDashboard() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {areas.map((area) => (
-            <div key={area} className="card">
-              <h3 className="font-display text-base font-bold text-text-primary mb-3">
-                {area === "Exterior" ? "🌿" : "🏠"}
-                {area}
-              </h3>
-              <div className="grid grid-cols-2 gap-2.5">
-                {mesas
-                  .filter((m) => m.area === area)
-                  .sort((a, b) => a.numero - b.numero)
-                  .map((mesa) => (
-                    <div key={mesa.id} className="relative group">
-                      <Link
-                        href={
-                          mesa.estado !== "LIBRE"
-                            ? `/mesero/mesa/${mesa.id}`
-                            : "#"
-                        }
-                        onClick={(e) => {
-                          if (mesa.estado === "LIBRE") {
-                            e.preventDefault();
-                            toggleMesaEstado(mesa);
-                          }
-                        }}
-                        className={`block p-4 rounded-xl border text-center transition-all duration-200 ${
-                          statusColors[mesa.estado]
-                        }`}
-                      >
-                        <div className="text-xl mb-1">
-                          M{mesa.numero}
-                        </div>
-                        <div className="text-xs opacity-75">
-                          {statusEmojis[mesa.estado]} {statusLabels[mesa.estado]}
-                        </div>
-                      </Link>
-                    </div>
-                  ))}
-              </div>
+        {/* ─── Stats bar ────────────────────────────────── */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-2xl bg-success/10 border border-success/20 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-success/70 font-medium uppercase tracking-wide">
+                Libres
+              </p>
+              <p className="text-2xl font-bold text-success mt-0.5">
+                {stats.libres}
+              </p>
             </div>
+            <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center text-success text-xl">
+              🟢
+            </div>
+          </div>
+          <div className="rounded-2xl bg-warning/10 border border-warning/20 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-warning/70 font-medium uppercase tracking-wide">
+                Ocupadas
+              </p>
+              <p className="text-2xl font-bold text-warning mt-0.5">
+                {stats.ocupadas}
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center text-warning text-xl">
+              🟡
+            </div>
+          </div>
+          <div className="rounded-2xl bg-danger/10 border border-danger/20 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-danger/70 font-medium uppercase tracking-wide">
+                Cuenta
+              </p>
+              <p className="text-2xl font-bold text-danger mt-0.5">
+                {stats.cuentas}
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center text-danger text-xl">
+              🔴
+            </div>
+          </div>
+        </div>
+
+        {/* ─── Filter pills ─────────────────────────────── */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            onClick={() => setFilterArea(null)}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
+              filterArea === null
+                ? "bg-primary/20 text-primary-light border-primary/40"
+                : "bg-surface-light text-text-secondary border-primary/10 hover:border-primary/30"
+            }`}
+          >
+            🗂️ Todas
+          </button>
+          {areas.map((area) => (
+            <button
+              key={area}
+              onClick={() => setFilterArea(area)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
+                filterArea === area
+                  ? "bg-primary/20 text-primary-light border-primary/40"
+                  : "bg-surface-light text-text-secondary border-primary/10 hover:border-primary/30"
+              }`}
+            >
+              <span>{areaIcons[area] || "📍"}</span>
+              {area}
+            </button>
           ))}
         </div>
 
-        {/* Legend */}
-        <div className="mt-8 flex items-center justify-center gap-6 text-sm text-text-muted">
+        {/* ─── Floor plan ───────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filteredAreas.map((area) => {
+            const mesasArea = mesas
+              .filter((m) => m.area === area)
+              .sort((a, b) => a.numero - b.numero);
+
+            return (
+              <div
+                key={area}
+                className="relative overflow-hidden rounded-3xl border border-primary/10 bg-[#1A1410]"
+              >
+                {/* Floor pattern subtle grid */}
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(rgba(232,171,47,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(232,171,47,0.3) 1px, transparent 1px)',
+                    backgroundSize: "48px 48px",
+                  }}
+                />
+
+                {/* Area header */}
+                <div className="relative z-10 flex items-center gap-2 px-5 pt-4 pb-2">
+                  <span className="text-lg">{areaIcons[area] || "📍"}</span>
+                  <h2 className="font-display text-base font-bold text-white">
+                    {area}
+                  </h2>
+                  <span className="text-xs text-text-muted ml-auto">
+                    {mesasArea.length} mesas
+                  </span>
+                </div>
+
+                {/* Tables grid */}
+                <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 gap-3 px-5 pb-5">
+                  {mesasArea.map((mesa) => {
+                    const cfg = statusConfig[mesa.estado];
+                    const tieneLista = mesasConListas.has(mesa.numero);
+                    const showTime =
+                      mesa.estado === "OCUPADO" || mesa.estado === "CUENTA";
+
+                    return (
+                      <div key={mesa.id} className="relative group">
+                        <Link
+                          href={
+                            mesa.estado !== "LIBRE"
+                              ? `/mesero/mesa/${mesa.id}`
+                              : "#"
+                          }
+                          onClick={(e) => {
+                            if (mesa.estado === "LIBRE") {
+                              e.preventDefault();
+                              toggleMesaEstado(mesa);
+                            }
+                          }}
+                          className={`
+                            relative block rounded-2xl border-2 p-4 text-center
+                            transition-all duration-200
+                            ${cfg.bg} ${cfg.border}
+                            hover:scale-[1.02] active:scale-[0.98]
+                            ${tieneLista ? "animate-pulse-border" : ""}
+                          `}
+                        >
+                          {/* Ready badge */}
+                          {tieneLista && (
+                            <div className="absolute -top-2.5 -right-2.5 z-20 flex items-center gap-1 px-2 py-0.5 rounded-full bg-success text-[10px] font-bold text-white shadow-lg shadow-success/30 animate-pulse-soft">
+                              <span>✅</span>
+                              <span>Listo</span>
+                            </div>
+                          )}
+
+                          {/* Table number */}
+                          <div className="text-xl font-bold text-white leading-none mb-1.5">
+                            M{mesa.numero}
+                          </div>
+
+                          {/* Capacity */}
+                          <div className="flex items-center justify-center gap-1 text-xs text-text-muted mb-2">
+                            <Users size={12} />
+                            <span>{mesa.capacidad} p.</span>
+                          </div>
+
+                          {/* Status badge */}
+                          <div
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold ${cfg.text} bg-white/5 border ${cfg.border}`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full ${cfg.dot}" />
+                            {cfg.label}
+                          </div>
+
+                          {/* Occupation time */}
+                          {showTime && (
+                            <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-text-muted">
+                              <Clock size={10} />
+                              <span>
+                                {getOccupationTime(mesa.updatedAt)}
+                              </span>
+                            </div>
+                          )}
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Empty state for area */}
+                {mesasArea.length === 0 && (
+                  <div className="relative z-10 px-5 pb-8 text-center text-sm text-text-muted">
+                    No hay mesas en esta área
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ─── Legend ───────────────────────────────────── */}
+        <div className="flex items-center justify-center gap-6 text-sm text-text-muted pt-2 pb-4">
           <span className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-success" />
             Libre
@@ -332,6 +551,10 @@ export default function MeseroDashboard() {
           <span className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-danger" />
             Cuenta
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-success animate-pulse-soft" />
+            Listo ✅
           </span>
         </div>
       </div>

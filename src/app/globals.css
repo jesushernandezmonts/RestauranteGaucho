@@ -30,6 +30,8 @@
   --animate-reveal-right: reveal-right 0.8s ease-out both;
   --animate-reveal-scale: reveal-scale 0.8s ease-out both;
   --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pulse-border: pulse-border-green 1.5s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
   --shadow-gold: 0 4px 14px rgba(232, 171, 47, 0.3);
   --shadow-gold-lg: 0 8px 30px rgba(232, 171, 47, 0.35);
   --color-surface: var(--cream);
@@ -116,6 +118,22 @@
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 8px rgba(232, 171, 47, 0.2); }
   50% { box-shadow: 0 0 20px rgba(232, 171, 47, 0.4); }
+}
+
+@keyframes pulse-border-green {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(139, 168, 119, 0.5);
+    border-color: rgba(139, 168, 119, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(139, 168, 119, 0);
+    border-color: rgba(139, 168, 119, 1);
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 @keyframes slide-up {

@@ -43,6 +43,7 @@ model Mesa {
   capacidad Int        @default(4)
   area      String     @default("Salón")
   estado    MesaEstado @default(LIBRE)
+  updatedAt DateTime   @default(now()) @updatedAt
   ordenes   Orden[]
 }
 

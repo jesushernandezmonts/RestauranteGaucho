@@ -5,6 +5,15 @@ export async function GET() {
   try {
     const mesas = await prisma.mesa.findMany({
       orderBy: { numero: "asc" },
+      include: {
+        _count: {
+          select: {
+            ordenes: {
+              where: { estado: "LISTO" },
+            },
+          },
+        },
+      },
     });
     return NextResponse.json(mesas);
   } catch (error) {
