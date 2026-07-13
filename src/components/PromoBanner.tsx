@@ -21,6 +21,15 @@ export function PromoBanner() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [indiceActual, setIndiceActual] = useState(0);
+  const [visible, setVisible] = useState(false);
+
+  // Revisar si el usuario ya cerró el banner
+  useEffect(() => {
+    const cerrado = localStorage.getItem("gaucho_promo_cerrado");
+    if (cerrado !== "true") {
+      setVisible(true);
+    }
+  }, []);
 
   const getHuamantlaColors = () => {
     return {
@@ -100,7 +109,7 @@ export function PromoBanner() {
 
   const promocionesActivas = promociones.filter((p) => p.activo);
 
-  if (!esFestividad || promocionesActivas.length === 0) return null;
+  if (!esFestividad || promocionesActivas.length === 0 || !visible) return null;
 
   const promocionActual = promocionesActivas[indiceActual];
 
@@ -156,7 +165,10 @@ export function PromoBanner() {
 
           {/* Indicador de cierre */}
           <button
-            onClick={() => {}}
+            onClick={() => {
+              setVisible(false);
+              localStorage.setItem("gaucho_promo_cerrado", "true");
+            }}
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300 z-10"
             style={{
               backdropFilter: 'blur(8px)',
