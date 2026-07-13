@@ -46,7 +46,6 @@ export default function AdminMenuPage() {
   const [showNewDish, setShowNewDish] = useState(false);
   const [newDishCatId, setNewDishCatId] = useState<number | null>(null);
   const [recetaModal, setRecetaModal] = useState<Platillo | null>(null);
-  const [expandedAll, setExpandedAll] = useState(true);
   const [collapsedCats, setCollapsedCats] = useState<Set<number>>(new Set());
   const [expandedCats, setExpandedCats] = useState<Set<number>>(new Set());
 
@@ -114,46 +113,39 @@ export default function AdminMenuPage() {
     });
   }
 
-  function expandAll() {
-    setExpandedAll(true);
-    setCollapsedCats(new Set());
-    setExpandedCats(new Set(categorias.map((c) => c.id)));
-  }
-
-  function collapseAll() {
-    setExpandedAll(false);
-    setExpandedCats(new Set());
-    setCollapsedCats(new Set(categorias.map((c) => c.id)));
-  }
-
   if (status === "loading" || loading) {
     return <div className="min-h-screen flex items-center justify-center dark-section"><Loader2 size={32} className="animate-spin text-primary" /></div>;
   }
+
+  const allExpanded = collapsedCats.size === 0;
 
   return (
     <div className="min-h-screen dark-section p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-start sm:items-center justify-between mb-8 flex-col sm:flex-row gap-3">
           <div className="flex items-center gap-4">
-            <Link href="/admin" className="p-2 rounded-xl hover:bg-surface-light"><ChevronLeft size={20} /></Link>
+            <Link href="/admin" className="p-2 rounded-xl hover:bg-white/10 transition-colors"><ChevronLeft size={20} className="text-white" /></Link>
             <div>
               <h1 className="font-display text-2xl font-bold text-white">Menú</h1>
-              <p className="text-sm text-text-muted">Platillos y categorías</p>
+              <p className="text-sm text-white/50">Platillos y categorías</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {categorias.length > 0 && (
               <>
-                <button onClick={expandAll} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 text-primary-light text-xs font-medium hover:bg-primary/20 transition-all border border-primary/20">
-                  <ChevronDown size={14} /> Expandir todo
-                </button>
-                <button onClick={collapseAll} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-light text-text-secondary text-xs font-medium hover:bg-surface-lighter transition-all border border-primary/10">
-                  <ChevronRight size={14} /> Colapsar todo
-                </button>
+                {!allExpanded ? (
+                  <button onClick={() => { setCollapsedCats(new Set()); setExpandedCats(new Set()); }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/15 text-[#D4A23A] text-xs font-medium hover:bg-primary/25 transition-all border border-primary/25">
+                    <ChevronDown size={14} /> Expandir todo
+                  </button>
+                ) : (
+                  <button onClick={() => { setCollapsedCats(new Set(categorias.map(c => c.id))); setExpandedCats(new Set()); }} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 transition-all border border-white/10">
+                    <ChevronRight size={14} /> Colapsar todo
+                  </button>
+                )}
               </>
             )}
-            <button onClick={() => { setShowCategoryModal(true); setEditCategory(null); }} className="btn-secondary !px-4 !py-2 text-sm">
+            <button onClick={() => { setShowCategoryModal(true); setEditCategory(null); }} className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-[#D4A23A]/30 text-[#D4A23A] hover:bg-[#D4A23A]/10 hover:border-[#D4A23A] transition-all text-sm font-medium">
               <Layers size={16} /> Categoría
             </button>
           </div>
@@ -164,10 +156,10 @@ export default function AdminMenuPage() {
           {categorias.map((cat) => {
             const isCollapsed = collapsedCats.has(cat.id);
             const isExpanded = expandedCats.has(cat.id);
-            const showPlatillos = expandedAll ? !isCollapsed : isExpanded;
+            const showPlatillos = collapsedCats.size === 0 ? !isCollapsed : isExpanded;
 
             return (
-              <div key={cat.id} className="rounded-2xl border border-primary/15 bg-[#1A1410] overflow-hidden">
+              <div key={cat.id} className="rounded-2xl border border-white/10 bg-[#1A1410] overflow-hidden">
                 {/* Category header */}
                 <button
                   onClick={() => toggleCatExpand(cat.id)}
@@ -177,27 +169,27 @@ export default function AdminMenuPage() {
                     <span className="text-2xl">{cat.icono}</span>
                     <div className="text-left">
                       <h3 className="font-semibold text-white text-base">{cat.nombre}</h3>
-                      <p className="text-xs text-text-muted">{cat.platillos.length} platillo{cat.platillos.length !== 1 ? "s" : ""}</p>
+                      <p className="text-xs text-white/40">{cat.platillos.length} platillo{cat.platillos.length !== 1 ? "s" : ""}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={(e) => { e.stopPropagation(); setEditCategory(cat); setShowCategoryModal(true); }}
-                      className="p-2 rounded-lg hover:bg-white/10 transition-all border border-primary/10"
+                      className="p-2 rounded-lg hover:bg-white/10 transition-all border border-white/10"
                       title="Editar categoría"
                     >
-                      <Pencil size={14} className="text-text-muted" />
+                      <Pencil size={14} className="text-white/60" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); setNewDishCatId(cat.id); setShowNewDish(true); }}
-                      className="flex items-center gap-1 px-3 py-2 rounded-lg bg-primary/15 text-primary-light text-xs font-medium hover:bg-primary/25 transition-all border border-primary/20"
+                      className="flex items-center gap-1 px-3 py-2 rounded-lg bg-[#D4A23A]/15 text-[#D4A23A] text-xs font-medium hover:bg-[#D4A23A]/25 transition-all border border-[#D4A23A]/20"
                     >
                       <Plus size={12} /> Platillo
                     </button>
                     {showPlatillos ? (
-                      <ChevronDown size={18} className="text-text-muted" />
+                      <ChevronDown size={18} className="text-white/40" />
                     ) : (
-                      <ChevronRight size={18} className="text-text-muted" />
+                      <ChevronRight size={18} className="text-white/40" />
                     )}
                   </div>
                 </button>
@@ -206,49 +198,49 @@ export default function AdminMenuPage() {
                 {showPlatillos && (
                   <div className="px-5 pb-4 space-y-2">
                     {cat.platillos.length === 0 && (
-                      <p className="text-sm text-text-muted text-center py-6 bg-white/[0.02] rounded-xl border border-dashed border-primary/10">
+                      <p className="text-sm text-white/40 text-center py-6 bg-white/[0.03] rounded-xl border border-dashed border-white/10">
                         Sin platillos — agrega uno con el botón &quot;+ Platillo&quot;
                       </p>
                     )}
                     {cat.platillos.map((p) => (
                       <div
                         key={p.id}
-                        className="flex items-center justify-between p-4 rounded-xl bg-white/[0.04] border border-white/5 hover:border-primary/20 hover:bg-white/[0.06] transition-all group"
+                        className="flex items-start gap-4 p-4 rounded-xl bg-[#252018] border border-white/10 hover:border-[#D4A23A]/30 hover:bg-[#2D2118] transition-all group"
                       >
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
-                            <span className={`font-medium text-sm ${p.activo ? "text-white" : "text-text-muted line-through"}`}>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className={`font-medium text-[15px] ${p.activo ? "text-white" : "text-white/40 line-through"}`}>
                               {p.nombre}
                             </span>
                             {!p.activo && (
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-text-muted/15 text-text-muted font-medium border border-text-muted/20">
+                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-white/50 font-medium border border-white/10">
                                 Inactivo
                               </span>
                             )}
                           </div>
                           {p.descripcion && (
-                            <p className="text-xs text-text-secondary/60 mt-1 truncate max-w-md">{p.descripcion}</p>
+                            <p className="text-sm text-white/50 mt-1.5 leading-relaxed">{p.descripcion}</p>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-primary-light text-sm mr-1">${p.precio}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0 mt-0.5">
+                          <span className="font-bold text-[#D4A23A] text-sm mr-1">${p.precio}</span>
                           <button
                             onClick={() => setRecetaModal(p)}
-                            className={`p-2 rounded-lg border border-white/5 hover:bg-white/10 transition-all ${(p._count?.receta ?? 0) > 0 ? "text-gold" : "text-text-muted"}`}
+                            className={`p-2 rounded-lg border border-white/10 hover:bg-white/10 transition-all ${(p._count?.receta ?? 0) > 0 ? "text-[#D4A23A]" : "text-white/40"}`}
                             title="Receta"
                           >
                             <FlaskConical size={14} />
                           </button>
                           <button
                             onClick={() => setEditPlatillo(p)}
-                            className="p-2 rounded-lg border border-white/5 hover:bg-white/10 transition-all text-text-muted hover:text-primary-light"
+                            className="p-2 rounded-lg border border-white/10 hover:bg-white/10 transition-all text-white/40 hover:text-[#D4A23A]"
                             title="Editar platillo"
                           >
                             <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => handleDeletePlatillo(p)}
-                            className="p-2 rounded-lg border border-white/5 hover:bg-danger/10 transition-all text-text-muted hover:text-danger"
+                            className="p-2 rounded-lg border border-white/10 hover:bg-red-500/15 transition-all text-white/40 hover:text-red-400"
                             title="Eliminar platillo"
                           >
                             <Trash2 size={14} />
@@ -265,8 +257,8 @@ export default function AdminMenuPage() {
 
         {categorias.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-text-muted mb-4">No hay categorías aún</p>
-            <button onClick={() => { setShowCategoryModal(true); setEditCategory(null); }} className="btn-primary">
+            <p className="text-white/50 mb-4">No hay categorías aún</p>
+            <button onClick={() => { setShowCategoryModal(true); setEditCategory(null); }} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#D4A23A]/15 text-[#D4A23A] font-medium border border-[#D4A23A]/20 hover:bg-[#D4A23A]/25 transition-all mx-auto">
               <Layers size={16} /> Crear primera categoría
             </button>
           </div>
@@ -275,10 +267,10 @@ export default function AdminMenuPage() {
         {/* Modals */}
         {editPlatillo && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-surface rounded-2xl border border-primary/10 p-6">
+            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#1A1512] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-text-primary">Editar Platillo</h3>
-                <button onClick={() => setEditPlatillo(null)} className="p-1 rounded-lg hover:bg-surface-light"><X size={18} /></button>
+                <h3 className="font-semibold text-white">Editar Platillo</h3>
+                <button onClick={() => setEditPlatillo(null)} className="p-1 rounded-lg hover:bg-white/10"><X size={18} className="text-white/60" /></button>
               </div>
               <PlatilloForm platillo={editPlatillo} onSaved={handleSaved} />
             </div>
@@ -287,10 +279,10 @@ export default function AdminMenuPage() {
 
         {showNewDish && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-            <div className="w-full max-w-md bg-surface rounded-2xl border border-primary/10 p-6">
+            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#1A1512] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-text-primary">Nuevo Platillo</h3>
-                <button onClick={() => setShowNewDish(false)} className="p-1 rounded-lg hover:bg-surface-light"><X size={18} /></button>
+                <h3 className="font-semibold text-white">Nuevo Platillo</h3>
+                <button onClick={() => setShowNewDish(false)} className="p-1 rounded-lg hover:bg-white/10"><X size={18} className="text-white/60" /></button>
               </div>
               <PlatilloForm isNew={true} categoriaId={newDishCatId || undefined} onSaved={handleSaved} />
             </div>
@@ -338,22 +330,22 @@ function PlatilloForm({ platillo, isNew, categoriaId, onSaved }: { platillo?: Pl
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {isNew && (
-        <select value={catId} onChange={e => setCatId(parseInt(e.target.value))} className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm" required>
+        <select value={catId} onChange={e => setCatId(parseInt(e.target.value))} className="w-full px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm" required>
           <option value={0}>Seleccionar categoría</option>
           {categorias.map((c) => <option key={c.id} value={c.id}>{c.icono} {c.nombre}</option>)}
         </select>
       )}
-      <input placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm" required />
-      <input placeholder="Descripción" value={descripcion} onChange={e => setDescripcion(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm" />
-      <input type="number" placeholder="Precio" value={precio} onChange={e => setPrecio(parseFloat(e.target.value) || 0)} className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm" required />
+      <input placeholder="Nombre del platillo" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm" required />
+      <input placeholder="Descripción" value={descripcion} onChange={e => setDescripcion(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm" />
+      <input type="number" step="0.01" placeholder="Precio" value={precio} onChange={e => setPrecio(parseFloat(e.target.value) || 0)} className="w-full px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm" required />
       {!isNew && (
-        <label className="flex items-center gap-3 text-sm text-text-secondary">
-          <input type="checkbox" checked={activo} onChange={e => setActivo(e.target.checked)} className="accent-primary" /> Activo
+        <label className="flex items-center gap-3 text-sm text-white/70">
+          <input type="checkbox" checked={activo} onChange={e => setActivo(e.target.checked)} className="accent-[#D4A23A] w-4 h-4" /> Activo
         </label>
       )}
-      <div className="flex gap-3">
-        <button type="button" onClick={onSaved} className="flex-1 py-2.5 rounded-xl bg-surface-lighter text-text-secondary text-sm">Cancelar</button>
-        <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl bg-primary/10 text-primary-light text-sm font-medium">{saving ? "..." : (isNew ? "Crear" : "Guardar")}</button>
+      <div className="flex gap-3 pt-2">
+        <button type="button" onClick={onSaved} className="flex-1 py-2.5 rounded-xl bg-white/10 text-white/60 text-sm font-medium hover:bg-white/15 transition-all">Cancelar</button>
+        <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl bg-[#D4A23A]/15 text-[#D4A23A] text-sm font-medium hover:bg-[#D4A23A]/25 transition-all">{saving ? "..." : (isNew ? "Crear" : "Guardar")}</button>
       </div>
     </form>
   );
@@ -383,24 +375,24 @@ function CategoryModal({ cat, onClose, onSaved }: { cat: Categoria | null; onClo
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-md bg-surface rounded-2xl border border-primary/10 p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-md rounded-2xl border border-white/10 bg-[#1A1512] p-6 space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-text-primary">{cat ? "Editar" : "Nueva"} Categoría</h3>
-          <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-surface-light"><X size={18} /></button>
+          <h3 className="font-semibold text-white">{cat ? "Editar" : "Nueva"} Categoría</h3>
+          <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-white/10"><X size={18} className="text-white/60" /></button>
         </div>
-        <input placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm" required />
+        <input placeholder="Nombre de la categoría" value={nombre} onChange={e => setNombre(e.target.value)} className="w-full px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm" required />
         <div>
-          <label className="text-xs text-text-muted mb-2 block">Icono</label>
+          <label className="text-xs text-white/50 mb-2 block">Icono</label>
           <div className="flex flex-wrap gap-2">
             {iconos.map((ic) => (
-              <button key={ic} type="button" onClick={() => setIcono(ic)} className={`w-10 h-10 rounded-lg text-lg flex items-center justify-center border transition-all ${icono === ic ? "border-primary/40 bg-primary/10" : "border-primary/10 bg-surface-light"}`}>{ic}</button>
+              <button key={ic} type="button" onClick={() => setIcono(ic)} className={`w-10 h-10 rounded-lg text-lg flex items-center justify-center border transition-all ${icono === ic ? "border-[#D4A23A]/40 bg-[#D4A23A]/10" : "border-white/10 bg-[#252018] hover:bg-[#2D2118]"}`}>{ic}</button>
             ))}
           </div>
         </div>
-        <input type="number" placeholder="Orden" value={orden} onChange={e => setOrden(parseInt(e.target.value) || 0)} className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm" />
-        <div className="flex gap-3">
-          <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-surface-lighter text-text-secondary text-sm">Cancelar</button>
-          <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl bg-primary/10 text-primary-light text-sm font-medium">{saving ? "..." : "Guardar"}</button>
+        <input type="number" placeholder="Orden" value={orden} onChange={e => setOrden(parseInt(e.target.value) || 0)} className="w-full px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm" />
+        <div className="flex gap-3 pt-2">
+          <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-white/10 text-white/60 text-sm font-medium hover:bg-white/15 transition-all">Cancelar</button>
+          <button type="submit" disabled={saving} className="flex-1 py-2.5 rounded-xl bg-[#D4A23A]/15 text-[#D4A23A] text-sm font-medium hover:bg-[#D4A23A]/25 transition-all">{saving ? "..." : "Guardar"}</button>
         </div>
       </form>
     </div>
@@ -497,22 +489,22 @@ function RecetaModal({ platillo, onClose }: { platillo: Platillo; onClose: () =>
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-lg bg-surface rounded-2xl border border-primary/10 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 bg-surface rounded-t-2xl p-5 pb-3 border-b border-primary/10 flex items-center justify-between">
+      <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#1A1512] max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="sticky top-0 bg-[#1A1512] rounded-t-2xl p-5 pb-3 border-b border-white/10 flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-text-primary">🧾 Receta</h3>
-            <p className="text-xs text-text-muted mt-0.5">{platillo.nombre}</p>
+            <h3 className="font-semibold text-white">🧾 Receta</h3>
+            <p className="text-xs text-white/50 mt-0.5">{platillo.nombre}</p>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-surface-light"><X size={18} /></button>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10"><X size={18} className="text-white/60" /></button>
         </div>
 
         <div className="p-5 space-y-3">
           {loading ? (
-            <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-text-muted" /></div>
+            <div className="flex justify-center py-8"><Loader2 size={24} className="animate-spin text-white/40" /></div>
           ) : (
             <>
               {ingredientes.length === 0 && (
-                <p className="text-sm text-text-muted text-center py-6">
+                <p className="text-sm text-white/50 text-center py-6">
                   Esta platillo no tiene ingredientes asociados. Agrega los que necesites y el stock se descontará automáticamente al hacer un pedido.
                 </p>
               )}
@@ -522,7 +514,7 @@ function RecetaModal({ platillo, onClose }: { platillo: Platillo; onClose: () =>
                   <select
                     value={ing.ingredienteId}
                     onChange={(e) => updateIngredient(idx, "ingredienteId", parseInt(e.target.value))}
-                    className="flex-1 px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
+                    className="flex-1 px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm"
                   >
                     {allIngs.map((a) => (
                       <option key={a.id} value={a.id} disabled={!!ingredientes.find((r, ri) => r.ingredienteId === a.id && ri !== idx)}>
@@ -535,31 +527,31 @@ function RecetaModal({ platillo, onClose }: { platillo: Platillo; onClose: () =>
                     step="0.01"
                     value={ing.cantidad}
                     onChange={(e) => updateIngredient(idx, "cantidad", parseFloat(e.target.value) || 0)}
-                    className="w-20 px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm text-center"
+                    className="w-20 px-3 py-2.5 rounded-xl bg-[#252018] border border-white/10 text-white text-sm text-center"
                   />
-                  <span className="text-xs text-text-muted w-12">{ing.unidad}</span>
-                  <button onClick={() => removeIngredient(idx)} className="p-1.5 rounded-lg hover:bg-danger/10 text-text-muted hover:text-danger transition-all">
+                  <span className="text-xs text-white/50 w-12">{ing.unidad}</span>
+                  <button onClick={() => removeIngredient(idx)} className="p-1.5 rounded-lg hover:bg-red-500/15 text-white/40 hover:text-red-400 transition-all">
                     <X size={16} />
                   </button>
                 </div>
               ))}
 
               {availableIngs.length > 0 && (
-                <button onClick={addIngredient} className="flex items-center gap-2 text-sm text-primary-light hover:text-primary px-1 py-1 transition-all">
+                <button onClick={addIngredient} className="flex items-center gap-2 text-sm text-[#D4A23A] hover:text-[#E0B050] px-1 py-1 transition-all">
                   <Plus size={16} /> Agregar ingrediente
                 </button>
               )}
 
               {availableIngs.length === 0 && ingredientes.length > 0 && (
-                <p className="text-xs text-text-muted text-center pt-2">Todos los ingredientes están agregados</p>
+                <p className="text-xs text-white/40 text-center pt-2">Todos los ingredientes están agregados</p>
               )}
             </>
           )}
         </div>
 
-        <div className="p-5 pt-3 border-t border-primary/10 flex gap-3">
-          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-surface-lighter text-text-secondary text-sm">Cancelar</button>
-          <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 rounded-xl bg-primary/10 text-primary-light text-sm font-medium disabled:opacity-50">
+        <div className="p-5 pt-3 border-t border-white/10 flex gap-3">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-white/10 text-white/60 text-sm font-medium hover:bg-white/15 transition-all">Cancelar</button>
+          <button onClick={handleSave} disabled={saving} className="flex-1 py-2.5 rounded-xl bg-[#D4A23A]/15 text-[#D4A23A] text-sm font-medium hover:bg-[#D4A23A]/25 transition-all disabled:opacity-50">
             {saving ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Guardar Receta"}
           </button>
         </div>
