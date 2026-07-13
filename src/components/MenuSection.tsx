@@ -156,6 +156,7 @@ export function MenuSection() {
         if (!mounted) return;
         const data = await res.json();
         setCategorias(data);
+        setActiveCat(prev => (prev === null && data.length > 0) ? data[0].id : prev);
         setLoading(false);
       } catch (e) { console.error(e); }
     }
@@ -188,12 +189,7 @@ export function MenuSection() {
     return () => { mounted = false; channel.close(); clearInterval(interval); window.removeEventListener("focus", onFocus); };
   }, []);
 
-  // Set initial active category when data first loads
-  useEffect(() => {
-    if (categorias.length > 0 && activeCat === null) {
-      setActiveCat(categorias[0].id);
-    }
-  }, [categorias, activeCat]);
+
 
   const currentCat = categorias.find((c) => c.id === activeCat);
 

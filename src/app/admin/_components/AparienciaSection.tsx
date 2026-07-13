@@ -32,10 +32,6 @@ export default function AparienciaSection() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    fetchConfig();
-  }, []);
-
   async function fetchConfig() {
     try {
       const res = await fetch("/api/config");
@@ -47,6 +43,11 @@ export default function AparienciaSection() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchConfig();
+  }, []);
 
   async function handleImageUpload(key: string, file: File) {
     const reader = new FileReader();

@@ -19,10 +19,6 @@ export default function ReportesSection() {
     { nombre: string; ordenes: number; ventas: number; propinas: number }[]
   >([]);
 
-  useEffect(() => {
-    loadReportes();
-  }, []);
-
   async function loadReportes() {
     try {
       const res = await fetch("/api/ordenes");
@@ -56,6 +52,11 @@ export default function ReportesSection() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadReportes();
+  }, []);
 
   if (loading) {
     return (

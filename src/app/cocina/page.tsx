@@ -73,7 +73,7 @@ export default function CocinaDashboard() {
   const router = useRouter();
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
   const [loading, setLoading] = useState(true);
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const prevNuevasRef = useRef(0);
   const { toasts, addToast, dismiss } = useToasts();
   const [notifyGranted, setNotifyGranted] = useState(false);
@@ -142,6 +142,7 @@ export default function CocinaDashboard() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOrdenes();
 
     // Cross-tab instant sync
@@ -293,7 +294,7 @@ export default function CocinaDashboard() {
             <div className="flex-1 text-sm text-info">
               <p className="font-medium mb-1">Instala la app para recibir notificaciones</p>
               <p className="opacity-80">
-                En Chrome: Menú ⋮ → "Instalar app" o "Agregar a pantalla de inicio"
+                En Chrome: Menú ⋮ → &quot;Instalar app&quot; o &quot;Agregar a pantalla de inicio&quot;
               </p>
             </div>
             <button

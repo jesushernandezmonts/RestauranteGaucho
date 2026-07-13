@@ -26,10 +26,6 @@ export default function ReservacionesSection() {
   const [reservaciones, setReservaciones] = useState<Reservacion[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    load();
-  }, []);
-
   async function load() {
     try {
       const res = await fetch("/api/reservaciones");
@@ -40,6 +36,11 @@ export default function ReservacionesSection() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, []);
 
   async function updateEstado(id: number, estado: string) {
     await fetch("/api/reservaciones", {

@@ -51,10 +51,6 @@ export default function CuentaPage() {
 
   const propinaPresets = [10, 15, 18, 20];
 
-  useEffect(() => {
-    loadOrden();
-  }, []);
-
   async function loadOrden() {
     try {
       const res = await fetch(`/api/ordenes`);
@@ -67,6 +63,11 @@ export default function CuentaPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadOrden();
+  }, []);
 
   function getPropinaCalculada(): number {
     if (!orden) return 0;

@@ -71,10 +71,6 @@ export default function MesaDetailPage() {
   } | null>(null);
   const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   async function loadData() {
     try {
       const [mesaRes, menuRes] = await Promise.all([
@@ -92,6 +88,11 @@ export default function MesaDetailPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadData();
+  }, []);
 
   const addToOrder = useCallback((platillo: Platillo) => {
     setShowCustomize({ platillo, itemIndex: null });

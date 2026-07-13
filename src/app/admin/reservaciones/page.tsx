@@ -35,8 +35,6 @@ export default function AdminReservacionesPage() {
     if (status === "unauthenticated") router.push("/admin/login");
   }, [status, router]);
 
-  useEffect(() => { load(); }, []);
-
   async function load() {
     try {
       const res = await fetch("/api/reservaciones");
@@ -44,6 +42,11 @@ export default function AdminReservacionesPage() {
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, []);
 
   async function updateEstado(id: number, estado: string) {
     await fetch("/api/reservaciones", {

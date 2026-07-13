@@ -12,6 +12,7 @@ import {
   Loader2,
   ChevronDown,
 } from "lucide-react";
+import Link from "next/link";
 
 // ── Constantes ──────────────────────────────────────────────────
 
@@ -198,12 +199,12 @@ export default function ReservacionPage() {
           <p className="text-text-muted text-sm mb-6">
             Se ha abierto WhatsApp con los detalles. Confirma tu reservación enviando el mensaje. ¡Gracias!
           </p>
-          <a
+          <Link
             href="/"
             className="btn-primary inline-flex items-center gap-2"
           >
             ← Volver al inicio
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -214,13 +215,13 @@ export default function ReservacionPage() {
     <div className="min-h-screen bg-charcoal">
       {/* Hero */}
       <div className="relative pt-28 pb-16 px-4 text-center">
-        <a
+        <Link
           href="/"
           className="absolute top-6 left-6 flex items-center gap-2 text-base font-medium text-white/70 bg-white/5 hover:bg-white/10 hover:text-gold px-4 py-2 rounded-xl border border-white/10 hover:border-gold/30 transition-all duration-200"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           Volver
-        </a>
+        </Link>
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="relative z-10 max-w-lg mx-auto">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-gradient mb-4">Reservación</h1>

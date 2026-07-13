@@ -28,6 +28,18 @@ export function AboutSection() {
     } catch {}
   }, []);
 
+  function animateCounter(el: HTMLElement, target: number) {
+    const steps = 60, duration = 2000;
+    const inc = target / steps;
+    let step = 0, current = 0;
+    const timer = setInterval(() => {
+      step++;
+      current += inc;
+      if (step >= steps) { el.textContent = target + "+"; clearInterval(timer); }
+      else { el.textContent = Math.round(current).toString(); }
+    }, duration / steps);
+  }
+
   useEffect(() => {
     const el = statsRef.current;
     if (!el) return;
@@ -52,18 +64,6 @@ export function AboutSection() {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
-  function animateCounter(el: HTMLElement, target: number) {
-    const steps = 60, duration = 2000;
-    const inc = target / steps;
-    let step = 0, current = 0;
-    const timer = setInterval(() => {
-      step++;
-      current += inc;
-      if (step >= steps) { el.textContent = target + "+"; clearInterval(timer); }
-      else { el.textContent = Math.round(current).toString(); }
-    }, duration / steps);
-  }
 
   const aboutImage = config.about_imagen || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80";
 

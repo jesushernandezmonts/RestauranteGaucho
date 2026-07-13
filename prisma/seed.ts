@@ -3,7 +3,8 @@ import { PrismaClient } from "@prisma/client/.prisma/client/index.js";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const { Pool } = require("pg");
+import pg from "pg";
+const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });

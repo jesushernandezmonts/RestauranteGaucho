@@ -21,10 +21,6 @@ export default function FestividadesSection() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    fetchConfig();
-  }, []);
-
   async function fetchConfig() {
     try {
       const res = await fetch("/api/config");
@@ -36,6 +32,11 @@ export default function FestividadesSection() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchConfig();
+  }, []);
 
   async function handleSave() {
     setSaving(true);

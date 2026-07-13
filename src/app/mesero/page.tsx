@@ -88,19 +88,6 @@ export default function MeseroDashboard() {
     checkNotify();
   }, []);
 
-  useEffect(() => {
-    fetchMesas();
-    fetchOrdenesListas();
-
-    // Poll cada 1s (toasts casi instantáneos)
-    const interval = setInterval(() => {
-      fetchMesas();
-      fetchOrdenesListas();
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   async function fetchOrdenesListas() {
     try {
       const res = await fetch("/api/ordenes?estado=LISTO&forKitchen=true");
@@ -157,6 +144,21 @@ export default function MeseroDashboard() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchMesas();
+     
+    fetchOrdenesListas();
+
+    // Poll cada 1s (toasts casi instantáneos)
+    const interval = setInterval(() => {
+      fetchMesas();
+      fetchOrdenesListas();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   async function toggleMesaEstado(mesa: Mesa) {
     const nextEstado: Record<MesaEstado, MesaEstado> = {
@@ -262,7 +264,7 @@ export default function MeseroDashboard() {
             <div className="flex-1 text-sm text-info">
               <p className="font-medium mb-1">Instala la app para recibir notificaciones</p>
               <p className="opacity-80">
-                En Chrome: Menú ⋮ → "Instalar app" o "Agregar a pantalla de inicio"
+                En Chrome: Menú ⋮ → &quot;Instalar app&quot; o &quot;Agregar a pantalla de inicio&quot;
               </p>
             </div>
             <button

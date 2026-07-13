@@ -44,8 +44,6 @@ export default function AdminMenuPage() {
     if (status === "unauthenticated") router.push("/admin/login");
   }, [status, router]);
 
-  useEffect(() => { loadMenu(); }, []);
-
   async function loadMenu() {
     try {
       const [catRes, platRes] = await Promise.all([
@@ -64,6 +62,11 @@ export default function AdminMenuPage() {
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadMenu();
+  }, []);
 
   function handleSaved() {
     broadcastMenuChange();
@@ -285,11 +288,6 @@ function RecetaModal({ platillo, onClose }: { platillo: Platillo; onClose: () =>
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadRecipe();
-    loadAllIngredients();
-  }, []);
-
   async function loadRecipe() {
     try {
       const res = await fetch(`/api/platillos/${platillo.id}/receta`);
@@ -315,6 +313,13 @@ function RecetaModal({ platillo, onClose }: { platillo: Platillo; onClose: () =>
       setAllIngs(data.ingredientes || []);
     } catch (e) { console.error(e); }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRecipe();
+     
+    loadAllIngredients();
+  }, []);
 
   function addIngredient() {
     const first = allIngs.find((i) => !ingredientes.find((r) => r.ingredienteId === i.id));

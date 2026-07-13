@@ -28,10 +28,6 @@ export default function AdminReportesPage() {
     if (status === "unauthenticated") router.push("/admin/login");
   }, [status, router]);
 
-  useEffect(() => {
-    loadReportes();
-  }, []);
-
   async function loadReportes() {
     try {
       const res = await fetch("/api/ordenes");
@@ -65,6 +61,11 @@ export default function AdminReportesPage() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadReportes();
+  }, []);
 
   if (status === "loading" || loading) {
     return (

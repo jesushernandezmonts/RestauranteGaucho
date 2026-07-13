@@ -679,11 +679,6 @@ function RecetaModal({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadRecipe();
-    loadAllIngredients();
-  }, []);
-
   async function loadRecipe() {
     try {
       const res = await fetch(`/api/platillos/${platillo.id}/receta`);
@@ -720,6 +715,13 @@ function RecetaModal({
       console.error(e);
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRecipe();
+     
+    loadAllIngredients();
+  }, []);
 
   function addIngredient() {
     const first = allIngs.find(

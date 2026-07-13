@@ -121,7 +121,7 @@ const FestivityDecorations = () => {
         <button onClick={handleCelebrate}>
           {showMessage ? 'Hide Message' : 'Join the Party'}
         </button>
-        {showMessage && <div className="message">You're part of the celebration! 🎈</div>}
+        {showMessage && <div className="message">You&apos;re part of the celebration! 🎈</div>}
       </div>
     </div>
   );

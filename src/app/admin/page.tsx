@@ -69,14 +69,6 @@ export default function AdminDashboard() {
     if (status === "unauthenticated") router.push("/admin/login");
   }, [status, router]);
 
-  useEffect(() => {
-    if (activeSection === "dashboard") {
-      loadStats();
-    } else {
-      setLoading(false);
-    }
-  }, [activeSection]);
-
   async function loadStats() {
     setLoading(true);
     try {
@@ -128,6 +120,16 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (activeSection === "dashboard") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadStats();
+    } else {
+       
+      setLoading(false);
+    }
+  }, [activeSection]);
 
   if (status === "loading") {
     return (
