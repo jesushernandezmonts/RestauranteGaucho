@@ -233,13 +233,13 @@ body {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
-/* Theme utility overrides for dark background */
+/* Theme utility overrides for dark background — warm browns */
 .dark-section .text-text-primary { color: #FFFFFF; }
 .dark-section .text-text-secondary { color: #A0A0A0; }
 .dark-section .text-text-muted { color: #707070; }
-.dark-section .bg-surface { background: #1E1E1E; }
-.dark-section .bg-surface-light { background: #2D2D2D; }
-.dark-section .bg-surface-lighter { background: #383838; }
+.dark-section .bg-surface { background: #1A1410; }
+.dark-section .bg-surface-light { background: #252018; }
+.dark-section .bg-surface-lighter { background: #2D2118; }
 .dark-section .border-primary\/10 { border-color: rgba(212,162,58,0.12); }
 .dark-section .border-primary\/20 { border-color: rgba(212,162,58,0.18); }
 .dark-section .border-primary\/30 { border-color: rgba(212,162,58,0.25); }
@@ -247,12 +247,12 @@ body {
 .dark-section .text-primary-light { color: #D4A23A; }
 .dark-section .bg-primary\/10 { background: rgba(212,162,58,0.12); }
 .dark-section .bg-primary\/20 { background: rgba(212,162,58,0.18); }
-.dark-section .hover\:bg-surface-light:hover { background: #2D2D2D; }
-.dark-section .hover\:bg-surface-lighter:hover { background: #383838; }
+.dark-section .hover\:bg-surface-light:hover { background: #252018; }
+.dark-section .hover\:bg-surface-lighter:hover { background: #2D2118; }
 .dark-section .hover\:text-text-primary:hover { color: #FFFFFF; }
 
 .dark-section input, .dark-section select, .dark-section textarea {
-  background: #2D2D2D;
+  background: #252018;
   border-color: rgba(212,162,58,0.12);
   color: #FFFFFF;
 }
