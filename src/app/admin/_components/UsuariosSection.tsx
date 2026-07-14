@@ -8,7 +8,9 @@ import {
   X,
   Pencil,
   UserPlus,
+
   KeyRound,
+  Trash2,
 } from "lucide-react";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
@@ -46,6 +48,21 @@ export default function UsuariosSection() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(userId: number, userName: string) {
+    if (window.confirm(`¿Estás seguro de que quieres eliminar a ${userName}?`)) {
+      try {
+        const res = await fetch(`/api/usuarios/${userId}`, { method: 'DELETE' });
+        if (res.ok) {
+          loadUsuarios();
+        } else {
+          console.error("Error al eliminar usuario");
+        }
+      } catch (e) {
+        console.error("Error de conexión al eliminar", e);
+      }
     }
   }
 
@@ -127,6 +144,12 @@ export default function UsuariosSection() {
                         className="p-1.5 rounded-lg hover:bg-surface-light"
                       >
                         <Pencil size={14} className="text-text-muted" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(u.id, u.nombre)}
+                        className="p-1.5 rounded-lg hover:bg-surface-light"
+                      >
+                        <Trash2 size={14} className="text-danger" />
                       </button>
                   </td>
                 </tr>

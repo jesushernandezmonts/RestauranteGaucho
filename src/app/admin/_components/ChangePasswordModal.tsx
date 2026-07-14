@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Loader2 } from "lucide-react";
+import { X, Loader2, Eye, EyeOff } from "lucide-react";
 
 type ChangePasswordModalProps = {
   user: { id: number; nombre: string };
@@ -13,6 +13,7 @@ export function ChangePasswordModal({ user, onClose, onSaved }: ChangePasswordMo
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,14 +62,23 @@ export function ChangePasswordModal({ user, onClose, onSaved }: ChangePasswordMo
         <p className="text-sm text-text-muted">
           Estás cambiando la contraseña para <span className="font-bold text-text-primary">{user.nombre}</span>.
         </p>
-        <input
-          type="password"
-          placeholder="Nueva Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
-          required
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Nueva Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm pr-10"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
         {error && <p className="text-xs text-danger">{error}</p>}
         <div className="flex gap-3">
           <button

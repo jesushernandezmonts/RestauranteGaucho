@@ -25,7 +25,7 @@ export function AboutSection({ initialConfig = {} }: { initialConfig?: Record<st
       const bc = new BroadcastChannel("gaucho_config_changes");
       bc.onmessage = () => fetchConfig();
       return () => bc.close();
-    } catch {}
+    } catch { }
   }, []);
 
   function animateCounter(el: HTMLElement, target: number) {
@@ -109,7 +109,7 @@ export function AboutSection({ initialConfig = {} }: { initialConfig?: Record<st
             </h3>
             <div className="space-y-2 sm:space-y-4 text-chocolate-light leading-relaxed text-sm sm:text-[15px] md:text-base">
               <p>
-                En <strong className="text-chocolate">Gaucho Restaurante</strong>, celebramos la rica herencia de la cultura argentina
+                En <strong className="text-chocolate">Gaucho Restaurante</strong>, celebramos la rica herencia de la cultura
                 a través de una experiencia culinaria sin igual. Ofrecemos los cortes de carne
                 más selectos, acompañados de los mejores vinos.
               </p>
