@@ -154,6 +154,15 @@ export default function UsuariosSection() {
             }}
           />
         )}
+        {changePasswordUser && (
+          <ChangePasswordModal
+            user={changePasswordUser}
+            onClose={() => setChangePasswordUser(null)}
+            onSaved={() => {
+              setChangePasswordUser(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );
