@@ -362,7 +362,7 @@ export default function ReportesSection() {
                                 label={({ name, percent }) => name + ' ' + (percent * 100).toFixed(0) + '%'}
                             >
                                 {pieChartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    <Cell key={'cell-' + index} fill={COLORS[index % COLORS.length]} />
                                 ))}
                             </Pie>
                             <Tooltip
