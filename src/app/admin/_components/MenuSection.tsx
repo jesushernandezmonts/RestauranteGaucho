@@ -10,6 +10,7 @@ import {
   FlaskConical,
   ChevronDown,
   Trash2,
+  AlertTriangle,
 } from "lucide-react";
 
 type Categoria = {
@@ -42,6 +43,7 @@ export default function MenuSection() {
   const [newDishCatId, setNewDishCatId] = useState<number | null>(null);
   const [recetaModal, setRecetaModal] = useState<Platillo | null>(null);
   const [expandedCats, setExpandedCats] = useState<Set<number>>(new Set());
+  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
 
   function toggleCategory(catId: number) {
     setExpandedCats((prev) => {
@@ -98,8 +100,11 @@ export default function MenuSection() {
     loadMenu();
   }
 
-  async function deleteCategory(catId: number, nombre: string) {
-    if (!window.confirm(`Eliminar la categoria "${nombre}"? Se eliminaran todos sus platillos.`)) return;
+  function deleteCategory(catId: number, nombre: string) {
+    setConfirmDialog({
+      title: "Eliminar categoría",
+      message: `¿Eliminar la categoría \"${nombre}\"? Se eliminarán todos sus platillos.`,
+      onConfirm: async () => {
     try {
       const res = await fetch(`/api/categorias?id=${catId}`, { method: "DELETE" });
       if (res.ok) {
@@ -111,8 +116,11 @@ export default function MenuSection() {
     }
   }
 
-  async function deletePlatillo(platilloId: number, nombre: string) {
-    if (!window.confirm(`Eliminar el platillo "${nombre}"?`)) return;
+  function deletePlatillo(platilloId: number, nombre: string) {
+    setConfirmDialog({
+      title: "Eliminar platillo",
+      message: `¿Eliminar el platillo \"${nombre}\"?`,
+      onConfirm: async () => {
     try {
       const res = await fetch(`/api/platillos?id=${platilloId}`, { method: "DELETE" });
       if (res.ok) {
@@ -361,6 +369,33 @@ export default function MenuSection() {
                 categoriaId={newDishCatId || undefined}
                 onSaved={handleSaved}
               />
+            </div>
+          </div>
+        )}
+
+        {/* Confirm Dialog */}
+        {confirmDialog && (
+          <div className="fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4">
+            <div className="w-full max-w-sm bg-[#1A1A1A] rounded-2xl border border-white/10 p-6 text-center">
+              <div className="mx-auto w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center mb-4">
+                <AlertTriangle size={28} className="text-red-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">{confirmDialog.title}</h3>
+              <p className="text-sm text-gray-400 mb-6 leading-relaxed">{confirmDialog.message}</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setConfirmDialog(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/5 text-gray-300 text-sm font-medium hover:bg-white/10 border border-white/10 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500/20 text-red-400 text-sm font-medium hover:bg-red-500/30 border border-red-500/20 transition-all"
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         )}
