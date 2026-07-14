@@ -1,14 +1,9 @@
+```
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { Loader2, Download, CalendarDays } from "lucide-react";
-import format from 'date-fns/format';
-import subDays from 'date-fns/subDays';
-import startOfMonth from 'date-fns/startOfMonth';
-import endOfMonth from 'date-fns/endOfMonth';
-import startOfWeek from 'date-fns/startOfWeek';
-import endOfWeek from 'date-fns/endOfWeek';
-import { es } from 'date-fns/locale'; // Para formatear fechas en español
+// Eliminadas importaciones de date-fns y date-fns/locale por importación dinámica
 
 import dynamic from 'next/dynamic'; // Importar dynamic de next/dynamic
 
@@ -66,12 +61,25 @@ const dateRangeOptions = [
 ];
 
 export default function ReportesSection() {
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<UserBasic[]>([]);
-  const [selectedMeseroId, setSelectedMeseroId] = useState<string>("all");
-  const [selectedMetodoPago, setSelectedMetodoPago] = useState<string>("Todos");
-  const [dateRange, setDateRange] = useState<DateRange>({ startDate: subDays(new Date(), 6), endDate: new Date() });
-  const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [dateFns, setDateFns] = useState<any>(null);
+  const [esLocale, setEsLocale] = useState<any>(null);
+
+  // Cargar date-fns y su locale solo en el cliente
+  useEffect(() => {
+    async function loadDateFns() {
+      try {
+        const df = await import('date-fns');
+        const locale = await import('date-fns/locale/es');
+        setDateFns(df);
+        setEsLocale(locale.es); // Asegurarse de obtener el objeto de locale
+        // Inicializar el rango de fechas con date-fns cargado
+        setDateRange({ startDate: df.subDays(new Date(), 6), endDate: new Date() });
+      } catch (error) {
+        console.error("Error loading date-fns:", error);
+      }
+    }
+    loadDateFns();
+  }, []);
 
   // Colores para los gráficos de pastel
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe', '#00c49f'];
@@ -96,10 +104,11 @@ export default function ReportesSection() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        if (dateRange.startDate) {
+        // Asegurarse de que dateFns esté cargado antes de usarlo
+        if (dateRange.startDate && dateFns) {
           params.append("startDate", dateRange.startDate.toISOString());
         }
-        if (dateRange.endDate) {
+        if (dateRange.endDate && dateFns) {
           params.append("endDate", dateRange.endDate.toISOString());
         }
         if (selectedMeseroId !== "all") {
@@ -118,10 +127,15 @@ export default function ReportesSection() {
         setLoading(false);
       }
     }
-    fetchReportData();
-  }, [dateRange, selectedMeseroId, selectedMetodoPago]);
+    // Solo cargar datos si dateFns está listo (es decir, el componente se ha montado)
+    if (dateFns) {
+      fetchReportData();
+    }
+  }, [dateRange, selectedMeseroId, selectedMetodoPago, dateFns]);
 
   const handleDateRangeChange = (option: string) => {
+    if (!dateFns) return; // Asegurarse de que dateFns esté cargado
+
     const today = new Date();
     today.setHours(23, 59, 59, 999); // End of day
 
@@ -133,17 +147,17 @@ export default function ReportesSection() {
         newStartDate = new Date(today.setHours(0, 0, 0, 0)); // Start of day
         break;
       case "last7days":
-        newStartDate = subDays(today, 6);
+        newStartDate = dateFns.subDays(today, 6);
         newStartDate.setHours(0, 0, 0, 0);
         break;
       case "thisMonth":
-        newStartDate = startOfMonth(today);
+        newStartDate = dateFns.startOfMonth(today);
         newStartDate.setHours(0, 0, 0, 0);
         break;
       case "lastMonth":
-        const lastMonth = subDays(startOfMonth(today), 1);
-        newStartDate = startOfMonth(lastMonth);
-        newEndDate = endOfMonth(lastMonth);
+        const lastMonth = dateFns.subDays(dateFns.startOfMonth(today), 1);
+        newStartDate = dateFns.startOfMonth(lastMonth);
+        newEndDate = dateFns.endOfMonth(lastMonth);
         newEndDate.setHours(23, 59, 59, 999);
         break;
       default:
@@ -232,8 +246,8 @@ export default function ReportesSection() {
             {/* Custom Date Picker (TODO: Implement or use a library) */}
             <div className="mt-2 flex items-center text-xs text-gray-400 gap-1">
                 <CalendarDays size={12} />
-                {dateRange.startDate && dateRange.endDate
-                    ? `${format(dateRange.startDate, 'dd MMM yyyy', { locale: es })} - ${format(dateRange.endDate, 'dd MMM yyyy', { locale: es })}`
+                {dateRange.startDate && dateRange.endDate && dateFns && esLocale
+                    ? `${dateFns.format(dateRange.startDate, 'dd MMM yyyy', { locale: esLocale })} - ${dateFns.format(dateRange.endDate, 'dd MMM yyyy', { locale: esLocale })}`
                     : 'Selecciona un rango'
                 }
             </div>
