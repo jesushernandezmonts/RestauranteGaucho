@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { bumpMenuVersion } from "@/app/api/menu-version/route";
+import { bumpMenuVersion } from "@/lib/menuVersion";
 import { auth } from "@/lib/auth";
 import { sendPushToAll } from "@/lib/push";
 
