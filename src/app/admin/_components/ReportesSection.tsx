@@ -132,7 +132,8 @@ export default function ReportesSection() {
 
         if (queryString) { // Verificar si hay parámetros
             url = url + `?` + queryString; // Concatenar explícitamente
-        }const res = await fetch(url);
+        }
+        const res = await fetch(url);
         const data = await res.json();
         setReportData(data);
       } catch (error) {
