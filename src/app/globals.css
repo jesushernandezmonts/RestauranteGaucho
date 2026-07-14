@@ -221,19 +221,12 @@ body {
 /* ─── DARK SECTION (admin/internal panels — high contrast) ──── */
 
 .dark-section {
-  background: #000000;
+  background: #000000 !important;
   color: #FFFFFF;
-  /* Override Tailwind color tokens for black palette */
-  --color-surface: #000000;
-  --color-surface-light: #0D0D0D;
-  --color-surface-lighter: #1A1A1A;
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #C4A882;
-  --color-text-muted: #8A7560;
 }
 
 .dark-section .card {
-  background: #0A0A0A;
+  background: #0A0A0A !important;
   border-color: rgba(232,171,47,0.10);
 }
 .dark-section .card:hover {
@@ -241,24 +234,43 @@ body {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
-.dark-section .text-primary-light { color: #D4A23A; }
-.dark-section .border-primary\/10 { border-color: rgba(212,162,58,0.12); }
-.dark-section .border-primary\/20 { border-color: rgba(212,162,58,0.18); }
-.dark-section .border-primary\/30 { border-color: rgba(212,162,58,0.25); }
+/* Force all surface utilities to black inside dark-section */
+.dark-section .bg-surface { background: #000000 !important; }
+.dark-section .bg-surface-light { background: #0D0D0D !important; }
+.dark-section .bg-surface-lighter { background: #1A1A1A !important; }
+.dark-section .hover\:bg-surface-light:hover { background: #0D0D0D !important; }
+.dark-section .hover\:bg-surface-lighter:hover { background: #1A1A1A !important; }
+.dark-section .hover\:bg-surface-light\/30:hover { background: rgba(13,13,13,0.3) !important; }
+.dark-section .bg-surface-light\/50 { background: rgba(13,13,13,0.5) !important; }
+.dark-section .bg-surface-light\/80 { background: rgba(13,13,13,0.8) !important; }
+.dark-section .bg-surface-light\/30 { background: rgba(13,13,13,0.3) !important; }
 
+/* Text overrides */
+.dark-section .text-text-primary { color: #FFFFFF !important; }
+.dark-section .text-text-secondary { color: #C4A882 !important; }
+.dark-section .text-text-muted { color: #8A7560 !important; }
+.dark-section .hover\:text-text-primary:hover { color: #FFFFFF !important; }
+.dark-section .text-primary-light { color: #D4A23A !important; }
+
+/* Border overrides */
+.dark-section .border-primary\/10 { border-color: rgba(212,162,58,0.12) !important; }
+.dark-section .border-primary\/20 { border-color: rgba(212,162,58,0.18) !important; }
+.dark-section .border-primary\/30 { border-color: rgba(212,162,58,0.25) !important; }
+
+/* Native form elements */
 .dark-section input, .dark-section select, .dark-section textarea {
-  background: #0D0D0D;
-  border-color: rgba(212,162,58,0.12);
-  color: #FFFFFF;
+  background: #0D0D0D !important;
+  border-color: rgba(212,162,58,0.12) !important;
+  color: #FFFFFF !important;
 }
 .dark-section input::placeholder {
-  color: #707070;
+  color: #707070 !important;
 }
 
+/* Buttons */
 .dark-section .btn-primary {
   @apply bg-gold hover:bg-gold-light text-chocolate;
 }
-
 .dark-section .btn-secondary {
   border-color: rgba(255,255,255,0.12);
   color: #A0A0A0;
