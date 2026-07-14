@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<any> }
 ) {
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") {
@@ -19,8 +19,9 @@ export async function PATCH(
   }
 
   try {
+    const params = await context.params;
+    const id = params.id;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const { id } = context.params;
     await prisma.user.update({
       where: { id: Number(id) },
       data: { passwordHash: hashedPassword },
