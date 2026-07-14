@@ -9,6 +9,7 @@ import {
   Layers,
   FlaskConical,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 
 type Categoria = {
@@ -97,6 +98,32 @@ export default function MenuSection() {
     loadMenu();
   }
 
+  async function deleteCategory(catId: number, nombre: string) {
+    if (!window.confirm(`Eliminar la categoria "${nombre}"? Se eliminaran todos sus platillos.`)) return;
+    try {
+      const res = await fetch(`/api/categorias?id=${catId}`, { method: "DELETE" });
+      if (res.ok) {
+        broadcastMenuChange();
+        loadMenu();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function deletePlatillo(platilloId: number, nombre: string) {
+    if (!window.confirm(`Eliminar el platillo "${nombre}"?`)) return;
+    try {
+      const res = await fetch(`/api/platillos?id=${platilloId}`, { method: "DELETE" });
+      if (res.ok) {
+        broadcastMenuChange();
+        loadMenu();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -181,6 +208,16 @@ export default function MenuSection() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          deleteCategory(cat.id, cat.nombre);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-red-500/20"
+                        title="Eliminar categoría"
+                      >
+                        <Trash2 size={14} className="text-red-400 hover:text-red-300" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setNewDishCatId(cat.id);
                           setShowNewDish(true);
                         }}
@@ -225,7 +262,7 @@ export default function MenuSection() {
                               className={`font-medium text-sm ${
                                 p.activo
                                   ? "text-white"
-                                  : "text-text-muted line-through"
+                                  : "text-gray-400 line-through"
                               }`}
                             >
                               {p.nombre}
@@ -248,7 +285,7 @@ export default function MenuSection() {
                           </span>
                           <button
                             onClick={() => setRecetaModal(p)}
-                            className={`p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-surface-lighter ${
+                            className={`p-1.5 rounded-lg transition-all hover:bg-surface-lighter ${
                               (p._count?.receta ?? 0) > 0
                                 ? "text-gold"
                                 : "text-text-muted"
@@ -259,9 +296,16 @@ export default function MenuSection() {
                           </button>
                           <button
                             onClick={() => setEditPlatillo(p)}
-                            className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-surface-lighter transition-all"
+                            className="p-1.5 rounded-lg hover:bg-surface-lighter transition-all"
                           >
                             <Pencil size={14} className="text-gray-400 hover:text-white" />
+                          </button>
+                          <button
+                            onClick={() => deletePlatillo(p.id, p.nombre)}
+                            className="p-1.5 rounded-lg transition-all hover:bg-red-500/20"
+                            title="Eliminar platillo"
+                          >
+                            <Trash2 size={14} className="text-red-400 hover:text-red-300" />
                           </button>
                         </div>
                       </div>
