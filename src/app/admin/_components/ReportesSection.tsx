@@ -2,7 +2,12 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Loader2, Download, CalendarDays } from "lucide-react";
-import { format, subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
+import format from 'date-fns/format';
+import subDays from 'date-fns/subDays';
+import startOfMonth from 'date-fns/startOfMonth';
+import endOfMonth from 'date-fns/endOfMonth';
+import startOfWeek from 'date-fns/startOfWeek';
+import endOfWeek from 'date-fns/endOfWeek';
 import { es } from 'date-fns/locale'; // Para formatear fechas en español
 
 import dynamic from 'next/dynamic'; // Importar dynamic de next/dynamic
