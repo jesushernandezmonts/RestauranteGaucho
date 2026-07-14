@@ -8,7 +8,9 @@ import {
   X,
   Pencil,
   UserPlus,
+  KeyRound,
 } from "lucide-react";
+import { ChangePasswordModal } from "./ChangePasswordModal";
 
 type Usuario = {
   id: number;
@@ -30,6 +32,7 @@ export default function UsuariosSection() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editUser, setEditUser] = useState<Usuario | null>(null);
+  const [changePasswordUser, setChangePasswordUser] = useState<Usuario | null>(null);
 
   useEffect(() => {
     loadUsuarios();
@@ -113,12 +116,18 @@ export default function UsuariosSection() {
                     />
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => setEditUser(u)}
-                      className="p-1.5 rounded-lg hover:bg-surface-light"
-                    >
-                      <Pencil size={14} className="text-text-muted" />
-                    </button>
+                      <button
+                        onClick={() => setChangePasswordUser(u)}
+                        className="p-1.5 rounded-lg hover:bg-surface-light"
+                      >
+                        <KeyRound size={14} className="text-text-muted" />
+                      </button>
+                      <button
+                        onClick={() => setEditUser(u)}
+                        className="p-1.5 rounded-lg hover:bg-surface-light"
+                      >
+                        <Pencil size={14} className="text-text-muted" />
+                      </button>
                   </td>
                 </tr>
               ))}
