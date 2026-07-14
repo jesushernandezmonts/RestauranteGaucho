@@ -103,33 +103,39 @@ export default function MenuSection() {
   function deleteCategory(catId: number, nombre: string) {
     setConfirmDialog({
       title: "Eliminar categoría",
-      message: `¿Eliminar la categoría \"${nombre}\"? Se eliminarán todos sus platillos.`,
+      message: `¿Eliminar la categoría "${nombre}"? Se eliminarán todos sus platillos.`,
       onConfirm: async () => {
-    try {
-      const res = await fetch(`/api/categorias?id=${catId}`, { method: "DELETE" });
-      if (res.ok) {
-        broadcastMenuChange();
-        loadMenu();
+        try {
+          const res = await fetch(`/api/categorias?id=${catId}`, { method: "DELETE" });
+          if (res.ok) {
+            broadcastMenuChange();
+            loadMenu();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        setConfirmDialog(null);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   }
 
   function deletePlatillo(platilloId: number, nombre: string) {
     setConfirmDialog({
       title: "Eliminar platillo",
-      message: `¿Eliminar el platillo \"${nombre}\"?`,
+      message: `¿Eliminar el platillo "${nombre}"?`,
       onConfirm: async () => {
-    try {
-      const res = await fetch(`/api/platillos?id=${platilloId}`, { method: "DELETE" });
-      if (res.ok) {
-        broadcastMenuChange();
-        loadMenu();
+        try {
+          const res = await fetch(`/api/platillos?id=${platilloId}`, { method: "DELETE" });
+          if (res.ok) {
+            broadcastMenuChange();
+            loadMenu();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        setConfirmDialog(null);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    });
   }
 
   if (loading) {
