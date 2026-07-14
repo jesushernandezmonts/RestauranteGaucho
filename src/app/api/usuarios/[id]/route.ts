@@ -5,14 +5,14 @@ import { auth } from "@/lib/auth";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: any
 ) {
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const userId = Number(params.id);
+  const userId = Number(context.params.id);
 
   if (isNaN(userId)) {
     return NextResponse.json({ error: "ID de usuario inválido" }, { status: 400 });
