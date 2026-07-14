@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 
 // Simple in-memory version counter. Bumped when menu changes.
-let menuVersion = 0;
-
-function bumpMenuVersion() {
-  menuVersion++;
-}
+import { menuVersion, bumpMenuVersion } from "@/lib/menuVersion";
 
 // GET /api/menu-version?v=CLIENT_VERSION
 // Returns { current: N, changed: boolean }
