@@ -120,10 +120,11 @@ export default function ReportesSection() {
 
         // Construimos la URL de forma más tradicional
         let url = `/api/reportes/propinas`;
-        if (params.toString()) {
-            url += `?${params.toString()}`;
-        }
-        const res = await fetch(url);
+        const queryString = params.toString(); // Obtener la cadena de consulta por separado
+
+        if (queryString) { // Verificar si hay parámetros
+            url = url + `?` + queryString; // Concatenar explícitamente
+        }const res = await fetch(url);
         const data = await res.json();
         setReportData(data);
       } catch (error) {
