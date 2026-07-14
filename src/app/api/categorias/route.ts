@@ -45,12 +45,20 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const { id } = await request.json();
-    const count = await prisma.platillo.count({ where: { categoriaId: id } });
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID de categoría no proporcionado" }, { status: 400 });
+    }
+
+    const categoryId = parseInt(id, 10); // Convertir el ID a número
+
+    const count = await prisma.platillo.count({ where: { categoriaId: categoryId } });
     if (count > 0) {
       return NextResponse.json({ error: "Categoría tiene platillos, no se puede eliminar" }, { status: 400 });
     }
-    const cat = await prisma.categoria.delete({ where: { id } });
+    const cat = await prisma.categoria.delete({ where: { id: categoryId } });
     bumpMenuVersion();
     return NextResponse.json(cat);
   } catch (error) {
