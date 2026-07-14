@@ -202,7 +202,7 @@ export default function MenuSection() {
                 <div
                   className="transition-all duration-300 ease-in-out overflow-hidden"
                   style={{
-                    maxHeight: isExpanded ? `${(cat.platillos.length + 1) * 60}px` : "0px",
+                    maxHeight: isExpanded ? `${(cat.platillos.length + 1) * 120}px` : "0px",
                     opacity: isExpanded ? 1 : 0,
                   }}
                 >
