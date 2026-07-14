@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") {
@@ -20,8 +20,9 @@ export async function PATCH(
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+    const { id } = context.params;
     await prisma.user.update({
-      where: { id: Number(params.id) },
+      where: { id: Number(id) },
       data: { passwordHash: hashedPassword },
     });
     return NextResponse.json({ message: "Contraseña actualizada" });
