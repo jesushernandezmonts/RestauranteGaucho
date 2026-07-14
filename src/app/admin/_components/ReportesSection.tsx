@@ -1,4 +1,4 @@
-```js
+
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
@@ -324,7 +324,7 @@ export default function ReportesSection() {
                     contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
                     itemStyle={{ color: '#fff' }}
                     labelStyle={{ color: '#ccc' }}
-                    formatter={(value: number) => '$' + value.toFixed(2)}
+                    formatter={(value: any) => (typeof value === 'number' ? '$' + value.toFixed(2) : value)}
                   />
                   <Legend />
                   <Bar dataKey="propinasTotal" fill="#8884d8" name="Propinas Totales" />
@@ -350,7 +350,7 @@ export default function ReportesSection() {
                     fill="#8884d8"
                     dataKey="value"
                     nameKey="name"
-                    label={({ name, percent }) => name + ' ' + (percent * 100).toFixed(0) + '%'}
+                    label={({ name, percent }) => name + ' ' + ((percent || 0) * 100).toFixed(0) + '%'}
                   >
                     {pieChartData.map((entry, index) => (
                       <Cell key={'cell-' + index} fill={COLORS[index % COLORS.length]} />
@@ -360,7 +360,7 @@ export default function ReportesSection() {
                     contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
                     itemStyle={{ color: '#fff' }}
                     labelStyle={{ color: '#ccc' }}
-                    formatter={(value: number, name: string) => { const formattedValue = '$' + value.toFixed(2); return [formattedValue, name]; }}
+                    formatter={(value: any, name: any) => { const formattedValue = typeof value === 'number' ? '$' + value.toFixed(2) : ''; return [formattedValue, name || '']; }}
                   />
                   <Legend />
                 </PieChart>
