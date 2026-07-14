@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 // Simple in-memory version counter. Bumped when menu changes.
 let menuVersion = 0;
 
-export function bumpMenuVersion() {
+function bumpMenuVersion() {
   menuVersion++;
 }
 
