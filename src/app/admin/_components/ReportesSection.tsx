@@ -1,9 +1,12 @@
+```js
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { Loader2, Download, CalendarDays } from "lucide-react";
+import { format, subDays, startOfMonth, endOfMonth } from "date-fns"; // NUEVA IMPORTACIÓN ESTÁTICA
+import { es } from 'date-fns/locale/es'; // NUEVA IMPORTACIÓN ESTÁTICA
+import dynamic from "next/dynamic";
 
-import dynamic from 'next/dynamic'; // Importar dynamic de next/dynamic
 
 // Importaciones dinámicas para Recharts
 const ResponsiveContainer = dynamic(() => import('recharts').then((mod) => mod.ResponsiveContainer), { ssr: false });
@@ -59,16 +62,14 @@ const dateRangeOptions = [
 ];
 
 // Función auxiliar para formatear el rango de fechas para mostrar
-function formatDateRangeDisplay(startDate: Date, endDate: Date, dateFns: any, esLocale: any): string {
-  if (!dateFns || !esLocale) return 'Selecciona un rango'; // Fallback si no está cargado
-  const formattedStartDate = dateFns.format(startDate, 'dd MMM yyyy', { locale: esLocale });
-  const formattedEndDate = dateFns.format(endDate, 'dd MMM yyyy', { locale: esLocale });
+function formatDateRangeDisplay(startDate: Date, endDate: Date, dateFnsFormat: any, esLocale: any): string {
+  if (!dateFnsFormat || !esLocale) return 'Selecciona un rango'; // Fallback si no está cargado
+  const formattedStartDate = dateFnsFormat(startDate, 'dd MMM yyyy', { locale: esLocale });
+  const formattedEndDate = dateFnsFormat(endDate, 'dd MMM yyyy', { locale: esLocale });
   return formattedStartDate + ' - ' + formattedEndDate;
 }
 
 export default function ReportesSection() {
-  const [dateFns, setDateFns] = useState<any>(null);
-  const [esLocale, setEsLocale] = useState<any>(null);
   const [users, setUsers] = useState<UserBasic[]>([]);
   const [selectedMeseroId, setSelectedMeseroId] = useState<string>("all");
   const [selectedMetodoPago, setSelectedMetodoPago] = useState<string>("Todos");
@@ -76,21 +77,9 @@ export default function ReportesSection() {
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Cargar date-fns y su locale solo en el cliente
+  // Inicializar el rango de fechas con date-fns cargado
   useEffect(() => {
-    async function loadDateFns() {
-      try {
-        const df = await import('date-fns');
-        const locale = await import('date-fns/locale/es');
-        setDateFns(df);
-        setEsLocale(locale.es); // Asegurarse de obtener el objeto de locale
-        // Inicializar el rango de fechas con date-fns cargado
-        setDateRange({ startDate: df.subDays(new Date(), 6), endDate: new Date() });
-      } catch (error) {
-        console.error("Error loading date-fns:", error);
-      }
-    }
-    loadDateFns();
+    setDateRange({ startDate: subDays(new Date(), 6), endDate: new Date() });
   }, []);
 
   // Colores para los gráficos de pastel
@@ -117,10 +106,10 @@ export default function ReportesSection() {
       try {
         const params = new URLSearchParams();
         // Asegurarse de que dateFns esté cargado antes de usarlo
-        if (dateRange.startDate && dateFns) {
+        if (dateRange.startDate) {
           params.append("startDate", dateRange.startDate.toISOString());
         }
-        if (dateRange.endDate && dateFns) {
+        if (dateRange.endDate) {
           params.append("endDate", dateRange.endDate.toISOString());
         }
         if (selectedMeseroId !== "all") {
@@ -147,13 +136,10 @@ export default function ReportesSection() {
       }
     }
     // Solo cargar datos si dateFns está listo (es decir, el componente se ha montado)
-    if (dateFns) {
-      fetchReportData();
-    }
-  }, [dateRange, selectedMeseroId, selectedMetodoPago, dateFns]);
+    fetchReportData();
+  }, [dateRange, selectedMeseroId, selectedMetodoPago]);
 
   const handleDateRangeChange = (option: string) => {
-    if (!dateFns) return; // Asegurarse de que dateFns esté cargado
 
     const today = new Date();
     today.setHours(23, 59, 59, 999); // End of day
@@ -166,17 +152,17 @@ export default function ReportesSection() {
         newStartDate = new Date(today.setHours(0, 0, 0, 0)); // Start of day
         break;
       case "last7days":
-        newStartDate = dateFns.subDays(today, 6);
+        newStartDate = subDays(today, 6);
         newStartDate.setHours(0, 0, 0, 0);
         break;
       case "thisMonth":
-        newStartDate = dateFns.startOfMonth(today);
+        newStartDate = startOfMonth(today);
         newStartDate.setHours(0, 0, 0, 0);
         break;
       case "lastMonth":
-        const lastMonth = dateFns.subDays(dateFns.startOfMonth(today), 1);
-        newStartDate = dateFns.startOfMonth(lastMonth);
-        newEndDate = dateFns.endOfMonth(lastMonth);
+        const lastMonth = subDays(startOfMonth(today), 1);
+        newStartDate = startOfMonth(lastMonth);
+        newEndDate = endOfMonth(lastMonth);
         newEndDate.setHours(23, 59, 59, 999);
         break;
       default:
@@ -265,8 +251,8 @@ export default function ReportesSection() {
             {/* Custom Date Picker (TODO: Implement or use a library) */}
             <div className="mt-2 flex items-center text-xs text-gray-400 gap-1">
               <CalendarDays size={12} />
-              {dateRange.startDate && dateRange.endDate && dateFns && esLocale
-                ? formatDateRangeDisplay(dateRange.startDate, dateRange.endDate, dateFns, esLocale)
+              {dateRange.startDate && dateRange.endDate && es
+                ? formatDateRangeDisplay(dateRange.startDate, dateRange.endDate, format, es)
                 : 'Selecciona un rango'
               }
             </div>
