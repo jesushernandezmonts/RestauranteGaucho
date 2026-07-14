@@ -221,19 +221,19 @@ body {
 /* ─── DARK SECTION (admin/internal panels — high contrast) ──── */
 
 .dark-section {
-  background: #0F0C0A;
+  background: #000000;
   color: #FFFFFF;
-  /* Override Tailwind color tokens for warm brown palette */
-  --color-surface: #1A1410;
-  --color-surface-light: #252018;
-  --color-surface-lighter: #2D2118;
+  /* Override Tailwind color tokens for black palette */
+  --color-surface: #000000;
+  --color-surface-light: #0D0D0D;
+  --color-surface-lighter: #1A1A1A;
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #C4A882;
   --color-text-muted: #8A7560;
 }
 
 .dark-section .card {
-  background: #1E1512;
+  background: #0A0A0A;
   border-color: rgba(232,171,47,0.10);
 }
 .dark-section .card:hover {
@@ -247,7 +247,7 @@ body {
 .dark-section .border-primary\/30 { border-color: rgba(212,162,58,0.25); }
 
 .dark-section input, .dark-section select, .dark-section textarea {
-  background: #252018;
+  background: #0D0D0D;
   border-color: rgba(212,162,58,0.12);
   color: #FFFFFF;
 }
