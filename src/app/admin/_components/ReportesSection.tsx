@@ -60,6 +60,14 @@ const dateRangeOptions = [
   { label: "Mes anterior", value: "lastMonth" },
 ];
 
+// Función auxiliar para formatear el rango de fechas para mostrar
+function formatDateRangeDisplay(startDate: Date, endDate: Date, dateFns: any, esLocale: any): string {
+    if (!dateFns || !esLocale) return 'Selecciona un rango'; // Fallback si no está cargado
+    const formattedStartDate = dateFns.format(startDate, 'dd MMM yyyy', { locale: esLocale });
+    const formattedEndDate = dateFns.format(endDate, 'dd MMM yyyy', { locale: esLocale });
+    return `${formattedStartDate} - ${formattedEndDate}`;
+}
+
 export default function ReportesSection() {
   const [dateFns, setDateFns] = useState<any>(null);
   const [esLocale, setEsLocale] = useState<any>(null);
@@ -253,11 +261,7 @@ export default function ReportesSection() {
             <div className="mt-2 flex items-center text-xs text-gray-400 gap-1">
                 <CalendarDays size={12} />
                 {dateRange.startDate && dateRange.endDate && dateFns && esLocale
-                    ? (() => {
-                          const formattedStartDate = dateFns.format(dateRange.startDate, 'dd MMM yyyy', { locale: esLocale });
-                          const formattedEndDate = dateFns.format(dateRange.endDate, 'dd MMM yyyy', { locale: esLocale });
-                          return `${formattedStartDate} - ${formattedEndDate}`;
-                      })()
+                    ? formatDateRangeDisplay(dateRange.startDate, dateRange.endDate, dateFns, esLocale)
                     : 'Selecciona un rango'
                 }
             </div>
