@@ -110,27 +110,25 @@ export default function MenuSection() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="font-display text-2xl font-bold text-text-primary">
+            <h1 className="font-display text-2xl font-bold text-white">
               Menú
             </h1>
-            <p className="text-sm text-text-muted">Platillos y categorías</p>
+            <p className="text-sm text-gray-400">Platillos y categorías</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                // Expand all
                 setExpandedCats(new Set(categorias.map((c) => c.id)));
               }}
-              className="text-xs text-text-muted hover:text-text-primary px-3 py-2 rounded-lg transition-colors"
+              className="text-xs font-medium text-gray-300 hover:text-white px-4 py-2 rounded-lg border border-white/10 hover:border-gold/40 hover:bg-white/5 transition-all"
             >
               Expandir todo
             </button>
             <button
               onClick={() => {
-                // Collapse all
                 setExpandedCats(new Set());
               }}
-              className="text-xs text-text-muted hover:text-text-primary px-3 py-2 rounded-lg transition-colors"
+              className="text-xs font-medium text-gray-300 hover:text-white px-4 py-2 rounded-lg border border-white/10 hover:border-gold/40 hover:bg-white/5 transition-all"
             >
               Colapsar todo
             </button>
@@ -139,7 +137,7 @@ export default function MenuSection() {
                 setShowCategoryModal(true);
                 setEditCategory(null);
               }}
-              className="btn-secondary !px-4 !py-2 text-sm"
+              className="btn-secondary !px-4 !py-2 text-sm font-medium"
             >
               <Layers size={16} /> Categoría
             </button>
@@ -158,10 +156,10 @@ export default function MenuSection() {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{cat.icono}</span>
-                    <h3 className="font-semibold text-text-primary">
+                    <h3 className="font-semibold text-white">
                       {cat.nombre}
                     </h3>
-                    <span className="text-xs text-text-muted px-2 py-0.5 rounded-full bg-surface-light/80">
+                    <span className="text-xs text-gray-400 px-2 py-0.5 rounded-full bg-white/10">
                       {cat.platillos.length} platillos
                     </span>
                   </div>
@@ -178,10 +176,11 @@ export default function MenuSection() {
                         className="p-1.5 rounded-lg hover:bg-surface-light"
                         title="Editar categoría"
                       >
-                        <Pencil size={14} className="text-text-muted" />
+                        <Pencil size={14} className="text-gray-400 hover:text-white" />
                       </button>
                       <button
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setNewDishCatId(cat.id);
                           setShowNewDish(true);
                         }}
@@ -192,7 +191,7 @@ export default function MenuSection() {
                     </div>
                     <ChevronDown
                       size={18}
-                      className={`text-text-muted transition-transform duration-200 ${
+                      className={`text-gray-400 transition-transform duration-200 ${
                         isExpanded ? "rotate-180" : ""
                       }`}
                     />
@@ -225,20 +224,20 @@ export default function MenuSection() {
                             <span
                               className={`font-medium text-sm ${
                                 p.activo
-                                  ? "text-text-primary"
+                                  ? "text-white"
                                   : "text-text-muted line-through"
                               }`}
                             >
                               {p.nombre}
                             </span>
                             {!p.activo && (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-text-muted/10 text-text-muted">
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-400">
                                 Inactivo
                               </span>
                             )}
                           </div>
                           {p.descripcion && (
-                            <p className="text-xs text-text-muted truncate mt-0.5">
+                            <p className="text-xs text-gray-400 truncate mt-0.5">
                               {p.descripcion}
                             </p>
                           )}
@@ -262,7 +261,7 @@ export default function MenuSection() {
                             onClick={() => setEditPlatillo(p)}
                             className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-surface-lighter transition-all"
                           >
-                            <Pencil size={14} className="text-text-muted" />
+                            <Pencil size={14} className="text-gray-400 hover:text-white" />
                           </button>
                         </div>
                       </div>
@@ -462,13 +461,6 @@ function PlatilloForm({
               alt="Preview"
               className="w-24 h-24 rounded-xl object-cover border border-primary/10"
             />
-            <button
-              type="button"
-              onClick={() => setImagen("")}
-              className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-danger text-white flex items-center justify-center text-xs"
-            >
-              <X size={12} />
-            </button>
           </div>
         )}
         <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-light border border-primary/10 cursor-pointer hover:bg-surface-lighter transition-colors text-sm text-text-secondary">
@@ -799,14 +791,14 @@ function RecetaModal({
       >
         <div className="sticky top-0 bg-surface rounded-t-2xl p-5 pb-3 border-b border-primary/10 flex items-center justify-between">
           <div>
-            <h3 className="font-semibold text-text-primary">🧾 Receta</h3>
-            <p className="text-xs text-text-muted mt-0.5">
+            <h3 className="font-semibold text-white">🧾 Receta</h3>
+            <p className="text-xs text-white/70 mt-0.5">
               {platillo.nombre}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg hover:bg-surface-light"
+            className="p-1.5 rounded-lg hover:bg-white/10 text-white transition-colors"
           >
             <X size={18} />
           </button>
