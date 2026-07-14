@@ -1,9 +1,7 @@
-```
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
 import { Loader2, Download, CalendarDays } from "lucide-react";
-// Eliminadas importaciones de date-fns y date-fns/locale por importación dinámica
 
 import dynamic from 'next/dynamic'; // Importar dynamic de next/dynamic
 
@@ -62,15 +60,21 @@ const dateRangeOptions = [
 
 // Función auxiliar para formatear el rango de fechas para mostrar
 function formatDateRangeDisplay(startDate: Date, endDate: Date, dateFns: any, esLocale: any): string {
-    if (!dateFns || !esLocale) return 'Selecciona un rango'; // Fallback si no está cargado
-    const formattedStartDate = dateFns.format(startDate, 'dd MMM yyyy', { locale: esLocale });
-    const formattedEndDate = dateFns.format(endDate, 'dd MMM yyyy', { locale: esLocale });
-    return formattedStartDate + ' - ' + formattedEndDate;
+  if (!dateFns || !esLocale) return 'Selecciona un rango'; // Fallback si no está cargado
+  const formattedStartDate = dateFns.format(startDate, 'dd MMM yyyy', { locale: esLocale });
+  const formattedEndDate = dateFns.format(endDate, 'dd MMM yyyy', { locale: esLocale });
+  return formattedStartDate + ' - ' + formattedEndDate;
 }
 
 export default function ReportesSection() {
   const [dateFns, setDateFns] = useState<any>(null);
   const [esLocale, setEsLocale] = useState<any>(null);
+  const [users, setUsers] = useState<UserBasic[]>([]);
+  const [selectedMeseroId, setSelectedMeseroId] = useState<string>("all");
+  const [selectedMetodoPago, setSelectedMetodoPago] = useState<string>("Todos");
+  const [dateRange, setDateRange] = useState<DateRange>({ startDate: null, endDate: null });
+  const [reportData, setReportData] = useState<ReportData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Cargar date-fns y su locale solo en el cliente
   useEffect(() => {
@@ -131,7 +135,7 @@ export default function ReportesSection() {
         const queryString = params.toString(); // Obtener la cadena de consulta por separado
 
         if (queryString) { // Verificar si hay parámetros
-            url = url + `?` + queryString; // Concatenar explícitamente
+          url = url + `?` + queryString; // Concatenar explícitamente
         }
         const res = await fetch(url);
         const data = await res.json();
@@ -260,11 +264,11 @@ export default function ReportesSection() {
             </select>
             {/* Custom Date Picker (TODO: Implement or use a library) */}
             <div className="mt-2 flex items-center text-xs text-gray-400 gap-1">
-                <CalendarDays size={12} />
-                {dateRange.startDate && dateRange.endDate && dateFns && esLocale
-                    ? formatDateRangeDisplay(dateRange.startDate, dateRange.endDate, dateFns, esLocale)
-                    : 'Selecciona un rango'
-                }
+              <CalendarDays size={12} />
+              {dateRange.startDate && dateRange.endDate && dateFns && esLocale
+                ? formatDateRangeDisplay(dateRange.startDate, dateRange.endDate, dateFns, esLocale)
+                : 'Selecciona un rango'
+              }
             </div>
           </div>
           <div>
@@ -321,66 +325,65 @@ export default function ReportesSection() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Propinas por Mesero - Bar Chart */}
-            <div className="card p-6">
-                <h3 className="font-semibold text-white mb-4">Propinas por Mesero</h3>
-                {reportData?.propinasPorMesero && reportData.propinasPorMesero.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={reportData.propinasPorMesero}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
-                            <XAxis dataKey="nombre" stroke="#888" />
-                            <YAxis stroke="#888" />
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
-                                itemStyle={{ color: '#fff' }}
-                                labelStyle={{ color: '#ccc' }}
-                                formatter={(value: number) => '$' + value.toFixed(2)}
-                            />
-                            <Legend />
-                            <Bar dataKey="propinasTotal" fill="#8884d8" name="Propinas Totales" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <p className="text-center text-text-muted py-10">No hay datos de propinas por mesero.</p>
-                )}
-            </div>
+          {/* Propinas por Mesero - Bar Chart */}
+          <div className="card p-6">
+            <h3 className="font-semibold text-white mb-4">Propinas por Mesero</h3>
+            {reportData?.propinasPorMesero && reportData.propinasPorMesero.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={reportData.propinasPorMesero}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
+                  <XAxis dataKey="nombre" stroke="#888" />
+                  <YAxis stroke="#888" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#ccc' }}
+                    formatter={(value: number) => '$' + value.toFixed(2)}
+                  />
+                  <Legend />
+                  <Bar dataKey="propinasTotal" fill="#8884d8" name="Propinas Totales" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center text-text-muted py-10">No hay datos de propinas por mesero.</p>
+            )}
+          </div>
 
-            {/* Propinas por Método de Pago - Pie Chart */}
-            <div className="card p-6">
-                <h3 className="font-semibold text-white mb-4">Propinas por Método de Pago</h3>
-                {pieChartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                            <Pie
-                                data={pieChartData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="value"
-                                nameKey="name"
-                                label={({ name, percent }) => name + ' ' + (percent * 100).toFixed(0) + '%'}
-                            >
-                                {pieChartData.map((entry, index) => (
-                                    <Cell key={'cell-' + index} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
-                                itemStyle={{ color: '#fff' }}
-                                labelStyle={{ color: '#ccc' }}
-                                 formatter={(value: number, name: string) => { const formattedValue = '$' + value.toFixed(2); return [formattedValue, name]; }}
-                            />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
-                ) : (
-                    <p className="text-center text-text-muted py-10">No hay datos de propinas por método de pago.</p>
-                )}
-            </div>
+          {/* Propinas por Método de Pago - Pie Chart */}
+          <div className="card p-6">
+            <h3 className="font-semibold text-white mb-4">Propinas por Método de Pago</h3>
+            {pieChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    nameKey="name"
+                    label={({ name, percent }) => name + ' ' + (percent * 100).toFixed(0) + '%'}
+                  >
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={'cell-' + index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#ccc' }}
+                    formatter={(value: number, name: string) => { const formattedValue = '$' + value.toFixed(2); return [formattedValue, name]; }}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center text-text-muted py-10">No hay datos de propinas por método de pago.</p>
+            )}
+          </div>
         </div>
-
 
         {/* Table: Propinas y Rendimiento por Mesero */}
         <div className="card p-6">
