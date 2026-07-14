@@ -4,15 +4,16 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
 export async function DELETE(
-  req: NextRequest,
-  context: any
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
-  const userId = Number(context.params.id);
+  const { id } = await params;
+  const userId = Number(id);
 
   if (isNaN(userId)) {
     return NextResponse.json({ error: "ID de usuario inválido" }, { status: 400 });

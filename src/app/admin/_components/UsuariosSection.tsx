@@ -36,6 +36,7 @@ export default function UsuariosSection() {
   const [showCreate, setShowCreate] = useState(false);
   const [editUser, setEditUser] = useState<Usuario | null>(null);
   const [changePasswordUser, setChangePasswordUser] = useState<Usuario | null>(null);
+  const [userToDelete, setUserToDelete] = useState<Usuario | null>(null);
 
   useEffect(() => {
     loadUsuarios();
@@ -52,11 +53,11 @@ export default function UsuariosSection() {
     }
   }
 
-  async function handleDelete(userId: number, userName: string) {
-    if (!confirm(`¿Eliminar a ${userName}? Esta acción no se puede deshacer.`)) return;
+  async function handleDelete() {
+    if (!userToDelete) return;
 
     try {
-      const res = await fetch(`/api/usuarios/${userId}`, { method: "DELETE" });
+      const res = await fetch(`/api/usuarios/${userToDelete.id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         console.error("Error al eliminar usuario", data);
@@ -64,6 +65,7 @@ export default function UsuariosSection() {
         return;
       }
 
+      setUserToDelete(null);
       await loadUsuarios();
     } catch (e) {
       console.error("Error de conexión al eliminar", e);
@@ -151,8 +153,10 @@ export default function UsuariosSection() {
                         <Pencil size={14} className="text-text-muted" />
                       </button>
                       <button
-                        onClick={() => handleDelete(u.id, u.nombre)}
+                        type="button"
+                        onClick={() => setUserToDelete(u)}
                         className="p-1.5 rounded-lg hover:bg-surface-light"
+                        aria-label={`Eliminar a ${u.nombre}`}
                       >
                         <Trash2 size={14} className="text-danger" />
                       </button>
@@ -190,6 +194,43 @@ export default function UsuariosSection() {
               setChangePasswordUser(null);
             }}
           />
+        )}
+        {userToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/80" onClick={() => setUserToDelete(null)} />
+            <div
+              className="relative w-full max-w-sm rounded-2xl border border-danger/30 bg-surface p-6 shadow-2xl"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="delete-user-title"
+            >
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-danger/15">
+                <Trash2 size={20} className="text-danger" />
+              </div>
+              <h2 id="delete-user-title" className="text-lg font-semibold text-text-primary">
+                ¿Eliminar usuario?
+              </h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                Vas a eliminar a <strong>{userToDelete.nombre}</strong>. Esta acción no se puede deshacer.
+              </p>
+              <div className="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setUserToDelete(null)}
+                  className="flex-1 rounded-xl bg-surface-lighter py-2.5 text-sm text-text-secondary"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="flex-1 rounded-xl bg-danger py-2.5 text-sm font-medium text-white hover:opacity-90"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
