@@ -65,7 +65,7 @@ function formatDateRangeDisplay(startDate: Date, endDate: Date, dateFns: any, es
     if (!dateFns || !esLocale) return 'Selecciona un rango'; // Fallback si no está cargado
     const formattedStartDate = dateFns.format(startDate, 'dd MMM yyyy', { locale: esLocale });
     const formattedEndDate = dateFns.format(endDate, 'dd MMM yyyy', { locale: esLocale });
-    return `${formattedStartDate} - ${formattedEndDate}`;
+    return formattedStartDate + ' - ' + formattedEndDate;
 }
 
 export default function ReportesSection() {
