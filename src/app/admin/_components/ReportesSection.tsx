@@ -253,7 +253,11 @@ export default function ReportesSection() {
             <div className="mt-2 flex items-center text-xs text-gray-400 gap-1">
                 <CalendarDays size={12} />
                 {dateRange.startDate && dateRange.endDate && dateFns && esLocale
-                    ? `${dateFns.format(dateRange.startDate, 'dd MMM yyyy', { locale: esLocale })} - ${dateFns.format(dateRange.endDate, 'dd MMM yyyy', { locale: esLocale })}`
+                    ? (() => {
+                          const formattedStartDate = dateFns.format(dateRange.startDate, 'dd MMM yyyy', { locale: esLocale });
+                          const formattedEndDate = dateFns.format(dateRange.endDate, 'dd MMM yyyy', { locale: esLocale });
+                          return `${formattedStartDate} - ${formattedEndDate}`;
+                      })()
                     : 'Selecciona un rango'
                 }
             </div>
