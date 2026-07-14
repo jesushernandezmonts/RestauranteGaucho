@@ -77,7 +77,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
-      <body className="min-h-full flex flex-col overflow-x-hidden">
+      <body className="min-h-full flex flex-col">
         <FestividadProvider>
           <AuthProvider>
             <LayoutShell>{children}</LayoutShell>

@@ -151,12 +151,26 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
   background: var(--color-cream);
   color: var(--color-chocolate);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ─── GPU COMPOSITING FIX (Android Chrome ghosting) ── */
+header,
+header > div {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+section {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: auto;
 }
 
 /* ─── SCROLLBAR ─────────────────────────────────────────── */
