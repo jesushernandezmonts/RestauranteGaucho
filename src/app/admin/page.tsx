@@ -338,7 +338,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveSection("dashboard")}
               className="flex items-center gap-2"
             >
-              <span className="text-2xl">🐮</span>
+              <span className="text-2xl"></span>
               <span className="font-script text-xl" style={{ color: "#D4A23A" }}>
                 Niño Gaucho
               </span>
