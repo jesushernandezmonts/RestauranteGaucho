@@ -8,9 +8,10 @@ import {
   X,
   Pencil,
   UserPlus,
-
   KeyRound,
   Trash2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 
@@ -52,17 +53,21 @@ export default function UsuariosSection() {
   }
 
   async function handleDelete(userId: number, userName: string) {
-    if (window.confirm(`¿Estás seguro de que quieres eliminar a ${userName}?`)) {
-      try {
-        const res = await fetch(`/api/usuarios/${userId}`, { method: 'DELETE' });
-        if (res.ok) {
-          loadUsuarios();
-        } else {
-          console.error("Error al eliminar usuario");
-        }
-      } catch (e) {
-        console.error("Error de conexión al eliminar", e);
+    if (!confirm(`¿Eliminar a ${userName}? Esta acción no se puede deshacer.`)) return;
+
+    try {
+      const res = await fetch(`/api/usuarios/${userId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        console.error("Error al eliminar usuario", data);
+        alert(data?.error ?? "No se pudo eliminar el usuario.");
+        return;
       }
+
+      await loadUsuarios();
+    } catch (e) {
+      console.error("Error de conexión al eliminar", e);
+      alert("Error de conexión al eliminar el usuario.");
     }
   }
 
@@ -201,6 +206,7 @@ function UserFormModal({
   const [nombre, setNombre] = useState("");
   const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState("MESERO");
   const [saving, setSaving] = useState(false);
 
@@ -252,14 +258,24 @@ function UserFormModal({
           className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
           required
         />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
-          required
-        />
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Contraseña"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 pr-12 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute inset-y-0 right-0 px-4 text-text-muted hover:text-text-primary"
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
