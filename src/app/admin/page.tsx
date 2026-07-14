@@ -253,7 +253,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="card">
             <h3 className="font-semibold text-text-primary mb-4">
-              Acciones RÔö£├¡pidas
+              Acciones Rápidas
             </h3>
             <div className="space-y-3">
               <button
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
                   className="text-primary-light group-hover:scale-110 transition-transform"
                 />
                 <span className="text-sm text-text-secondary group-hover:text-text-primary">
-                  Gestionar MenÔö£Ôòæ
+                  Gestionar Menú
                 </span>
               </button>
               <button
