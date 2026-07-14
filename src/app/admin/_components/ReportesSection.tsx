@@ -118,7 +118,12 @@ export default function ReportesSection() {
           params.append("metodoPago", selectedMetodoPago);
         }
 
-        const res = await fetch(`/api/reportes/propinas?${params.toString()}`);
+        // Construimos la URL de forma más tradicional
+        let url = `/api/reportes/propinas`;
+        if (params.toString()) {
+            url += `?${params.toString()}`;
+        }
+        const res = await fetch(url);
         const data = await res.json();
         setReportData(data);
       } catch (error) {
