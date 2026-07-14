@@ -369,7 +369,7 @@ export default function ReportesSection() {
                                 contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
                                 itemStyle={{ color: '#fff' }}
                                 labelStyle={{ color: '#ccc' }}
-                                formatter={(value: number, name: string) => [`$${value.toFixed(2)}`, name]}
+                                formatter={(value: number, name: string) => ['$' + value.toFixed(2), name]}
                             />
                             <Legend />
                         </PieChart>

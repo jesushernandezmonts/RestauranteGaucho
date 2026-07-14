@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Playfair_Display, Pacifico } from "next/font/google";
+// import { Geist, Geist_Mono, Playfair_Display, Pacifico } from "next/font/google";
 import "./globals.css";
 import { LayoutShell } from "@/components/LayoutShell";
 import { AuthProvider } from "@/components/AuthProvider";
 import { FestividadProvider } from "@/contexts/FestividadContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-display-family",
@@ -68,7 +68,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es-MX" className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} ${pacifico.variable} h-full antialiased`}>
+    <html lang="es-MX" className={`${playfairDisplay.variable} ${pacifico.variable} h-full antialiased`}>
       <head>
         <meta name="theme-color" content="#1D0A0A" />
         <meta name="mobile-web-app-capable" content="yes" />
