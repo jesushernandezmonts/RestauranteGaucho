@@ -2,14 +2,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/lib/auth";
 
 export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session || session.user.role !== "ADMIN") {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
@@ -23,7 +22,7 @@ export async function PATCH(
     const hashedPassword = await bcrypt.hash(password, 10);
     await prisma.user.update({
       where: { id: Number(params.id) },
-      data: { password: hashedPassword },
+      data: { passwordHash: hashedPassword },
     });
     return NextResponse.json({ message: "Contraseña actualizada" });
   } catch (error) {
