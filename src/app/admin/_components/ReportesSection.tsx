@@ -333,7 +333,7 @@ export default function ReportesSection() {
                                 contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }}
                                 itemStyle={{ color: '#fff' }}
                                 labelStyle={{ color: '#ccc' }}
-                                formatter={(value: number) => `$${value.toFixed(2)}`}
+                                formatter={(value: number) => '$' + value.toFixed(2)}
                             />
                             <Legend />
                             <Bar dataKey="propinasTotal" fill="#8884d8" name="Propinas Totales" />
