@@ -102,15 +102,21 @@ export async function GET(request: Request) {
         meseroId: true,
         total: true,
         propina: true,
+        mesero: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
       },
     });
 
     orders.forEach((orden) => {
+        const meseroNombre = orden.mesero?.nombre || "Desconocido";
         if (!propinasPorMesero[orden.meseroId]) {
-          // This should ideally not happen if meseroId exists in pagos, but as a fallback
           propinasPorMesero[orden.meseroId] = {
             meseroId: orden.meseroId,
-            nombre: "Desconocido", // Fallback, ideally fetched from User model
+            nombre: meseroNombre,
             propinasTotal: 0,
             ordenesCerradas: 0,
             ventasTotales: 0,
@@ -118,6 +124,8 @@ export async function GET(request: Request) {
         }
         propinasPorMesero[orden.meseroId].ordenesCerradas += 1;
         propinasPorMesero[orden.meseroId].ventasTotales += orden.total;
+        // Also accumulate the order's propina into the waiter's total
+        propinasPorMesero[orden.meseroId].propinasTotal += orden.propina || 0;
     });
 
     const meserosConMetricas = Object.values(propinasPorMesero).map((mesero) => ({

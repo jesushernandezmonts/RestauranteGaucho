@@ -210,6 +210,19 @@ export async function PATCH(request: Request) {
       data: updateData,
     });
 
+    // Persist payment data for reports when the order is closed
+    if (rest.metodoPago) {
+      await prisma.pago.create({
+        data: {
+          ordenId: orden.id,
+          meseroId: orden.meseroId,
+          metodo: rest.metodoPago,
+          monto: rest.total ?? orden.total,
+          propina: rest.propina || 0,
+        },
+      });
+    }
+
     // If the order is being served, free the table
     if (estado === "SERVIDO") {
       await prisma.mesa.update({
