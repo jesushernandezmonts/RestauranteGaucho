@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -121,6 +122,15 @@ export default function ChefLoginPage() {
         <p className="text-center text-xs text-text-muted mt-6">
           Acceso solo para personal de cocina
         </p>
+
+        <div className="text-center mt-8">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-full border border-gold/35 bg-gold/10 px-5 py-2.5 text-sm font-medium tracking-wide text-gold shadow-[0_0_24px_rgba(232,171,47,0.12)] transition-all duration-300 hover:border-gold/70 hover:bg-gold/20 hover:text-gold hover:shadow-[0_0_34px_rgba(232,171,47,0.24)]"
+          >
+            ← Volver a la página principal
+          </Link>
+        </div>
       </div>
     </div>
   );
