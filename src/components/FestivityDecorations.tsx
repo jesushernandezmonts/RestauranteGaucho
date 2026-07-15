@@ -114,7 +114,7 @@ export default function FestivityDecorations() {
     const theme = FESTIVAL_THEMES[festividadActiva];
     if (!theme) return;
 
-    const storageKey = `gaucho_festivity_played_${festividadActiva}`;
+    const storageKey = `gaucho_v2_festivity_seen_${festividadActiva}`;
     if (sessionStorage.getItem(storageKey)) {
       setParticles([]);
       setIsVisible(false);
