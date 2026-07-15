@@ -125,17 +125,17 @@ export default function ChefLoginPage() {
 
         <div className="text-center mt-8 space-y-3">
           <Link
-            href="/acceso"
-            className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium tracking-wide text-white/70 shadow-[0_0_24px_rgba(255,255,255,0.06)] transition-all duration-300 hover:border-gold/50 hover:bg-gold/10 hover:text-gold hover:shadow-[0_0_34px_rgba(232,171,47,0.18)]"
+            href="/"
+            className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-medium tracking-wide text-white/80 transition-all duration-300 hover:border-gold/70 hover:bg-white/10 hover:text-white"
           >
-            ← Volver a elegir acceso
+            ← Volver a la página principal
           </Link>
           <div>
             <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-full border border-gold/35 bg-gold/10 px-5 py-2.5 text-sm font-medium tracking-wide text-gold shadow-[0_0_24px_rgba(232,171,47,0.12)] transition-all duration-300 hover:border-gold/70 hover:bg-gold/20 hover:text-gold hover:shadow-[0_0_34px_rgba(232,171,47,0.24)]"
+              href="/acceso"
+              className="inline-flex items-center justify-center rounded-full bg-gold px-6 py-3 text-sm font-bold tracking-wide text-chocolate shadow-gold transition-all duration-300 hover:scale-105 hover:bg-gold-light"
             >
-              ← Volver a la página principal
+              ← Elegir otro tipo de acceso
             </Link>
           </div>
         </div>
