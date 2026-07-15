@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { GauchoLogo } from "@/components/GauchoIcons";
 import { Shield, ChefHat, ClipboardList } from "lucide-react";
 
 const roles = [
@@ -33,10 +32,7 @@ export default function AccesoPage() {
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden dark-section">
       <div className="w-full max-w-lg">
         <div className="text-center mb-10">
-          <div className="flex justify-center mb-4">
-            <GauchoLogo className="w-16 h-16 sm:w-20 sm:h-20 mx-auto drop-shadow-[0_0_30px_rgba(232,171,47,0.25)]" />
-          </div>
-          <h1 className="font-script text-3xl sm:text-4xl text-gold leading-tight drop-shadow-[0_4px_15px_rgba(232,171,47,0.2)]">
+          <h1 className="font-script text-4xl sm:text-5xl text-gold leading-tight drop-shadow-[0_4px_15px_rgba(232,171,47,0.2)]">
             Gaucho
           </h1>
           <p className="text-white/50 text-sm mt-2 tracking-wide">Acceso para empleados</p>
@@ -76,7 +72,10 @@ export default function AccesoPage() {
         </div>
 
         <div className="text-center mt-8">
-          <Link href="/" className="text-white/30 hover:text-gold/50 text-xs tracking-wide transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-full border border-gold/35 bg-gold/10 px-5 py-2.5 text-sm font-medium tracking-wide text-gold shadow-[0_0_24px_rgba(232,171,47,0.12)] transition-all duration-300 hover:border-gold/70 hover:bg-gold/20 hover:text-gold hover:shadow-[0_0_34px_rgba(232,171,47,0.24)]"
+          >
             ← Volver al inicio
           </Link>
         </div>
