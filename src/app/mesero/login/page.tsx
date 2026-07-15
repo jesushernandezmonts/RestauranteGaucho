@@ -131,13 +131,21 @@ export default function MeseroLoginPage() {
           Acceso solo para personal autorizado
         </p>
 
-        <div className="text-center mt-8">
+        <div className="text-center mt-8 space-y-3">
           <Link
-            href="/"
-            className="inline-flex items-center justify-center rounded-full border border-gold/35 bg-gold/10 px-5 py-2.5 text-sm font-medium tracking-wide text-gold shadow-[0_0_24px_rgba(232,171,47,0.12)] transition-all duration-300 hover:border-gold/70 hover:bg-gold/20 hover:text-gold hover:shadow-[0_0_34px_rgba(232,171,47,0.24)]"
+            href="/acceso"
+            className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium tracking-wide text-white/70 shadow-[0_0_24px_rgba(255,255,255,0.06)] transition-all duration-300 hover:border-gold/50 hover:bg-gold/10 hover:text-gold hover:shadow-[0_0_34px_rgba(232,171,47,0.18)]"
           >
-            ← Volver a la página principal
+            ← Volver a elegir acceso
           </Link>
+          <div>
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center rounded-full border border-gold/35 bg-gold/10 px-5 py-2.5 text-sm font-medium tracking-wide text-gold shadow-[0_0_24px_rgba(232,171,47,0.12)] transition-all duration-300 hover:border-gold/70 hover:bg-gold/20 hover:text-gold hover:shadow-[0_0_34px_rgba(232,171,47,0.24)]"
+            >
+              ← Volver a la página principal
+            </Link>
+          </div>
         </div>
       </div>
     </div>
