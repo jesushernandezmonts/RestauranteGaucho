@@ -92,7 +92,7 @@ export function HeroSection({ initialConfig = {} }: { initialConfig?: Record<str
       const bc = new BroadcastChannel("gaucho_config_changes");
       bc.onmessage = () => fetchConfig();
       return () => bc.close();
-    } catch {}
+    } catch { }
   }, []);
 
   const heroFondo = config.hero_fondo || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80";
@@ -169,7 +169,7 @@ export function HeroSection({ initialConfig = {} }: { initialConfig?: Record<str
           Niño Gaucho
         </h1>
         <p className="font-display text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 tracking-wide mb-1 sm:mb-2 mt-2">
-          Restaurante &amp; Parrilla
+          Restaurante &amp; Cafeteria
         </p>
         <p className="text-white/70 text-sm sm:text-base md:text-lg max-w-xs sm:max-w-sm md:max-w-lg mx-auto font-normal px-4 tracking-wide">
           Donde la tradición gaucha se encuentra con la más alta cocina

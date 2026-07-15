@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { GauchoLogo } from "./GauchoIcons";
 
 export function Footer() {
   return (
@@ -12,8 +11,7 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 pb-10 sm:pb-12 border-b border-white/5">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2.5 mb-3 sm:mb-4">
-              <GauchoLogo className="w-8 h-8 sm:w-10 sm:h-10" />
+            <div className="flex items-center mb-3 sm:mb-4">
               <span className="font-script text-xl sm:text-2xl text-gold">Gaucho</span>
             </div>
             <p className="text-sm leading-relaxed text-white/40 mb-4 sm:mb-5 max-w-xs">

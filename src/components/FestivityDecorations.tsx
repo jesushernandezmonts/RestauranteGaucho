@@ -62,16 +62,24 @@ interface Particle {
 export default function FestivityDecorations() {
   const { esFestividad, festividadActiva } = useFestividad();
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (!esFestividad || !festividadActiva || festividadActiva === "ninguna") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setParticles([]);
+      setIsVisible(false);
       return;
     }
 
     const theme = FESTIVAL_THEMES[festividadActiva];
     if (!theme) return;
+
+    const storageKey = `gaucho_festivity_played_${festividadActiva}`;
+    if (sessionStorage.getItem(storageKey)) {
+      setParticles([]);
+      setIsVisible(false);
+      return;
+    }
 
     const newParticles: Particle[] = Array.from({ length: 18 }, (_, i) => ({
       id: i,
@@ -81,11 +89,20 @@ export default function FestivityDecorations() {
       duration: 6 + Math.random() * 6,
       size: 16 + Math.random() * 14,
     }));
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
+    sessionStorage.setItem(storageKey, "true");
     setParticles(newParticles);
+    setIsVisible(true);
+
+    const hideDecorations = window.setTimeout(() => {
+      setParticles([]);
+      setIsVisible(false);
+    }, 20_000);
+
+    return () => window.clearTimeout(hideDecorations);
   }, [esFestividad, festividadActiva]);
 
-  if (!esFestividad || !festividadActiva || festividadActiva === "ninguna") return null;
+  if (!isVisible || !esFestividad || !festividadActiva || festividadActiva === "ninguna") return null;
 
   const theme = FESTIVAL_THEMES[festividadActiva];
   if (!theme) return null;
@@ -111,7 +128,7 @@ export default function FestivityDecorations() {
               animationDuration: `${p.duration}s`,
               animationDelay: `${p.delay}s`,
               animationTimingFunction: "linear",
-              animationIterationCount: "infinite",
+              animationIterationCount: 1,
               opacity: 0,
             }}
           >
