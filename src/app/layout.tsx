@@ -57,8 +57,8 @@ export const metadata: Metadata = {
       "La mejor parrilla argentina. Cortes premium, pastas artesanales y experiencia única.",
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-icon.png",
+    icon: "/gaucho-logo.png",
+    apple: "/gaucho-logo.png",
   },
   manifest: "/manifest.json",
 };
@@ -74,8 +74,8 @@ export default function RootLayout({
         <meta name="theme-color" content="#1D0A0A" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="icon" type="image/png" href="/favicon.ico" sizes="32x32" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link rel="icon" type="image/png" href="/gaucho-logo.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/gaucho-logo.png" />
       </head>
       <body className="min-h-full flex flex-col">
         <FestividadProvider>
