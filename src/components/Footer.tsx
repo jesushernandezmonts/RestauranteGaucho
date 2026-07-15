@@ -46,7 +46,7 @@ export function Footer() {
             <h4 className="font-display text-white text-sm sm:text-base mb-4 sm:mb-5 tracking-wide">Horarios</h4>
             <ul className="space-y-2 sm:space-y-2.5">
               <li className="text-sm text-white/40 tracking-wide">Martes a Domingo</li>
-              <li className="text-sm text-white/40 tracking-wide">10:00 AM - 8:30 PM</li>
+              <li className="text-sm text-white/40 tracking-wide">8:00 AM - 8:30 PM</li>
             </ul>
           </div>
 

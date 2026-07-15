@@ -109,24 +109,26 @@ export function AboutSection({ initialConfig = {} }: { initialConfig?: Record<st
             </h3>
             <div className="space-y-2 sm:space-y-4 text-chocolate-light leading-relaxed text-sm sm:text-[15px] md:text-base">
               <p>
-                En <strong className="text-chocolate">Gaucho Restaurante</strong>, celebramos la rica herencia de la cultura
-                a través de una experiencia culinaria sin igual. Ofrecemos los cortes de carne
-                más selectos, acompañados de los mejores vinos.
+                En <strong className="text-chocolate"> Restaurante Gaucho </strong>, celebramos la riqueza de nuestra cocina mexicana
+                a través de una experiencia culinaria sin igual. Honramos la tradición del fuego
+                las brasas con los cortes de carnes mas selectos,sazonados con el autentico toque de nuestra tierra
+                y acompañados de una gran selección de bebidas.
               </p>
               <p>
-                Cada plato cuenta una historia, transportándote a las vastas llanuras de la
-                Patagonia, donde el cielo se encuentra con la tierra y el tiempo parece detenerse.
+                Cada plato cuenta una historia de sabor, tradición y reunión familiar,
+                transportándote a esos domingos de carne asada donde el buen comer
+                y compartir son lo único que importa.
               </p>
             </div>
 
             <div ref={statsRef} className="grid grid-cols-3 gap-2 sm:gap-4 mt-5 sm:mt-8 pt-4 sm:pt-8 border-t border-chocolate/10">
               {[
-                { count: 15, label: "Años de tradición" },
-                { count: 68, label: "Platos exclusivos" },
-                { count: 12, label: "Cortes premium" },
+                { count: 10, label: "Años de Fuego" },
+                { count: 50, label: "Momentos Felices" },
+                { count: 12, label: "Años de buen ambiente" },
               ].map((s) => (
                 <div key={s.label} className="text-center">
-                  <span className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-gold block leading-none" data-count={s.count}>0</span>
+                  <span className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-gold block leading-none" data-count={s.count}>{s.count}+</span>
                   <span className="text-[10px] sm:text-xs md:text-sm text-chocolate-light font-medium mt-1 sm:mt-1.5 block">{s.label}</span>
                 </div>
               ))}
