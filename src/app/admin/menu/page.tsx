@@ -359,6 +359,12 @@ function CategoryModal({ cat, onClose, onSaved }: { cat: Categoria | null; onClo
   const [orden, setOrden] = useState(cat?.orden || 0);
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    setNombre(cat?.nombre || "");
+    setIcono(cat?.icono || "🍽️");
+    setOrden(cat?.orden || 0);
+  }, [cat]);
+
   const iconos = ["🥞", "🇲🇽", "🍝", "🍕", "🥣", "🥩", "🥦", "🥪", "🥗", "🥤", "🍹", "🍽️", "🧀", "🌮", "🍔"];
 
   async function handleSubmit(e: React.FormEvent) {
