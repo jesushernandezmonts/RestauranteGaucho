@@ -200,10 +200,20 @@ export default function ReportesSection() {
   };
 
   const pieChartData = useMemo(() => {
-    if (!reportData?.resumen) return [];
+    if (!reportData?.detallePagos) return [];
+    let totalPropinasEfectivo = 0;
+    let totalPropinasTarjeta = 0;
+    reportData.detallePagos.forEach((pago) => {
+      const propina = pago.propina || 0;
+      if (pago.metodo === "efectivo") {
+        totalPropinasEfectivo += pago.propina || 0;
+      } else if (pago.metodo === "tarjeta") {
+        totalPropinasTarjeta += pago.propina || 0;
+      }
+    });
     return [
-      { name: 'Efectivo', value: reportData.resumen.totalPropinasEfectivo },
-      { name: 'Tarjeta', value: reportData.resumen.totalPropinasTarjeta },
+      { name: 'Efectivo', value: totalPropinasEfectivo },
+      { name: 'Tarjeta', value: totalPropinasTarjeta },
     ].filter(item => item.value > 0);
   }, [reportData]);
 
@@ -265,9 +275,9 @@ export default function ReportesSection() {
               className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
             >
               <option value="all">Todos los Meseros</option>
-              {users.filter(user => user.role === "MESERO" || user.role === "ADMIN").map((user) => (
+              {users.filter(user => user.role === "MESERO").map((user) => (
                 <option key={user.id} value={user.id}>
-                  {user.nombre} ({user.role})
+                  {user.nombre}
                 </option>
               ))}
             </select>
@@ -292,19 +302,19 @@ export default function ReportesSection() {
             <div className="card flex flex-col items-center justify-center p-6">
               <p className="text-sm text-text-muted">Propinas Totales</p>
               <p className="text-3xl font-bold text-primary-light mt-2">
-                ${reportData.resumen.totalPropinas.toFixed(2)}
+                ${(reportData.resumen.totalPropinas || 0).toFixed(2)}
               </p>
             </div>
             <div className="card flex flex-col items-center justify-center p-6">
               <p className="text-sm text-text-muted">Propinas en Efectivo</p>
               <p className="text-2xl font-bold text-white mt-2">
-                ${reportData.resumen.totalPropinasEfectivo.toFixed(2)}
+                ${(reportData.resumen.totalPropinasEfectivo || 0).toFixed(2)}
               </p>
             </div>
             <div className="card flex flex-col items-center justify-center p-6">
               <p className="text-sm text-text-muted">Propinas con Tarjeta</p>
               <p className="text-2xl font-bold text-white mt-2">
-                ${reportData.resumen.totalPropinasTarjeta.toFixed(2)}
+                ${(reportData.resumen.totalPropinasTarjeta || 0).toFixed(2)}
               </p>
             </div>
           </div>
