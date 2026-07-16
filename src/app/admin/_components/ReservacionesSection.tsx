@@ -78,16 +78,18 @@ export default function ReservacionesSection() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-2xl font-bold text-text-primary">
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary">
               Reservaciones
             </h1>
-            <p className="text-sm text-text-muted">Administrar reservas</p>
+            <p className="text-xs sm:text-sm text-text-muted">
+              Administrar reservas
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {reservaciones.map((r) => (
             <div key={r.id} className="card group">
               <div className="flex items-start justify-between mb-3">

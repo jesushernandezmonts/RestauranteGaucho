@@ -107,8 +107,8 @@ export default function AparienciaSection() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin" size={28} style={{ color: "#E0C060" }} />
+      <div className="flex items-center justify-center py-20">
+        <Loader2 size={32} className="animate-spin text-primary" />
       </div>
     );
   }
@@ -117,12 +117,24 @@ export default function AparienciaSection() {
   const galleryKeys = CONFIG_KEYS.filter((k) => k.gallery);
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4 sm:px-6">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold" style={{ color: "#F2E8D5" }}>Apariencia</h2>
-        <p className="text-sm mt-1" style={{ color: "#B89878" }}>
-          Personaliza las imágenes y etiquetas del sitio web
-        </p>
+    <div className="max-w-6xl mx-auto p-4 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="font-display text-xl sm:text-2xl font-bold text-white">
+            Personalización de la Apariencia
+          </h1>
+          <p className="text-sm text-gray-400 mt-1">
+            Personaliza cada elemento visual del menú principal de tu restaurante
+          </p>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="btn-primary !px-4 !py-2 text-sm font-medium w-full sm:w-auto"
+        >
+          {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
+          {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar Cambios"}
+        </button>
       </div>
 
       {/* Main images */}
@@ -130,143 +142,148 @@ export default function AparienciaSection() {
         {mainKeys.map((item) => (
           <div
             key={item.key}
-            className="p-5 rounded-2xl"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(212,162,58,0.1)" }}
+            className="card p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4"
           >
-            <label className="block text-sm font-medium mb-2" style={{ color: "#E0C060" }}>
-              {item.label}
-            </label>
-            {config[item.key] && (
-              <div className="relative mb-3 rounded-xl overflow-hidden w-full max-w-md">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={config[item.key]}
-                  alt={item.label}
-                  className="w-full h-36 object-cover"
-                />
-                <button
-                  onClick={() => setConfig((prev) => ({ ...prev, [item.key]: "" }))}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-all"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm cursor-pointer transition-all" style={{ background: "rgba(212,162,58,0.1)", color: "#E0C060" }}>
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-medium mb-1 text-text-muted">
+                {item.label}
+              </label>
+              <input
+                type="text"
+                value={config[item.key] || ""}
+                onChange={(e) =>
+                  setConfig((prev) => ({ ...prev, [item.key]: e.target.value }))
+                }
+                className="w-full px-3 py-2.5 rounded-xl text-sm bg-surface-light border border-primary/10 text-text-primary"
+              />
+            </div>
+            <label className="btn-secondary !px-3 !py-2 text-xs font-medium shrink-0 w-full sm:w-auto">
               {uploading === item.key ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={14} className="animate-spin" />
               ) : (
-                <Upload size={16} />
+                <Upload size={14} />
               )}
-              {uploading === item.key ? "Subiendo..." : "Subir imagen"}
+              {uploading === item.key ? "Subiendo..." : "Subir Imagen"}
               <input
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleImageUpload(item.key, file);
+                  const f = e.target.files?.[0];
+                  if (f) handleImageUpload(item.key, f);
                 }}
               />
             </label>
-            <input
-              type="text"
-              value={config[item.key] || ""}
-              onChange={(e) => setConfig((prev) => ({ ...prev, [item.key]: e.target.value }))}
-              placeholder="O pega una URL..."
-              className="mt-2 w-full px-3 py-2 rounded-xl text-sm"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(212,162,58,0.1)", color: "#D4C5B0" }}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Gallery */}
-      <h3 className="text-lg font-semibold mb-4" style={{ color: "#E0C060" }}>Galería de imágenes</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
-        {galleryKeys.map((item) => (
-          <div
-            key={item.key}
-            className="p-4 rounded-2xl"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(212,162,58,0.1)" }}
-          >
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "#D4C5B0" }}>
-              {item.label}
-            </label>
-            {item.key.endsWith("_img") ? (
-              <>
-                {config[item.key] && (
-                  <div className="relative mb-2 rounded-lg overflow-hidden w-full h-24">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={config[item.key]}
-                      alt={item.label}
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={() => setConfig((prev) => ({ ...prev, [item.key]: "" }))}
-                      className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70"
-                    >
-                      <X size={10} />
-                    </button>
-                  </div>
-                )}
-                <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs cursor-pointer" style={{ background: "rgba(212,162,58,0.1)", color: "#E0C060" }}>
-                  {uploading === item.key ? (
-                    <Loader2 size={12} className="animate-spin" />
-                  ) : (
-                    <Upload size={12} />
-                  )}
-                  Subir
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleImageUpload(item.key, file);
-                    }}
-                  />
-                </label>
-                <input
-                  type="text"
-                  value={config[item.key] || ""}
-                  onChange={(e) => setConfig((prev) => ({ ...prev, [item.key]: e.target.value }))}
-                  placeholder="URL..."
-                  className="mt-2 w-full px-2 py-1.5 rounded-lg text-xs"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(212,162,58,0.1)", color: "#D4C5B0" }}
+            {config[item.key] && (
+              <div className="relative w-full sm:w-24 h-20 rounded-lg overflow-hidden shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={config[item.key]}
+                  alt="preview"
+                  className="w-full h-full object-cover"
                 />
-              </>
-            ) : (
-              <input
-                type="text"
-                value={config[item.key] || ""}
-                onChange={(e) => setConfig((prev) => ({ ...prev, [item.key]: e.target.value }))}
-                placeholder="Etiqueta..."
-                className="w-full px-3 py-2 rounded-xl text-sm"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(212,162,58,0.1)", color: "#D4C5B0" }}
-              />
+                <button
+                  onClick={() =>
+                    setConfig((prev) => ({ ...prev, [item.key]: "" }))
+                  }
+                  className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white"
+                >
+                  <X size={12} />
+                </button>
+              </div>
             )}
           </div>
         ))}
       </div>
 
-      {/* Save button */}
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all"
-        style={{ background: saved ? "rgba(76,175,80,0.2)" : "rgba(212,162,58,0.15)", color: saved ? "#81C784" : "#E0C060" }}
-      >
-        {saving ? (
-          <Loader2 size={18} className="animate-spin" />
-        ) : saved ? (
-          <Check size={18} />
-        ) : (
-          <Save size={18} />
-        )}
-        {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar cambios"}
-      </button>
+      {/* Gallery images and labels */}
+      <h2 className="text-xl sm:text-2xl font-bold text-white mb-6">Galería</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {galleryKeys
+          .filter((_, i) => i % 2 === 0)
+          .map((item, index) => {
+            const imgKey = item.key;
+            const labelKey = galleryKeys[index * 2 + 1].key;
+            return (
+              <div key={imgKey} className="card p-4 sm:p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-text-primary">
+                  {item.label.replace(" - Parrilla", "").replace("Galería ", "")}
+                </h3>
+                {/* Image upload */}
+                <div className="flex flex-col sm:flex-row items-center gap-4">
+                  <div className="flex-1 w-full">
+                    <label className="block text-xs font-medium mb-1 text-text-muted">
+                      Imagen ({item.label.split(" - ")[1]})
+                    </label>
+                    <input
+                      type="text"
+                      value={config[imgKey] || ""}
+                      onChange={(e) =>
+                        setConfig((prev) => ({
+                          ...prev,
+                          [imgKey]: e.target.value,
+                        }))
+                      }
+                      className="w-full px-3 py-2.5 rounded-xl text-sm bg-surface-light border border-primary/10 text-text-primary"
+                    />
+                  </div>
+                  <label className="btn-secondary !px-3 !py-2 text-xs font-medium shrink-0 w-full sm:w-auto">
+                    {uploading === imgKey ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Upload size={14} />
+                    )}
+                    {uploading === imgKey ? "Subiendo..." : "Subir Imagen"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleImageUpload(imgKey, f);
+                      }}
+                    />
+                  </label>
+                  {config[imgKey] && (
+                    <div className="relative w-full sm:w-24 h-20 rounded-lg overflow-hidden shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={config[imgKey]}
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={() =>
+                          setConfig((prev) => ({ ...prev, [imgKey]: "" }))
+                        }
+                        className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {/* Label input */}
+                <div>
+                  <label className="block text-xs font-medium mb-1 text-text-muted">
+                    Etiqueta ({galleryKeys[index * 2 + 1].label.split(" - ")[1]})
+                  </label>
+                  <input
+                    type="text"
+                    value={config[labelKey] || ""}
+                    onChange={(e) =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        [labelKey]: e.target.value,
+                      }))
+                    }
+                    className="w-full px-3 py-2.5 rounded-xl text-sm bg-surface-light border border-primary/10 text-text-primary"
+                  />
+                </div>
+              </div>
+            );
+          })}
+      </div>
     </div>
   );
 }

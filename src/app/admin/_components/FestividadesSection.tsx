@@ -84,7 +84,7 @@ export default function FestividadesSection() {
         <label className="block text-sm font-medium mb-3" style={{ color: "#E0C060" }}>
           Festividad activa
         </label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-wrap">
           {FESTIVIDADES.map((f) => (
             <button
               key={f.value}

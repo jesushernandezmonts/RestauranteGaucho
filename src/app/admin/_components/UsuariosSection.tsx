@@ -84,22 +84,22 @@ export default function UsuariosSection() {
   return (
     <div className="p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-2xl font-bold text-text-primary">
+            <h1 className="font-display text-xl sm:text-2xl font-bold text-text-primary">
               Usuarios
             </h1>
-            <p className="text-sm text-text-muted">Gestión de empleados</p>
+            <p className="text-xs sm:text-sm text-text-muted">Gestión de empleados</p>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="btn-primary !px-4 !py-2 text-sm"
+            className="btn-primary !px-4 !py-2 text-sm font-medium w-full sm:w-auto"
           >
             <UserPlus size={16} /> Nuevo
           </button>
         </div>
 
-        <div className="card !p-0 overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <table className="w-full">
             <thead>
               <tr className="border-b border-primary/10">
