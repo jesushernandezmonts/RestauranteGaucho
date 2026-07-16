@@ -110,7 +110,7 @@ export default function ReservacionesSection() {
                   </span>
                   <button
                     onClick={() => setDeleteRes(r)}
-                    className="p-1.5 rounded-lg hover:bg-danger/10 opacity-0 group-hover:opacity-100 transition-all"
+                    className="p-1.5 rounded-lg hover:bg-danger/10 transition-all"
                     title="Eliminar reservación"
                   >
                     <Trash2 size={14} className="text-text-muted hover:text-danger" />
