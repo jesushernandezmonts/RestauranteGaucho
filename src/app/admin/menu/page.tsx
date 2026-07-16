@@ -145,7 +145,7 @@ export default function AdminMenuPage() {
                 )}
               </>
             )}
-            <button onClick={() => { setShowCategoryModal(true); setEditCategory(null); }} className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-[#D4A23A]/30 text-[#D4A23A] hover:bg-[#D4A23A]/10 hover:border-[#D4A23A] transition-all text-sm font-medium">
+            <button onClick={() => { console.log("Botón categoría clickeado"); setShowCategoryModal(true); setEditCategory(null); }} className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-[#D4A23A]/30 text-[#D4A23A] hover:bg-[#D4A23A]/10 hover:border-[#D4A23A] transition-all text-sm font-medium">
               <Layers size={16} /> Categoría
             </button>
           </div>
