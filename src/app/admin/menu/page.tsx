@@ -145,7 +145,7 @@ export default function AdminMenuPage() {
                 )}
               </>
             )}
-            <button onClick={() => { console.log("Botón categoría clickeado"); setShowCategoryModal(true); setEditCategory(null); }} className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-[#D4A23A]/30 text-[#D4A23A] hover:bg-[#D4A23A]/10 hover:border-[#D4A23A] transition-all text-sm font-medium">
+            <button onClick={() => { setShowCategoryModal(true); setEditCategory(null); }} className="flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-[#D4A23A]/30 text-[#D4A23A] hover:bg-[#D4A23A]/10 hover:border-[#D4A23A] transition-all text-sm font-medium">
               <Layers size={16} /> Categoría
             </button>
           </div>
@@ -358,12 +358,6 @@ function CategoryModal({ cat, onClose, onSaved }: { cat: Categoria | null; onClo
   const [icono, setIcono] = useState(cat?.icono || "🍽️");
   const [orden, setOrden] = useState(cat?.orden || 0);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    setNombre(cat?.nombre || "");
-    setIcono(cat?.icono || "🍽️");
-    setOrden(cat?.orden || 0);
-  }, [cat]);
 
   const iconos = ["🥞", "🇲🇽", "🍝", "🍕", "🥣", "🥩", "🥦", "🥪", "🥗", "🥤", "🍹", "🍽️", "🧀", "🌮", "🍔"];
 
