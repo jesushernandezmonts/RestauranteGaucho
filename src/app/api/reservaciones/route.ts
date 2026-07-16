@@ -44,3 +44,14 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Error" }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+    await prisma.reservacion.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Error:", error);
+    return NextResponse.json({ error: "Error" }, { status: 500 });
+  }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, CalendarDays } from "lucide-react";
+import { Loader2, CalendarDays, Trash2, AlertCircle } from "lucide-react";
 
 type Reservacion = {
   id: number;
@@ -25,6 +25,7 @@ const estadoColors: Record<string, string> = {
 export default function ReservacionesSection() {
   const [reservaciones, setReservaciones] = useState<Reservacion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteRes, setDeleteRes] = useState<Reservacion | null>(null);
 
   async function load() {
     try {
@@ -38,7 +39,6 @@ export default function ReservacionesSection() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, []);
 
@@ -49,6 +49,22 @@ export default function ReservacionesSection() {
       body: JSON.stringify({ id, estado }),
     });
     load();
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      const res = await fetch("/api/reservaciones", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setDeleteRes(null);
+        load();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   if (loading) {
@@ -73,7 +89,7 @@ export default function ReservacionesSection() {
 
         <div className="grid grid-cols-1 gap-4">
           {reservaciones.map((r) => (
-            <div key={r.id} className="card">
+            <div key={r.id} className="card group">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <h3 className="font-semibold text-text-primary">
@@ -84,13 +100,22 @@ export default function ReservacionesSection() {
                     {r.email && `· ✉️ ${r.email}`}
                   </p>
                 </div>
-                <span
-                  className={`text-xs px-3 py-1 rounded-full font-medium ${
-                    estadoColors[r.estado] || "bg-surface-light text-text-muted"
-                  }`}
-                >
-                  {r.estado}
-                </span>
+                <div className="flex items-center gap-1">
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full font-medium ${
+                      estadoColors[r.estado] || "bg-surface-light text-text-muted"
+                    }`}
+                  >
+                    {r.estado}
+                  </span>
+                  <button
+                    onClick={() => setDeleteRes(r)}
+                    className="p-1.5 rounded-lg hover:bg-danger/10 opacity-0 group-hover:opacity-100 transition-all"
+                    title="Eliminar reservación"
+                  >
+                    <Trash2 size={14} className="text-text-muted hover:text-danger" />
+                  </button>
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div className="p-3 rounded-xl bg-surface-light/50">
@@ -158,6 +183,62 @@ export default function ReservacionesSection() {
               <p className="text-text-muted">Sin reservaciones</p>
             </div>
           )}
+        </div>
+        {deleteRes && (
+          <ConfirmDeleteModal
+            nombre={deleteRes.nombre}
+            onConfirm={() => handleDelete(deleteRes.id)}
+            onCancel={() => setDeleteRes(null)}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ConfirmDeleteModal({
+  nombre,
+  onConfirm,
+  onCancel,
+}: {
+  nombre: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleConfirm() {
+    setDeleting(true);
+    await onConfirm();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm bg-surface rounded-2xl border border-primary/10 p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-danger/10">
+            <AlertCircle size={20} className="text-danger" />
+          </div>
+          <h3 className="font-semibold text-text-primary">Eliminar reservación</h3>
+        </div>
+        <p className="text-sm text-text-muted">
+          ¿Estás seguro de eliminar la reservación de <strong className="text-text-primary">{nombre}</strong>?
+          Esta acción no se puede deshacer.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-2.5 rounded-xl bg-surface-lighter text-text-secondary text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={deleting}
+            className="flex-1 py-2.5 rounded-xl bg-danger/10 text-danger text-sm font-medium hover:bg-danger/20 transition-colors"
+          >
+            {deleting ? "Eliminando..." : "Eliminar"}
+          </button>
         </div>
       </div>
     </div>
