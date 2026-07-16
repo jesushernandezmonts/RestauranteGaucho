@@ -8,6 +8,9 @@ import {
   X,
   AlertTriangle,
   History,
+  Pencil,
+  Trash2,
+  AlertCircle,
 } from "lucide-react";
 
 type Ingrediente = {
@@ -34,6 +37,7 @@ export default function InventarioSection() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editIng, setEditIng] = useState<Ingrediente | null>(null);
+  const [deleteIng, setDeleteIng] = useState<Ingrediente | null>(null);
   const [tab, setTab] = useState<"inventario" | "movimientos">("inventario");
 
   useEffect(() => {
@@ -50,6 +54,22 @@ export default function InventarioSection() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(id: number) {
+    try {
+      const res = await fetch("/api/inventario", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setDeleteIng(null);
+        loadData();
+      }
+    } catch (e) {
+      console.error(e);
     }
   }
 
@@ -112,7 +132,7 @@ export default function InventarioSection() {
               return (
                 <div
                   key={ing.id}
-                  className={`card ${isLow ? "border-danger/20" : ""}`}
+                  className={`card group ${isLow ? "border-danger/20" : ""}`}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -121,13 +141,28 @@ export default function InventarioSection() {
                       </h3>
                       <p className="text-xs text-text-muted">{ing.unidad}</p>
                     </div>
-                    <button
-                      onClick={() => setEditIng(ing)}
-                      className="p-1 rounded-lg hover:bg-surface-light opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Package size={14} className="text-text-muted" />
-                    </button>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                      <button
+                        onClick={() => setEditIng(ing)}
+                        className="p-1.5 rounded-lg hover:bg-surface-light"
+                        title="Editar"
+                      >
+                        <Pencil size={14} className="text-text-muted hover:text-primary" />
+                      </button>
+                      <button
+                        onClick={() => setDeleteIng(ing)}
+                        className="p-1.5 rounded-lg hover:bg-danger/10"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={14} className="text-text-muted hover:text-danger" />
+                      </button>
+                    </div>
                   </div>
+                  {ing.costoSugerido > 0 && (
+                    <div className="text-xs text-text-muted mb-2">
+                      Costo: ${ing.costoSugerido}
+                    </div>
+                  )}
                   <div className="flex items-end justify-between">
                     <div>
                       <div
@@ -231,6 +266,13 @@ export default function InventarioSection() {
             }}
           />
         )}
+        {deleteIng && (
+          <ConfirmDeleteModal
+            nombre={deleteIng.nombre}
+            onConfirm={() => handleDelete(deleteIng.id)}
+            onCancel={() => setDeleteIng(null)}
+          />
+        )}
       </div>
     </div>
   );
@@ -247,6 +289,7 @@ function IngredienteFormModal({
   const [unidad, setUnidad] = useState("pieza");
   const [stock, setStock] = useState(0);
   const [stockMinimo, setStockMinimo] = useState(10);
+  const [costoSugerido, setCostoSugerido] = useState(0);
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -257,7 +300,7 @@ function IngredienteFormModal({
       const res = await fetch("/api/inventario", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, unidad, stock, stockMinimo }),
+        body: JSON.stringify({ nombre, unidad, stock, stockMinimo, costoSugerido }),
       });
       if (res.ok) onSaved();
     } catch (e) {
@@ -328,6 +371,18 @@ function IngredienteFormModal({
             />
           </div>
         </div>
+        <div>
+          <label className="text-xs text-text-muted mb-1 block">
+            Costo sugerido ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            value={costoSugerido}
+            onChange={(e) => setCostoSugerido(parseFloat(e.target.value) || 0)}
+            className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
+          />
+        </div>
         <div className="flex gap-3">
           <button
             type="button"
@@ -358,8 +413,11 @@ function EditIngredienteModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const [nombre, setNombre] = useState(ing.nombre);
+  const [unidad, setUnidad] = useState(ing.unidad);
   const [stock, setStock] = useState(ing.stock);
   const [stockMinimo, setStockMinimo] = useState(ing.stockMinimo);
+  const [costoSugerido, setCostoSugerido] = useState(ing.costoSugerido);
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -369,7 +427,7 @@ function EditIngredienteModal({
       const res = await fetch("/api/inventario", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: ing.id, stock, stockMinimo }),
+        body: JSON.stringify({ id: ing.id, nombre, unidad, stock, stockMinimo, costoSugerido }),
       });
       if (res.ok) onSaved();
     } catch (e) {
@@ -386,7 +444,7 @@ function EditIngredienteModal({
         className="w-full max-w-md bg-surface rounded-2xl border border-primary/10 p-6 space-y-4"
       >
         <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-text-primary">{ing.nombre}</h3>
+          <h3 className="font-semibold text-text-primary">Editar Ingrediente</h3>
           <button
             type="button"
             onClick={onClose}
@@ -394,6 +452,31 @@ function EditIngredienteModal({
           >
             <X size={18} />
           </button>
+        </div>
+        <div>
+          <label className="text-xs text-text-muted mb-1 block">Nombre</label>
+          <input
+            type="text"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
+            required
+          />
+        </div>
+        <div>
+          <label className="text-xs text-text-muted mb-1 block">Unidad</label>
+          <select
+            value={unidad}
+            onChange={(e) => setUnidad(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
+          >
+            <option value="pieza">Pieza</option>
+            <option value="kg">Kilogramo</option>
+            <option value="g">Gramo</option>
+            <option value="l">Litro</option>
+            <option value="ml">Mililitro</option>
+            <option value="porcion">Porción</option>
+          </select>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -417,6 +500,18 @@ function EditIngredienteModal({
             />
           </div>
         </div>
+        <div>
+          <label className="text-xs text-text-muted mb-1 block">
+            Costo sugerido ($)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            value={costoSugerido}
+            onChange={(e) => setCostoSugerido(parseFloat(e.target.value) || 0)}
+            className="w-full px-3 py-2 rounded-xl bg-surface-light border border-primary/10 text-text-primary text-sm"
+          />
+        </div>
         <div className="flex gap-3">
           <button
             type="button"
@@ -434,6 +529,55 @@ function EditIngredienteModal({
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function ConfirmDeleteModal({
+  nombre,
+  onConfirm,
+  onCancel,
+}: {
+  nombre: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleConfirm() {
+    setDeleting(true);
+    await onConfirm();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm bg-surface rounded-2xl border border-primary/10 p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-danger/10">
+            <AlertCircle size={20} className="text-danger" />
+          </div>
+          <h3 className="font-semibold text-text-primary">Eliminar ingrediente</h3>
+        </div>
+        <p className="text-sm text-text-muted">
+          ¿Estás seguro de eliminar <strong className="text-text-primary">{nombre}</strong>?
+          Esta acción eliminará también las recetas asociadas y no se puede deshacer.
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-2.5 rounded-xl bg-surface-lighter text-text-secondary text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={deleting}
+            className="flex-1 py-2.5 rounded-xl bg-danger/10 text-danger text-sm font-medium hover:bg-danger/20 transition-colors"
+          >
+            {deleting ? "Eliminando..." : "Eliminar"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

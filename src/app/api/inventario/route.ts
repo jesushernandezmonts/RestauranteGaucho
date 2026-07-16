@@ -53,3 +53,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Error" }, { status: 500 });
   }
 }
+
+// DELETE /api/inventario - delete ingredient (cascades recipes & movements)
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+    // Remove associated recipes so the ingredient can be deleted
+    await prisma.receta.deleteMany({ where: { ingredienteId: id } });
+    // Remove inventory movements referencing this ingredient
+    await prisma.inventarioMovimiento.deleteMany({ where: { ingredienteId: id } });
+    await prisma.ingrediente.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Error:", error);
+    return NextResponse.json({ error: "Error" }, { status: 500 });
+  }
+}
