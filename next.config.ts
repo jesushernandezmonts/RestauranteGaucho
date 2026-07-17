@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "vonqhqytfqujivnnkydx.supabase.co",
+      },
     ],
   },
   // TODO: add turbopack.root once we clean up lockfiles
