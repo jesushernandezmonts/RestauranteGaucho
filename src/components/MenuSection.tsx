@@ -56,11 +56,11 @@ function DishModal({ platillo, onClose }: { platillo: Platillo; onClose: () => v
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex justify-center items-start overflow-y-auto p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-cream rounded-3xl overflow-hidden shadow-2xl animate-slide-up"
+        className="w-full max-w-lg my-auto bg-cream rounded-3xl overflow-hidden shadow-2xl animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Image */}
