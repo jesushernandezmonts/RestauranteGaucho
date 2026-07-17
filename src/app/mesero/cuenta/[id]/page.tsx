@@ -41,7 +41,7 @@ export default function CuentaPage() {
 
   const [orden, setOrden] = useState<Orden | null>(null);
   const [loading, setLoading] = useState(true);
-  const [metodoPago, setMetodoPago] = useState<"efectivo" | "tarjeta" | null>(null);
+  const [metodoPago, setMetodoPago] = useState<"efectivo" | "tarjeta" | "transferencia" | null>(null);
   const [tipoPropina, setTipoPropina] = useState<"cantidad" | "porcentaje">("porcentaje");
   const [propinaValor, setPropinaValor] = useState(0);
   const [propinaPorcentaje, setPropinaPorcentaje] = useState(10);
@@ -152,7 +152,7 @@ export default function CuentaPage() {
               <span className="font-bold text-lg text-gradient">${totalConPropina.toFixed(0)}</span>
             </div>
             <div className="mt-3 text-xs text-text-muted">
-              Pagado con {metodoPago === "efectivo" ? "💵 Efectivo" : "💳 Tarjeta"}
+              Pagado con {metodoPago === "efectivo" ? "💵 Efectivo" : metodoPago === "transferencia" ? "📲 Transferencia" : "💳 Tarjeta"}
             </div>
           </div>
           <button
@@ -295,6 +295,21 @@ export default function CuentaPage() {
                 </span>
                 <span>30%</span>
               </div>
+              {/* Custom percentage input */}
+              <div className="mt-3">
+                <label className="text-xs text-text-secondary mb-1.5 block">Porcentaje personalizado</label>
+                <div className="relative max-w-[140px]">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={propinaPorcentaje}
+                    onChange={(e) => setPropinaPorcentaje(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))}
+                    className="w-full pl-4 pr-8 py-2.5 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-warning/40 text-sm"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-sm font-bold">%</span>
+                </div>
+              </div>
             </div>
           ) : (
             <div>
@@ -326,7 +341,7 @@ export default function CuentaPage() {
           <h3 className="font-semibold text-text-primary mb-4">
             Método de Pago
           </h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <button
               onClick={() => setMetodoPago("efectivo")}
               className={`p-4 rounded-xl border text-center transition-all ${
@@ -335,19 +350,30 @@ export default function CuentaPage() {
                   : "bg-surface-light border-primary/10 text-text-secondary hover:border-primary/30"
               }`}
             >
-              <Wallet size={28} className="mx-auto mb-2" />
-              <span className="text-sm font-medium">Efectivo</span>
+              <Wallet size={24} className="mx-auto mb-2" />
+              <span className="text-xs font-medium">Efectivo</span>
             </button>
             <button
               onClick={() => setMetodoPago("tarjeta")}
               className={`p-4 rounded-xl border text-center transition-all ${
                 metodoPago === "tarjeta"
-                  ? "bg-info/10 border-info/30 text-info"
+                  ? "bg-blue-500/10 border-blue-500/30 text-blue-400"
                   : "bg-surface-light border-primary/10 text-text-secondary hover:border-primary/30"
               }`}
             >
-              <CreditCard size={28} className="mx-auto mb-2" />
-              <span className="text-sm font-medium">Tarjeta</span>
+              <CreditCard size={24} className="mx-auto mb-2" />
+              <span className="text-xs font-medium">Tarjeta</span>
+            </button>
+            <button
+              onClick={() => setMetodoPago("transferencia")}
+              className={`p-4 rounded-xl border text-center transition-all ${
+                metodoPago === "transferencia"
+                  ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
+                  : "bg-surface-light border-primary/10 text-text-secondary hover:border-primary/30"
+              }`}
+            >
+              <BanknoteIcon size={24} className="mx-auto mb-2" />
+              <span className="text-xs font-medium">Transferencia</span>
             </button>
           </div>
         </div>
@@ -379,56 +405,20 @@ export default function CuentaPage() {
           </div>
         </div>
 
-        {/* Efectivo recibido (solo si es efectivo) */}
-        {metodoPago === "efectivo" && (
-          <div className="card">
-            <label className="text-sm font-semibold text-text-primary mb-3 flex items-center gap-2">
-              💵 Efectivo recibido
-            </label>
-            <div className="flex gap-3 mb-3">
-              {[Math.ceil(totalConPropina / 50) * 50, Math.ceil(totalConPropina / 100) * 100, Math.ceil(totalConPropina / 200) * 200].map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setEfectivoRecibido(v)}
-                  className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${
-                    efectivoRecibido === v
-                      ? "bg-success/10 text-success border-success/30"
-                      : "bg-surface-light text-text-secondary border-primary/10 hover:border-primary/20"
-                  }`}
-                >
-                  ${v}
-                </button>
-              ))}
-            </div>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">$</span>
-              <input
-                type="number"
-                value={efectivoRecibido || ""}
-                onChange={(e) => setEfectivoRecibido(parseFloat(e.target.value) || 0)}
-                placeholder="0"
-                className="w-full pl-8 pr-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-primary/30"
-              />
-            </div>
-            {efectivoRecibido > 0 && efectivoRecibido < totalConPropina && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-danger">
-                <span>⚠️</span>
-                <span>Faltan ${(totalConPropina - efectivoRecibido).toFixed(0)}</span>
-              </div>
-            )}
-            {efectivoRecibido >= totalConPropina && (
-              <div className="mt-2 flex justify-between p-3 rounded-xl bg-success/10 border border-success/20">
-                <span className="text-success font-medium">💚 Cambio</span>
-                <span className="font-bold text-success text-lg">${cambio.toFixed(0)}</span>
-              </div>
-            )}
+        {/* Info adicional por método de pago */}
+        {metodoPago === "transferencia" && (
+          <div className="card border-purple-500/20 bg-purple-500/5">
+            <p className="text-sm text-purple-300 flex items-center gap-2">
+              <span>📲</span>
+              Solicita al cliente el comprobante de transferencia antes de cerrar la cuenta.
+            </p>
           </div>
         )}
 
         {/* Botón */}
         <button
           onClick={handleCerrarCuenta}
-          disabled={!metodoPago || procesando || (metodoPago === "efectivo" && efectivoRecibido < totalConPropina)}
+          disabled={!metodoPago || procesando}
           className="btn-primary w-full text-base py-4 disabled:opacity-50"
         >
           {procesando ? (
