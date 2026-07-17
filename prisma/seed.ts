@@ -12,20 +12,16 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("🌱 Seeding database...");
 
-  // Clean in order (respect foreign keys)
-  await prisma.inventarioMovimiento.deleteMany();
-  await prisma.receta.deleteMany();
-  await prisma.extraOrden.deleteMany();
-  await prisma.opcionOrden.deleteMany();
-  await prisma.detalleOrden.deleteMany();
-  await prisma.pago.deleteMany();
-  await prisma.orden.deleteMany();
-  await prisma.ingrediente.deleteMany();
-  await prisma.platillo.deleteMany();
-  await prisma.categoria.deleteMany();
-  await prisma.mesa.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.reservacion.deleteMany();
+  // Clean all tables using TRUNCATE CASCADE to avoid FK issues
+  const tables = [
+    "InventarioMovimiento", "Receta", "ExtraOrden", "OpcionOrden",
+    "DetalleOrden", "Pago", "Orden", "Ingrediente", "Platillo",
+    "Categoria", "Mesa", "User", "Reservacion", "PushSubscription",
+    "Configuracion", "Promocion"
+  ];
+  for (const table of tables) {
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${table}" CASCADE`);
+  }
 
   // USERS
   const hash = await bcrypt.hash("123456", 10);
