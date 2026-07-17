@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { bumpMenuVersion } from "@/lib/menuVersion";
 import { auth } from "@/lib/auth";
-import { sendPushToAll } from "@/lib/push";
+import { sendPushToRole } from "@/lib/push";
 
 export async function GET(request: Request) {
   try {
@@ -169,7 +169,7 @@ export async function POST(request: Request) {
 async function notifyKitchenNewOrder(orden: { id: number; mesa: { numero: number }; detalle: { cantidad: number; platillo: { nombre: string } }[] }) {
   try {
     const items = orden.detalle.map((d) => `${d.cantidad}x ${d.platillo.nombre}`).join(", ");
-    await sendPushToAll({
+    await sendPushToRole("CHEF", {
       title: "🍳 Nueva orden",
       body: `Mesa ${orden.mesa.numero} — ${items}`,
       tag: "nueva-orden",
@@ -246,7 +246,7 @@ export async function PATCH(request: Request) {
       });
       if (ordenCompleta) {
         const items = ordenCompleta.detalle.map((d) => `${d.cantidad}x ${d.platillo.nombre}`).join(", ");
-        await sendPushToAll({
+        await sendPushToRole("MESERO", {
           title: "✅ Orden lista",
           body: `Mesa ${ordenCompleta.mesa.numero} — ${items}`,
           tag: "orden-lista",

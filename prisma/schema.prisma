@@ -219,6 +219,8 @@ model PushSubscription {
   endpoint  String   @unique
   p256dh    String
   auth      String
+  userId    Int?     // ID del usuario que suscribió este dispositivo
+  role      Role?    // MESERO o CHEF — para filtrar notificaciones
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }

@@ -251,7 +251,7 @@ export default function CocinaDashboard() {
                     const ok = await requestNotifyPermission();
                     if (ok) {
                       setNotifyGranted(true);
-                      const subscribed = await subscribeToPush();
+                      const subscribed = await subscribeToPush("CHEF", session?.user?.id);
                       setPushSubscribed(subscribed);
                     }
                   } finally {

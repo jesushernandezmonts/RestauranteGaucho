@@ -20,9 +20,10 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 /**
  * Subscribe the current device to push notifications.
+ * Accepts a role ("MESERO" | "CHEF") and userId to tag the subscription.
  * Returns true if subscribed successfully.
  */
-export async function subscribeToPush(): Promise<boolean> {
+export async function subscribeToPush(role?: "MESERO" | "CHEF", userId?: number): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (!("serviceWorker" in navigator)) return false;
   if (!("PushManager" in window)) return false;
@@ -37,7 +38,7 @@ export async function subscribeToPush(): Promise<boolean> {
       const result = await fetch("/api/push/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscription.toJSON()),
+        body: JSON.stringify({ ...subscription.toJSON(), role, userId }),
       });
       return result.ok;
     }
@@ -48,11 +49,11 @@ export async function subscribeToPush(): Promise<boolean> {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as unknown as BufferSource,
     });
 
-    // Save to server
+    // Save to server with role and userId
     const response = await fetch("/api/push/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(subscription.toJSON()),
+      body: JSON.stringify({ ...subscription.toJSON(), role, userId }),
     });
 
     return response.ok;

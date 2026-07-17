@@ -6,11 +6,19 @@ import webpush from "web-push";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { endpoint, keys } = body;
+    const { endpoint, keys, role, userId } = body;
 
     if (!endpoint || !keys) {
       return NextResponse.json(
         { error: "Endpoint y keys requeridos" },
+        { status: 400 }
+      );
+    }
+
+    // Validate role if provided
+    if (role && !["MESERO", "CHEF"].includes(role)) {
+      return NextResponse.json(
+        { error: "Role inválido — debe ser MESERO o CHEF" },
         { status: 400 }
       );
     }
@@ -21,12 +29,16 @@ export async function POST(request: Request) {
       update: {
         p256dh: keys.p256dh,
         auth: keys.auth,
+        role: role || undefined,
+        userId: userId || undefined,
         updatedAt: new Date(),
       },
       create: {
         endpoint,
         p256dh: keys.p256dh,
         auth: keys.auth,
+        role: role || undefined,
+        userId: userId || undefined,
       },
     });
 

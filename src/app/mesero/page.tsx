@@ -281,7 +281,7 @@ export default function MeseroDashboard() {
                   const ok = await requestNotifyPermission();
                   if (ok) {
                     setNotifyGranted(true);
-                    const subscribed = await subscribeToPush();
+                    const subscribed = await subscribeToPush("MESERO", session?.user?.id);
                     setPushSubscribed(subscribed);
                   }
                 }}
