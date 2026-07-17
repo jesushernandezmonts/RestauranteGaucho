@@ -194,84 +194,86 @@ export function MenuSection() {
   const currentCat = categorias.find((c) => c.id === activeCat);
 
   return (
-    <section id="menu" className="py-14 sm:py-20 md:py-28 bg-cream relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-cream-warm/50 to-transparent pointer-events-none" />
+    <>
+      <section id="menu" className="py-14 sm:py-20 md:py-28 bg-cream relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-cream-warm/50 to-transparent pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-6 sm:mb-10">
-          <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-[3px] uppercase text-sage-dark bg-sage/20 px-2.5 sm:px-4 py-1 sm:py-2 rounded-full mb-2 sm:mb-4">Menú</span>
-          <h2 className="font-display text-xl sm:text-3xl md:text-5xl font-bold text-chocolate leading-tight tracking-tight">
-            Nuestros Platillos
-          </h2>
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-5">
-            <span className="block w-8 sm:w-14 md:w-20 h-px sm:h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
-            <svg className="w-3 sm:w-4 h-3 sm:h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            <span className="block w-8 sm:w-14 md:w-20 h-px sm:h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
-          </div>
-        </div>
-
-        {/* Category tabs */}
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12">
-          {categorias.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCat(cat.id)}
-              className={`inline-flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
-                activeCat === cat.id
-                  ? "bg-gold text-chocolate shadow-gold"
-                  : "bg-white/60 text-chocolate-light hover:bg-gold/20 border border-chocolate/10"
-              }`}
-            >
-              <span className="w-4 h-4">{iconMap[cat.icono] || <IconPlate />}</span>
-              {cat.nombre}
-            </button>
-          ))}
-        </div>
-
-        {/* Active category dishes */}
-        {loading ? (
-          <div className="flex justify-center py-12"><Loader2 size={28} className="animate-spin text-gold" /></div>
-        ) : currentCat ? (
-          <div className="max-w-3xl mx-auto">
-            <div className="grid gap-3 sm:gap-4">
-              {currentCat.platillos.map((platillo, i) => (
-                <button
-                  key={platillo.id}
-                  onClick={() => setSelectedPlatillo(platillo)}
-                  className="group flex items-start justify-between p-4 sm:p-5 rounded-2xl bg-white/60 border border-chocolate/5 hover:border-gold/20 transition-all duration-300 hover:shadow-gold animate-reveal text-left w-full cursor-pointer"
-                  style={{ animationDelay: `${i * 50}ms` }}
-                >
-                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                    {platillo.imagen && (
-                      <img
-                        src={platillo.imagen}
-                        alt={platillo.nombre}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover flex-shrink-0 border border-chocolate/5"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-display text-base sm:text-lg font-semibold text-chocolate group-hover:text-gold-dark transition-colors">
-                        {platillo.nombre}
-                      </h3>
-                      {platillo.descripcion && (
-                        <p className="text-xs sm:text-sm text-chocolate-light mt-1 leading-relaxed line-clamp-2">{platillo.descripcion}</p>
-                      )}
-                    </div>
-                  </div>
-                  <span className="shrink-0 font-bold text-gold-dark text-sm sm:text-base">${platillo.precio}</span>
-                </button>
-              ))}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-6 sm:mb-10">
+            <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-[3px] uppercase text-sage-dark bg-sage/20 px-2.5 sm:px-4 py-1 sm:py-2 rounded-full mb-2 sm:mb-4">Menú</span>
+            <h2 className="font-display text-xl sm:text-3xl md:text-5xl font-bold text-chocolate leading-tight tracking-tight">
+              Nuestros Platillos
+            </h2>
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-5">
+              <span className="block w-8 sm:w-14 md:w-20 h-px sm:h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
+              <svg className="w-3 sm:w-4 h-3 sm:h-4 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <span className="block w-8 sm:w-14 md:w-20 h-px sm:h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
             </div>
           </div>
-        ) : null}
-      </div>
+
+          {/* Category tabs */}
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12">
+            {categorias.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCat(cat.id)}
+                className={`inline-flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
+                  activeCat === cat.id
+                    ? "bg-gold text-chocolate shadow-gold"
+                    : "bg-white/60 text-chocolate-light hover:bg-gold/20 border border-chocolate/10"
+                }`}
+              >
+                <span className="w-4 h-4">{iconMap[cat.icono] || <IconPlate />}</span>
+                {cat.nombre}
+              </button>
+            ))}
+          </div>
+
+          {/* Active category dishes */}
+          {loading ? (
+            <div className="flex justify-center py-12"><Loader2 size={28} className="animate-spin text-gold" /></div>
+          ) : currentCat ? (
+            <div className="max-w-3xl mx-auto">
+              <div className="grid gap-3 sm:gap-4">
+                {currentCat.platillos.map((platillo, i) => (
+                  <button
+                    key={platillo.id}
+                    onClick={() => setSelectedPlatillo(platillo)}
+                    className="group flex items-start justify-between p-4 sm:p-5 rounded-2xl bg-white/60 border border-chocolate/5 hover:border-gold/20 transition-all duration-300 hover:shadow-gold animate-reveal text-left w-full cursor-pointer"
+                    style={{ animationDelay: `${i * 50}ms` }}
+                  >
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      {platillo.imagen && (
+                        <img
+                          src={platillo.imagen}
+                          alt={platillo.nombre}
+                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover flex-shrink-0 border border-chocolate/5"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-display text-base sm:text-lg font-semibold text-chocolate group-hover:text-gold-dark transition-colors">
+                          {platillo.nombre}
+                        </h3>
+                        {platillo.descripcion && (
+                          <p className="text-xs sm:text-sm text-chocolate-light mt-1 leading-relaxed line-clamp-2">{platillo.descripcion}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className="shrink-0 font-bold text-gold-dark text-sm sm:text-base">${platillo.precio}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </section>
 
       {/* Dish Detail Modal */}
       {selectedPlatillo && (
         <DishModal platillo={selectedPlatillo} onClose={() => setSelectedPlatillo(null)} />
       )}
-    </section>
+    </>
   );
 }
