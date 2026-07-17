@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Save, Check, Upload, X } from "lucide-react";
+import { compressImage } from "@/lib/compressImage";
 
 const CONFIG_KEYS = [
   { key: "hero_fondo", label: "Fondo del Hero (portada)" },
@@ -50,27 +51,43 @@ export default function AparienciaSection() {
   }, []);
 
   async function handleImageUpload(key: string, file: File) {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const dataUrl = reader.result as string;
-      setUploading(key);
-      try {
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ dataUrl }),
-        });
-        const uploadData = await uploadRes.json();
-        if (uploadData.url) {
-          setConfig((prev) => ({ ...prev, [key]: uploadData.url }));
+    setUploading(key);
+    try {
+      let dataUrl: string;
+      if (file.type.startsWith("image/")) {
+        try {
+          dataUrl = await compressImage(file, 1200, 0.7);
+        } catch (e) {
+          console.warn("Compression failed, using original", e);
+          dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setUploading(null);
+      } else {
+        const reader = new FileReader();
+        dataUrl = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       }
-    };
-    reader.readAsDataURL(file);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataUrl }),
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadData.url) {
+        setConfig((prev) => ({ ...prev, [key]: uploadData.url }));
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setUploading(null);
+    }
   }
 
   async function handleSave() {

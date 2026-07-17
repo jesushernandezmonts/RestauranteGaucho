@@ -127,6 +127,10 @@ model Orden {
   mesero     User           @relation(fields: [meseroId], references: [id])
   detalle    DetalleOrden[]
   pagos      Pago[]
+
+  @@index([estado, createdAt])
+  @@index([mesaId, estado])
+  @@index([meseroId])
 }
 
 // ─── DETALLE DE ORDEN ───────────────────────────────────

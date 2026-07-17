@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useFestividad } from "@/hooks/useFestividad";
 
 const FESTIVAL_STYLES: Record<string, {
@@ -70,30 +70,9 @@ const FESTIVAL_STYLES: Record<string, {
 };
 
 export function HeroSection({ initialConfig = {} }: { initialConfig?: Record<string, string> }) {
-  const [config, setConfig] = useState<Record<string, string>>(initialConfig);
-  const [loaded, setLoaded] = useState(Object.keys(initialConfig).length > 0);
+  const [config] = useState<Record<string, string>>(initialConfig);
+  const [loaded] = useState(Object.keys(initialConfig).length > 0);
   const { esFestividad, festividadActiva, titulo, mensaje } = useFestividad();
-
-  useEffect(() => {
-    function fetchConfig() {
-      fetch("/api/config")
-        .then((r) => r.json())
-        .then((data) => {
-          setConfig(data);
-          setLoaded(true);
-        })
-        .catch(() => setLoaded(true));
-    }
-
-    fetchConfig();
-
-    // Cross-tab instant sync
-    try {
-      const bc = new BroadcastChannel("gaucho_config_changes");
-      bc.onmessage = () => fetchConfig();
-      return () => bc.close();
-    } catch { }
-  }, []);
 
   const heroFondo = config.hero_fondo || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80";
   const logoUrl = config.logo_url || "/gaucho-logo.png";

@@ -7,6 +7,7 @@ import {
   IconPlate, IconMeat, IconPasta, IconPizza, IconSoup,
   IconDrink, IconCocktail, IconBread, IconSalad, IconFlame,
 } from "./GauchoIcons";
+import { compressImage } from "@/lib/compressImage";
 
 type Categoria = {
   id: number;
@@ -69,6 +70,7 @@ function DishModal({ platillo, onClose }: { platillo: Platillo; onClose: () => v
             <img
               src={platillo.imagen}
               alt={platillo.nombre}
+              loading="lazy"
               className="w-full h-full object-cover"
             />
             <button
@@ -249,6 +251,7 @@ export function MenuSection() {
                         <img
                           src={platillo.imagen}
                           alt={platillo.nombre}
+                          loading="lazy"
                           className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover flex-shrink-0 border border-chocolate/5"
                         />
                       )}

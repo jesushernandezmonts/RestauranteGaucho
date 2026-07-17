@@ -12,6 +12,7 @@ import {
   Trash2,
   AlertTriangle,
 } from "lucide-react";
+import { compressImage } from "@/lib/compressImage";
 
 type Categoria = {
   id: number;
@@ -559,13 +560,27 @@ function PlatilloForm({
               if (!file) return;
               setUploading(true);
               try {
-                // Convert file to base64 data URL
-                const reader = new FileReader();
-                const dataUrl = await new Promise<string>((resolve, reject) => {
-                  reader.onload = () => resolve(reader.result as string);
-                  reader.onerror = reject;
-                  reader.readAsDataURL(file);
-                });
+                let dataUrl = "";
+                if (file.type.startsWith("image/")) {
+                  try {
+                    dataUrl = await compressImage(file, 800, 0.7);
+                  } catch (e) {
+                    console.warn("Compression failed, using original image", e);
+                    const reader = new FileReader();
+                    dataUrl = await new Promise<string>((resolve, reject) => {
+                      reader.onload = () => resolve(reader.result as string);
+                      reader.onerror = reject;
+                      reader.readAsDataURL(file);
+                    });
+                  }
+                } else {
+                  const reader = new FileReader();
+                  dataUrl = await new Promise<string>((resolve, reject) => {
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                  });
+                }
                 const res = await fetch("/api/upload", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },

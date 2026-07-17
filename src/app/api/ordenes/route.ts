@@ -23,16 +23,15 @@ export async function GET(request: Request) {
     const ordenes = await prisma.orden.findMany({
       where,
       include: {
-        mesa: true,
+        mesa: { select: { numero: true } },
         mesero: { select: { id: true, nombre: true } },
         detalle: {
           include: {
-            platillo: { select: { id: true, nombre: true, precio: true } },
+            platillo: { select: { id: true, nombre: true } },
             extras: true,
             opciones: true,
           },
         },
-        pagos: true,
       },
       orderBy: { createdAt: "desc" },
     });
