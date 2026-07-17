@@ -2,11 +2,5 @@
   "buildCommand": "npx prisma generate && npx next build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "npm install",
-  "functions": {
-    "app/api/upload/route.js": {
-      "maxDuration": 30,
-      "memory": 1024
-    }
-  }
+  "installCommand": "npm install"
 }

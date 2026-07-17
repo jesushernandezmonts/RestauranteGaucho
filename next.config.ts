@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // TODO: add turbopack.root once we clean up lockfiles
+  transpilePackages: ["date-fns", "recharts"],
   async headers() {
     return [
       {
