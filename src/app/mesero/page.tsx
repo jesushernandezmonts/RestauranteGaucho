@@ -251,6 +251,24 @@ export default function MeseroDashboard() {
     Terraza: "🌿",
   };
 
+  // Position map matching the physical floor plan
+  const mesaPositionMap: Record<number, { row: number; col: number }> = {
+    // Interior
+    1: { row: 3, col: 1 },
+    2: { row: 2, col: 1 },
+    3: { row: 1, col: 2 },
+    4: { row: 1, col: 3 },
+    5: { row: 2, col: 3 },
+    // Exterior
+    6: { row: 3, col: 1 },
+    7: { row: 2, col: 1 },
+    8: { row: 1, col: 1 },
+    9: { row: 1, col: 2 },
+    10: { row: 1, col: 3 },
+    11: { row: 2, col: 2 },
+    12: { row: 2, col: 3 },
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center dark-section">
@@ -456,7 +474,7 @@ export default function MeseroDashboard() {
                 </div>
 
                 {/* Tables grid */}
-                <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 gap-3 px-5 pb-5">
+                <div className="relative z-10 grid grid-cols-3 gap-3 px-5 pb-5" style={{ gridTemplateRows: 'repeat(3, auto)' }}>
                   {mesasArea.map((mesa) => {
                     const cfg = statusConfig[mesa.estado];
                     const tieneLista = mesasConListas.has(mesa.numero);
@@ -464,7 +482,14 @@ export default function MeseroDashboard() {
                       mesa.estado === "OCUPADO" || mesa.estado === "CUENTA";
 
                     return (
-                      <div key={mesa.id} className="relative group">
+                      <div
+                        key={mesa.id}
+                        className="relative group"
+                        style={mesaPositionMap[mesa.numero] ? {
+                          gridRow: mesaPositionMap[mesa.numero].row,
+                          gridColumn: mesaPositionMap[mesa.numero].col,
+                        } : {}}
+                      >
                         <Link
                           href={
                             mesa.estado !== "LIBRE"

@@ -50,7 +50,6 @@ export default function MeseroLoginPage() {
       <div className="relative z-10 w-full max-w-md mx-4">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="text-5xl mb-3">🥩</div>
           <h1 className="font-display text-3xl font-bold text-gradient">
             Gaucho
           </h1>
