@@ -253,20 +253,20 @@ export default function MeseroDashboard() {
 
   // Position map matching the physical floor plan
   const mesaPositionMap: Record<number, { row: number; col: number }> = {
-    // Interior
+    // Exterior (mesas 1-5)
     1: { row: 3, col: 1 },
     2: { row: 2, col: 1 },
     3: { row: 1, col: 2 },
     4: { row: 1, col: 3 },
     5: { row: 2, col: 3 },
-    // Exterior
+    // Interior (mesas 6-12)
     6: { row: 3, col: 1 },
     7: { row: 2, col: 1 },
     8: { row: 1, col: 1 },
     9: { row: 1, col: 2 },
     10: { row: 1, col: 3 },
-    11: { row: 2, col: 2 },
-    12: { row: 2, col: 3 },
+    11: { row: 2, col: 3 },
+    12: { row: 3, col: 3 },
   };
 
   if (status === "loading" || loading) {
