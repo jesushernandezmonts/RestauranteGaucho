@@ -46,11 +46,6 @@ type OrderItem = {
   subtotal: number;
 };
 
-const presetExtras = [
-  { nombre: "Queso extra", precio: 20 },
-  { nombre: "Aguacate", precio: 25 },
-  { nombre: "Orden de papas", precio: 35 },
-];
 
 export default function MesaDetailPage() {
   const params = useParams<{ id: string }>();
@@ -189,20 +184,18 @@ export default function MesaDetailPage() {
   const confirmCustomize = useCallback(
     (data: {
       cantidad: number;
-      extras: ExtraItem[];
       opciones: OpcionItem[];
     }) => {
       if (!showCustomize) return;
       const { platillo, itemIndex } = showCustomize;
-      const extrasTotal = data.extras.reduce((s, e) => s + e.precio, 0);
-      const subtotal = (platillo.precio + extrasTotal) * data.cantidad;
+      const subtotal = platillo.precio * data.cantidad;
 
       const newItem: OrderItem = {
         platilloId: platillo.id,
         nombre: platillo.nombre,
         precio: platillo.precio,
         cantidad: data.cantidad,
-        extras: data.extras,
+        extras: [],
         opciones: data.opciones,
         subtotal,
       };
@@ -765,51 +758,23 @@ function CustomizeModal({
   platillo: Platillo;
   onConfirm: (data: {
     cantidad: number;
-    extras: ExtraItem[];
     opciones: OpcionItem[];
   }) => void;
   onCancel: () => void;
   initialValues?: OrderItem;
 }) {
   const [cantidad, setCantidad] = useState(initialValues?.cantidad ?? 1);
-  const [extras, setExtras] = useState<ExtraItem[]>(initialValues?.extras ?? []);
-  const [quitar, setQuitar] = useState<string[]>(
-    initialValues?.opciones.filter((o) => o.tipo === "QUITAR").map((o) => o.valor) ?? []
-  );
   const [nota, setNota] = useState(
     initialValues?.opciones.find((o) => o.tipo === "NOTA")?.valor ?? ""
   );
-  const [customExtra, setCustomExtra] = useState({ nombre: "", precio: 0 });
 
-  const extrasTotal = extras.reduce((s, e) => s + e.precio, 0);
-  const subtotal = (platillo.precio + extrasTotal) * cantidad;
-
-  const addPresetExtra = (extra: { nombre: string; precio: number }) => {
-    setExtras((prev) => [...prev, extra]);
-  };
-
-  const removeExtra = (idx: number) => {
-    setExtras((prev) => prev.filter((_, i) => i !== idx));
-  };
-
-  const addCustomExtra = () => {
-    if (!customExtra.nombre || customExtra.precio <= 0) return;
-    setExtras((prev) => [...prev, { ...customExtra }]);
-    setCustomExtra({ nombre: "", precio: 0 });
-  };
-
-  const toggleQuitar = (ing: string) => {
-    setQuitar((prev) =>
-      prev.includes(ing) ? prev.filter((i) => i !== ing) : [...prev, ing]
-    );
-  };
+  const subtotal = platillo.precio * cantidad;
 
   const handleConfirm = () => {
     const opciones: OpcionItem[] = [
-      ...quitar.map((q) => ({ tipo: "QUITAR" as const, valor: q })),
       ...(nota ? [{ tipo: "NOTA" as const, valor: nota }] : []),
     ];
-    onConfirm({ cantidad, extras, opciones });
+    onConfirm({ cantidad, opciones });
   };
 
   return (
@@ -835,155 +800,7 @@ function CustomizeModal({
         </div>
 
         <div className="p-4 space-y-6">
-          {/* Quitar ingredientes */}
-          <div>
-            <h3 className="font-semibold text-white text-sm mb-3 flex items-center gap-2">
-              <span className="text-danger">❌</span> Quitar ingredientes
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {["Sin papas", "Sin verduras", "Sin cebolla", "Sin sal", "Sin queso"].map(
-                (ing) => (
-                  <button
-                    key={ing}
-                    onClick={() => toggleQuitar(ing)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer ${
-                      quitar.includes(ing)
-                        ? "bg-danger/20 text-danger border-danger/30"
-                        : "bg-surface-light text-white/80 border-primary/10 hover:border-primary/30"
-                    }`}
-                  >
-                    {quitar.includes(ing) ? "✓ " : ""}
-                    {ing}
-                  </button>
-                )
-              )}
-              <input
-                type="text"
-                placeholder="Otro..."
-                className="px-3 py-1.5 rounded-lg text-xs bg-surface-light border border-primary/10 text-white placeholder:text-white/40 focus:outline-none focus:border-primary/30 max-w-[140px]"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && e.currentTarget.value) {
-                    toggleQuitar(e.currentTarget.value);
-                    e.currentTarget.value = "";
-                  }
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Agregar extras */}
-          <div>
-            <h3 className="font-semibold text-white text-sm mb-3 flex items-center gap-2">
-              <span className="text-primary-light">✚</span> Agregar extras
-            </h3>
-            <div className="space-y-2">
-              {presetExtras.map((extra, idx) => {
-                const alreadyAdded = extras.some(
-                  (e) => e.nombre === extra.nombre
-                );
-                return (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 rounded-xl bg-surface-light/50 border border-primary/5"
-                  >
-                    <span className="text-sm text-white">
-                      {extra.nombre}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-primary-light">
-                        +${extra.precio}
-                      </span>
-                      {alreadyAdded ? (
-                        <button
-                          onClick={() =>
-                            removeExtra(
-                              extras.findIndex((e) => e.nombre === extra.nombre)
-                            )
-                          }
-                          className="text-xs text-danger hover:bg-danger/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
-                        >
-                          Quitar
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => addPresetExtra(extra)}
-                          className="text-xs text-primary-light hover:bg-primary/10 px-2 py-1 rounded-lg transition-colors cursor-pointer"
-                        >
-                          Agregar
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Custom extra */}
-            <div className="mt-3 p-3 rounded-xl bg-surface-light/50 border border-dashed border-primary/20">
-              <h4 className="text-xs font-medium text-white/80 mb-2">
-                Extra personalizado
-              </h4>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Nombre del extra"
-                  value={customExtra.nombre}
-                  onChange={(e) =>
-                    setCustomExtra((prev) => ({
-                      ...prev,
-                      nombre: e.target.value,
-                    }))
-                  }
-                  className="flex-1 px-3 py-2 rounded-lg bg-surface text-xs text-white border border-primary/10 placeholder:text-white/40 focus:outline-none focus:border-primary/30"
-                />
-                <span className="text-xs text-white/50">$</span>
-                <input
-                  type="number"
-                  placeholder="Precio"
-                  value={customExtra.precio || ""}
-                  onChange={(e) =>
-                    setCustomExtra((prev) => ({
-                      ...prev,
-                      precio: parseInt(e.target.value) || 0,
-                    }))
-                  }
-                  className="w-20 px-3 py-2 rounded-lg bg-surface text-xs text-white border border-primary/10 placeholder:text-white/40 focus:outline-none focus:border-primary/30"
-                />
-                <button
-                  onClick={addCustomExtra}
-                  disabled={!customExtra.nombre || customExtra.precio <= 0}
-                  className="px-3 py-2 rounded-lg bg-primary/10 text-primary-light text-xs font-medium hover:bg-primary/20 disabled:opacity-50 transition-all cursor-pointer"
-                >
-                  +Agregar
-                </button>
-              </div>
-            </div>
-
-            {/* Extra list */}
-            {extras.length > 0 && (
-              <div className="mt-3 space-y-1">
-                {extras.map((extra, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between text-xs text-white/80"
-                  >
-                    <span>✚ {extra.nombre}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-primary-light">+${extra.precio}</span>
-                      <button
-                        onClick={() => removeExtra(idx)}
-                        className="text-danger/60 hover:text-danger cursor-pointer"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Nota */}
+          {/* Nota para cocina */}
           <div>
             <h3 className="font-semibold text-white text-sm mb-3 flex items-center gap-2">
               <span>📝</span> Nota para cocina
@@ -991,9 +808,9 @@ function CustomizeModal({
             <textarea
               value={nota}
               onChange={(e) => setNota(e.target.value)}
-              placeholder="Ej: Término medio, sin sal..."
+              placeholder="Ej: Término medio, sin sal, sin cebolla..."
               className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-white placeholder:text-white/40 focus:outline-none focus:border-primary/30 transition-all text-sm resize-none"
-              rows={2}
+              rows={3}
             />
           </div>
 
