@@ -9,21 +9,41 @@ export async function GET() {
       include: { _count: { select: { platillos: true } } },
     });
     return NextResponse.json(categorias);
-  } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json({ error: "Error" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error desconocido";
+    console.error("Error fetching categories:", { message });
+    return NextResponse.json(
+      { error: `Error al obtener categorías: ${message}` },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
     const { nombre, icono, orden } = await request.json();
-    const cat = await prisma.categoria.create({ data: { nombre, icono: icono || "🍽️", orden: orden || 0 } });
+    if (!nombre || typeof nombre !== "string" || nombre.trim() === "") {
+      return NextResponse.json(
+        { error: "El nombre de la categoría es requerido" },
+        { status: 400 }
+      );
+    }
+    const cat = await prisma.categoria.create({
+      data: { nombre: nombre.trim(), icono: icono || "🍽️", orden: orden || 0 },
+    });
     bumpMenuVersion();
     return NextResponse.json(cat, { status: 201 });
-  } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json({ error: "Error" }, { status: 500 });
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Error desconocido";
+    console.error("Error creating category:", {
+      message,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return NextResponse.json(
+      { error: `Error al crear categoría: ${message}` },
+      { status: 500 }
+    );
   }
 }
 
@@ -37,9 +57,13 @@ export async function PATCH(request: Request) {
     const cat = await prisma.categoria.update({ where: { id }, data });
     bumpMenuVersion();
     return NextResponse.json(cat);
-  } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json({ error: "Error" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error desconocido";
+    console.error("Error updating category:", { message });
+    return NextResponse.json(
+      { error: `Error al actualizar categoría: ${message}` },
+      { status: 500 }
+    );
   }
 }
 
@@ -49,20 +73,32 @@ export async function DELETE(request: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ error: "ID de categoría no proporcionado" }, { status: 400 });
+      return NextResponse.json(
+        { error: "ID de categoría no proporcionado" },
+        { status: 400 }
+      );
     }
 
-    const categoryId = parseInt(id, 10); // Convertir el ID a número
+    const categoryId = parseInt(id, 10);
 
-    const count = await prisma.platillo.count({ where: { categoriaId: categoryId } });
+    const count = await prisma.platillo.count({
+      where: { categoriaId: categoryId },
+    });
     if (count > 0) {
-      return NextResponse.json({ error: "Categoría tiene platillos, no se puede eliminar" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Categoría tiene platillos, no se puede eliminar" },
+        { status: 400 }
+      );
     }
     const cat = await prisma.categoria.delete({ where: { id: categoryId } });
     bumpMenuVersion();
     return NextResponse.json(cat);
-  } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json({ error: "Error" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Error desconocido";
+    console.error("Error deleting category:", { message });
+    return NextResponse.json(
+      { error: `Error al eliminar categoría: ${message}` },
+      { status: 500 }
+    );
   }
 }
