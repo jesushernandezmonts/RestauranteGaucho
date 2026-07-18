@@ -185,17 +185,19 @@ export default function MesaDetailPage() {
     (data: {
       cantidad: number;
       opciones: OpcionItem[];
+      extras: ExtraItem[];
     }) => {
       if (!showCustomize) return;
       const { platillo, itemIndex } = showCustomize;
-      const subtotal = platillo.precio * data.cantidad;
+      const extrasTotal = data.extras.reduce((s, e) => s + e.precio, 0);
+      const subtotal = (platillo.precio + extrasTotal) * data.cantidad;
 
       const newItem: OrderItem = {
         platilloId: platillo.id,
         nombre: platillo.nombre,
         precio: platillo.precio,
         cantidad: data.cantidad,
-        extras: [],
+        extras: data.extras,
         opciones: data.opciones,
         subtotal,
       };
@@ -759,6 +761,7 @@ function CustomizeModal({
   onConfirm: (data: {
     cantidad: number;
     opciones: OpcionItem[];
+    extras: ExtraItem[];
   }) => void;
   onCancel: () => void;
   initialValues?: OrderItem;
@@ -767,14 +770,33 @@ function CustomizeModal({
   const [nota, setNota] = useState(
     initialValues?.opciones.find((o) => o.tipo === "NOTA")?.valor ?? ""
   );
+  const [extras, setExtras] = useState<ExtraItem[]>(
+    initialValues?.extras ?? []
+  );
+  const [extraName, setExtraName] = useState("");
+  const [extraPrice, setExtraPrice] = useState("");
 
-  const subtotal = platillo.precio * cantidad;
+  const extrasTotal = extras.reduce((s, e) => s + e.precio, 0);
+  const subtotal = (platillo.precio + extrasTotal) * cantidad;
+
+  const addExtra = () => {
+    const name = extraName.trim();
+    const price = parseFloat(extraPrice);
+    if (!name || isNaN(price) || price < 0) return;
+    setExtras((prev) => [...prev, { nombre: name, precio: price }]);
+    setExtraName("");
+    setExtraPrice("");
+  };
+
+  const removeExtra = (index: number) => {
+    setExtras((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const handleConfirm = () => {
     const opciones: OpcionItem[] = [
       ...(nota ? [{ tipo: "NOTA" as const, valor: nota }] : []),
     ];
-    onConfirm({ cantidad, opciones });
+    onConfirm({ cantidad, opciones, extras });
   };
 
   return (
@@ -812,6 +834,63 @@ function CustomizeModal({
               className="w-full px-4 py-3 rounded-xl bg-surface-light border border-primary/10 text-white placeholder:text-white/40 focus:outline-none focus:border-primary/30 transition-all text-sm resize-none"
               rows={3}
             />
+          </div>
+
+          {/* Extras personalizados */}
+          <div>
+            <h3 className="font-semibold text-white text-sm mb-3 flex items-center gap-2">
+              <span>➕</span> Extras
+            </h3>
+            {/* Lista de extras agregados */}
+            {extras.length > 0 && (
+              <div className="space-y-2 mb-3">
+                {extras.map((ext, i) => (
+                  <div key={i} className="flex items-center justify-between p-2.5 rounded-xl bg-primary/5 border border-primary/15 group">
+                    <div className="flex items-center gap-2">
+                      <span className="text-primary-light text-xs">✚</span>
+                      <span className="text-sm text-white font-medium">{ext.nombre}</span>
+                      <span className="text-xs text-primary-light font-semibold">+${ext.precio}</span>
+                    </div>
+                    <button
+                      onClick={() => removeExtra(i)}
+                      className="p-1 rounded-lg hover:bg-danger/10 text-danger/70 hover:text-danger transition-colors cursor-pointer"
+                      aria-label={`Eliminar extra ${ext.nombre}`}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Inputs para agregar extra */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={extraName}
+                onChange={(e) => setExtraName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addExtra(); } }}
+                placeholder="Nombre del extra"
+                className="flex-1 px-3 py-2.5 rounded-xl bg-surface-light border border-primary/10 text-white placeholder:text-white/40 focus:outline-none focus:border-primary/30 transition-all text-sm"
+              />
+              <input
+                type="number"
+                value={extraPrice}
+                onChange={(e) => setExtraPrice(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addExtra(); } }}
+                placeholder="$0"
+                min="0"
+                step="1"
+                className="w-20 px-3 py-2.5 rounded-xl bg-surface-light border border-primary/10 text-white placeholder:text-white/40 focus:outline-none focus:border-primary/30 transition-all text-sm"
+              />
+              <button
+                onClick={addExtra}
+                disabled={!extraName.trim() || !extraPrice || parseFloat(extraPrice) < 0}
+                className="px-3 py-2.5 rounded-xl bg-primary/15 border border-primary/25 text-primary-light text-sm font-semibold hover:bg-primary/25 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
+                aria-label="Agregar extra"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Cantidad */}
