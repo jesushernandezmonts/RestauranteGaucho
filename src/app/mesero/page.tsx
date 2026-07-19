@@ -234,9 +234,14 @@ export default function MeseroDashboard() {
     return new Set(ordenesListas.map((o) => o.mesaNumero));
   }, [ordenesListas]);
 
+  const areaOrder = ["Interior", "Exterior", "Salón", "Terraza"];
   const areas = useMemo(() => {
     const unique = [...new Set(mesas.map((m) => m.area))];
-    return unique.sort();
+    return unique.sort((a, b) => {
+      const ia = areaOrder.indexOf(a);
+      const ib = areaOrder.indexOf(b);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
   }, [mesas]);
 
   const filteredAreas = useMemo(() => {
