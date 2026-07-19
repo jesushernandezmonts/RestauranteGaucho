@@ -36,15 +36,29 @@ async function main() {
   console.log("✅ 4 usuarios");
 
   // TABLES
-  const areas = ["Exterior", "Interior"];
-  let n = 1;
-  for (const area of areas) {
-    for (let i = 0; i < 5; i++) {
-      await prisma.mesa.create({ data: { numero: n, capacidad: 4, area, estado: "LIBRE" } });
-      n++;
-    }
+  // Interior (mesas 1-5), then Exterior (mesas 6-14)
+  const mesaConfig: { numero: number; area: string }[] = [
+    // Interior
+    { numero: 1, area: "Interior" },
+    { numero: 2, area: "Interior" },
+    { numero: 3, area: "Interior" },
+    { numero: 4, area: "Interior" },
+    { numero: 5, area: "Interior" },
+    // Exterior
+    { numero: 6, area: "Exterior" },
+    { numero: 7, area: "Exterior" },
+    { numero: 8, area: "Exterior" },
+    { numero: 9, area: "Exterior" },
+    { numero: 10, area: "Exterior" },
+    { numero: 11, area: "Exterior" },
+    { numero: 12, area: "Exterior" },
+    { numero: 13, area: "Exterior" },
+    { numero: 14, area: "Exterior" },
+  ];
+  for (const { numero, area } of mesaConfig) {
+    await prisma.mesa.create({ data: { numero, capacidad: 4, area, estado: "LIBRE" } });
   }
-  console.log("✅ 10 mesas (5 Exterior, 5 Interior)");
+  console.log("✅ 14 mesas (5 Interior, 9 Exterior)");
 
   // CATEGORIES
   const cats = [
