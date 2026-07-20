@@ -13,6 +13,23 @@ import FestividadesSection from "./_components/FestividadesSection";
 import PromocionesSection from "./_components/PromocionesSection";
 import CorteCajaSection from "./_components/CorteCajaSection";
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   Shield,
   LogOut,
   Loader2,
@@ -29,6 +46,7 @@ import {
   Sparkles,
   Tag,
   Receipt,
+  GripVertical,
 } from "lucide-react";
 
 type DashboardStats = {
@@ -54,10 +72,76 @@ const sectionLabels: Record<Section, { label: string; icon: React.ElementType }>
   promociones: { label: "Promociones", icon: Tag },
 };
 
+const DEFAULT_SECTIONS: Section[] = [
+  "dashboard",
+  "corteCaja",
+  "menu",
+  "inventario",
+  "usuarios",
+  "reservaciones",
+  "reportes",
+  "apariencia",
+  "festividades",
+  "promociones",
+];
+
+function SortableNavItem({
+  section,
+  label,
+  icon: Icon,
+  isActive,
+  onClick,
+}: {
+  section: Section;
+  label: string;
+  icon: React.ElementType;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: section });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-1 group rounded-xl transition-all duration-200"
+    >
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="p-1.5 cursor-grab active:cursor-grabbing text-text-muted hover:text-primary-light transition-colors rounded-lg"
+        title="Arrastrar para reordenar"
+      >
+        <GripVertical size={16} />
+      </button>
+      <button
+        onClick={onClick}
+        className="flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 text-left"
+        style={{
+          color: isActive ? "#E0C060" : "#8A9A8E",
+          background: isActive ? "rgba(212,162,58,0.10)" : "transparent",
+        }}
+      >
+        <Icon size={18} />
+        {label}
+      </button>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activeSection, setActiveSection] = useState<Section>("dashboard");
+  const [sectionOrder, setSectionOrder] = useState<Section[]>(DEFAULT_SECTIONS);
   const [stats, setStats] = useState<DashboardStats>({
     ventasHoy: 0,
     ordenesHoy: 0,
@@ -67,6 +151,44 @@ export default function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  useEffect(() => {
+    const savedOrder = localStorage.getItem("admin_sidebar_order");
+    if (savedOrder) {
+      try {
+        const parsed: Section[] = JSON.parse(savedOrder);
+        const validOrder = parsed.filter((sec) => sec in sectionLabels);
+        const missing = DEFAULT_SECTIONS.filter((sec) => !validOrder.includes(sec));
+        setSectionOrder([...validOrder, ...missing]);
+      } catch {
+        // Fallback default
+      }
+    }
+  }, []);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setSectionOrder((items) => {
+        const oldIndex = items.indexOf(active.id as Section);
+        const newIndex = items.indexOf(over.id as Section);
+        const newOrder = arrayMove(items, oldIndex, newIndex);
+        localStorage.setItem("admin_sidebar_order", JSON.stringify(newOrder));
+        return newOrder;
+      });
+    }
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/admin/login");
@@ -141,11 +263,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-
-  const sidebarLinks = Object.entries(sectionLabels).map(([key, val]) => ({
-    section: key as Section,
-    ...val,
-  }));
 
   function renderSection() {
     if (loading) {
@@ -357,30 +474,35 @@ export default function AdminDashboard() {
             </button>
           </div>
         </div>
-        <nav className="flex-1 space-y-1 px-3">
-          {sidebarLinks.map((link) => (
-            <button
-              key={link.section}
-              onClick={() => {
-                setActiveSection(link.section);
-                setSidebarOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 text-left"
-              style={{
-                color:
-                  activeSection === link.section
-                    ? "#E0C060"
-                    : "#8A9A8E",
-                background:
-                  activeSection === link.section
-                    ? "rgba(212,162,58,0.10)"
-                    : "transparent",
-              }}
+        <nav className="flex-1 space-y-1 px-3 py-2">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={sectionOrder}
+              strategy={verticalListSortingStrategy}
             >
-              <link.icon size={18} />
-              {link.label}
-            </button>
-          ))}
+              {sectionOrder.map((sectionKey) => {
+                const info = sectionLabels[sectionKey];
+                if (!info) return null;
+                return (
+                  <SortableNavItem
+                    key={sectionKey}
+                    section={sectionKey}
+                    label={info.label}
+                    icon={info.icon}
+                    isActive={activeSection === sectionKey}
+                    onClick={() => {
+                      setActiveSection(sectionKey);
+                      setSidebarOpen(false);
+                    }}
+                  />
+                );
+              })}
+            </SortableContext>
+          </DndContext>
         </nav>
         <div
           className="absolute bottom-4 left-4 right-4"
