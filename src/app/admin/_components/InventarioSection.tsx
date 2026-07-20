@@ -12,6 +12,7 @@ import {
   Trash2,
   AlertCircle,
 } from "lucide-react";
+import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
 type Ingrediente = {
   id: number;
@@ -37,7 +38,6 @@ export default function InventarioSection() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [editIng, setEditIng] = useState<Ingrediente | null>(null);
-  const [deleteIng, setDeleteIng] = useState<Ingrediente | null>(null);
   const [tab, setTab] = useState<"inventario" | "movimientos">("inventario");
 
   useEffect(() => {
@@ -57,7 +57,14 @@ export default function InventarioSection() {
     }
   }
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: number, nombre: string) {
+    const confirmed = await showConfirmAlert(
+      "Eliminar ingrediente",
+      `¿Estás seguro de eliminar ${nombre}? Esta acción eliminará también las recetas asociadas y no se puede deshacer.`,
+      "Sí, eliminar"
+    );
+    if (!confirmed) return;
+
     try {
       const res = await fetch("/api/inventario", {
         method: "DELETE",
@@ -65,11 +72,14 @@ export default function InventarioSection() {
         body: JSON.stringify({ id }),
       });
       if (res.ok) {
-        setDeleteIng(null);
+        showSuccessAlert("Eliminado", "Ingrediente eliminado correctamente.");
         loadData();
+      } else {
+        showErrorAlert("Error", "No se pudo eliminar el ingrediente.");
       }
     } catch (e) {
       console.error(e);
+      showErrorAlert("Error", "Ocurrió un error inesperado.");
     }
   }
 
@@ -150,7 +160,7 @@ export default function InventarioSection() {
                         <Pencil size={14} className="text-text-muted hover:text-primary" />
                       </button>
                       <button
-                        onClick={() => setDeleteIng(ing)}
+                        onClick={() => handleDelete(ing.id, ing.nombre)}
                         className="p-1.5 rounded-lg hover:bg-danger/10"
                         title="Eliminar"
                       >
@@ -266,13 +276,7 @@ export default function InventarioSection() {
             }}
           />
         )}
-        {deleteIng && (
-          <ConfirmDeleteModal
-            nombre={deleteIng.nombre}
-            onConfirm={() => handleDelete(deleteIng.id)}
-            onCancel={() => setDeleteIng(null)}
-          />
-        )}
+
       </div>
     </div>
   );
@@ -302,9 +306,15 @@ function IngredienteFormModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, unidad, stock, stockMinimo, costoSugerido }),
       });
-      if (res.ok) onSaved();
+      if (res.ok) {
+        showSuccessAlert("Guardado", "Ingrediente creado correctamente.");
+        onSaved();
+      } else {
+        showErrorAlert("Error", "No se pudo crear el ingrediente.");
+      }
     } catch (e) {
       console.error(e);
+      showErrorAlert("Error", "Ocurrió un error inesperado.");
     } finally {
       setSaving(false);
     }
@@ -429,9 +439,15 @@ function EditIngredienteModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: ing.id, nombre, unidad, stock, stockMinimo, costoSugerido }),
       });
-      if (res.ok) onSaved();
+      if (res.ok) {
+        showSuccessAlert("Guardado", "Ingrediente actualizado correctamente.");
+        onSaved();
+      } else {
+        showErrorAlert("Error", "No se pudo actualizar el ingrediente.");
+      }
     } catch (e) {
       console.error(e);
+      showErrorAlert("Error", "Ocurrió un error inesperado.");
     } finally {
       setSaving(false);
     }
@@ -533,51 +549,3 @@ function EditIngredienteModal({
   );
 }
 
-function ConfirmDeleteModal({
-  nombre,
-  onConfirm,
-  onCancel,
-}: {
-  nombre: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  const [deleting, setDeleting] = useState(false);
-
-  async function handleConfirm() {
-    setDeleting(true);
-    await onConfirm();
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-surface rounded-2xl border border-primary/10 p-6 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-danger/10">
-            <AlertCircle size={20} className="text-danger" />
-          </div>
-          <h3 className="font-semibold text-text-primary">Eliminar ingrediente</h3>
-        </div>
-        <p className="text-sm text-text-muted">
-          ¿Estás seguro de eliminar <strong className="text-text-primary">{nombre}</strong>?
-          Esta acción eliminará también las recetas asociadas y no se puede deshacer.
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl bg-surface-lighter text-text-secondary text-sm"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={deleting}
-            className="flex-1 py-2.5 rounded-xl bg-danger/10 text-danger text-sm font-medium hover:bg-danger/20 transition-colors"
-          >
-            {deleting ? "Eliminando..." : "Eliminar"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}

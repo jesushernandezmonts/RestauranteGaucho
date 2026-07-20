@@ -14,6 +14,7 @@ import {
   Percent,
   BanknoteIcon,
 } from "lucide-react";
+import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
 type Orden = {
   id: number;
@@ -82,6 +83,15 @@ export default function CuentaPage() {
 
   async function handleCerrarCuenta() {
     if (!metodoPago || !orden) return;
+
+    const methodLabel = metodoPago === "efectivo" ? "Efectivo" : metodoPago === "tarjeta" ? "Tarjeta" : "Transferencia";
+    const confirmed = await showConfirmAlert(
+      "Cobrar cuenta",
+      `¿Cerrar cuenta por $${totalConPropina.toFixed(0)} en ${methodLabel}?`,
+      "Sí, cobrar"
+    );
+    if (!confirmed) return;
+
     setProcesando(true);
 
     try {
@@ -109,9 +119,10 @@ export default function CuentaPage() {
       });
 
       setCompletado(true);
+      showSuccessAlert("Cobrada", "La cuenta se cerró correctamente.");
     } catch (e) {
       console.error(e);
-      alert("Error al cerrar la cuenta");
+      showErrorAlert("Error", "Error al cerrar la cuenta");
     } finally {
       setProcesando(false);
     }

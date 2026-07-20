@@ -23,6 +23,7 @@ import {
 } from "@/lib/notifications";
 import { ToastContainer, useToasts } from "@/components/Toast";
 import { subscribeToPush, isPushSubscribed } from "@/lib/pushClient";
+import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
 type MesaEstado = "LIBRE" | "OCUPADO" | "CUENTA";
 type Mesa = {
@@ -208,16 +209,29 @@ export default function MeseroDashboard() {
       CUENTA: "LIBRE",
     };
 
+    let confirmMsg = "";
+    if (mesa.estado === "LIBRE") confirmMsg = `¿Abrir la Mesa ${mesa.numero}?`;
+    if (mesa.estado === "OCUPADO") confirmMsg = `¿Pedir la cuenta para la Mesa ${mesa.numero}?`;
+    if (mesa.estado === "CUENTA") confirmMsg = `¿Liberar la Mesa ${mesa.numero}?`;
+
+    const confirmed = await showConfirmAlert("Mesa " + mesa.numero, confirmMsg, "Sí, confirmar");
+    if (!confirmed) return;
+
     try {
       const res = await fetch("/api/mesas", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: mesa.id, estado: nextEstado[mesa.estado] }),
       });
-      if (!res.ok) throw new Error("Error al actualizar mesa");
+      if (!res.ok) {
+        showErrorAlert("Error", "No se pudo actualizar la mesa.");
+        throw new Error("Error al actualizar mesa");
+      }
       fetchMesas();
+      showSuccessAlert("Actualizada", "El estado de la mesa fue actualizado.");
     } catch (e) {
       console.error(e);
+      showErrorAlert("Error", "Ocurrió un error de red.");
     }
   }
 
@@ -479,7 +493,7 @@ export default function MeseroDashboard() {
                 </div>
 
                 {/* Tables grid */}
-                <div className="relative z-10 grid grid-cols-3 gap-3 px-5 pb-5" style={{ gridTemplateRows: 'repeat(3, auto)' }}>
+                <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-3 px-5 pb-5 md:grid-rows-3">
                   {mesasArea.map((mesa) => {
                     const cfg = statusConfig[mesa.estado];
                     const tieneLista = mesasConListas.has(mesa.numero);
@@ -490,10 +504,10 @@ export default function MeseroDashboard() {
                       <div
                         key={mesa.id}
                         className="relative group"
-                        style={mesaPositionMap[mesa.numero] ? {
-                          gridRow: mesaPositionMap[mesa.numero].row,
-                          gridColumn: mesaPositionMap[mesa.numero].col,
-                        } : {}}
+                        style={{
+                          gridRow: typeof window !== "undefined" && window.innerWidth > 768 && mesaPositionMap[mesa.numero] ? mesaPositionMap[mesa.numero].row : "auto",
+                          gridColumn: typeof window !== "undefined" && window.innerWidth > 768 && mesaPositionMap[mesa.numero] ? mesaPositionMap[mesa.numero].col : "auto",
+                        }}
                       >
                         <Link
                           href={

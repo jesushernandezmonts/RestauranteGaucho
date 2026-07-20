@@ -420,7 +420,7 @@ export default function AdminDashboard() {
       </button>
 
       {/* Main Content */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 pt-16 lg:pt-0">
         {renderSection()}
       </div>
     </div>

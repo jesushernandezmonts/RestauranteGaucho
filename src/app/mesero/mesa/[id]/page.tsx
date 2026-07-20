@@ -18,6 +18,7 @@ import {
   DollarSign,
   Edit2,
 } from "lucide-react";
+import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
 type Platillo = {
   id: number;
@@ -214,9 +215,16 @@ export default function MesaDetailPage() {
     [showCustomize]
   );
 
-  const removeItem = useCallback((index: number) => {
+  const removeItem = useCallback(async (index: number) => {
+    const item = orderItems[index];
+    const confirmed = await showConfirmAlert(
+      "Quitar platillo",
+      `¿Quitar ${item.nombre} de la orden?`,
+      "Sí, quitar"
+    );
+    if (!confirmed) return;
     setOrderItems((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  }, [orderItems]);
 
   const sendToKitchen = useCallback(async () => {
     if (orderItems.length === 0 || sending) return;
@@ -247,10 +255,11 @@ export default function MesaDetailPage() {
       setOrderItems([]);
       setShowConfirmModal(false);
       setShowMobileTicket(false);
+      showSuccessAlert("Orden enviada", "La comanda se envió a cocina.");
       router.push("/mesero");
     } catch (e) {
       console.error("Error sending order:", e);
-      alert("Error al enviar la orden a cocina");
+      showErrorAlert("Error", "Error al enviar la orden a cocina");
     } finally {
       setSending(false);
     }

@@ -22,6 +22,7 @@ import {
 } from "@/lib/notifications";
 import { ToastContainer, useToasts } from "@/components/Toast";
 import { subscribeToPush, isPushSubscribed } from "@/lib/pushClient";
+import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
 type Orden = {
   id: number;
@@ -160,15 +161,29 @@ export default function CocinaDashboard() {
 
   const updateEstado = useCallback(
     async (ordenId: number, nuevoEstado: string) => {
+      let confirmMsg = "";
+      if (nuevoEstado === "PREPARANDO") confirmMsg = "¿Empezar a preparar esta orden?";
+      if (nuevoEstado === "LISTO") confirmMsg = "¿Marcar esta orden como lista?";
+      if (nuevoEstado === "SERVIDO") confirmMsg = "¿Limpiar esta orden de la pantalla?";
+      
+      const confirmed = await showConfirmAlert("Confirmar", confirmMsg, "Sí, confirmar");
+      if (!confirmed) return;
+
       try {
         const res = await fetch(`/api/ordenes`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: ordenId, estado: nuevoEstado }),
         });
-        if (res.ok) fetchOrdenes();
+        if (res.ok) {
+          fetchOrdenes();
+          if (nuevoEstado === "LISTO") showSuccessAlert("¡Listo!", "Orden enviada a meseros.");
+        } else {
+          showErrorAlert("Error", "No se pudo actualizar la orden.");
+        }
       } catch (e) {
         console.error(e);
+        showErrorAlert("Error", "Ocurrió un error inesperado.");
       }
     },
     []

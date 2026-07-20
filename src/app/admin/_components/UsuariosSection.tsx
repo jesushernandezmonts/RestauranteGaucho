@@ -14,6 +14,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { ChangePasswordModal } from "./ChangePasswordModal";
+import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
 type Usuario = {
   id: number;
@@ -36,7 +37,6 @@ export default function UsuariosSection() {
   const [showCreate, setShowCreate] = useState(false);
   const [editUser, setEditUser] = useState<Usuario | null>(null);
   const [changePasswordUser, setChangePasswordUser] = useState<Usuario | null>(null);
-  const [userToDelete, setUserToDelete] = useState<Usuario | null>(null);
 
   useEffect(() => {
     loadUsuarios();
@@ -53,23 +53,26 @@ export default function UsuariosSection() {
     }
   }
 
-  async function handleDelete() {
-    if (!userToDelete) return;
+  async function handleDelete(u: Usuario) {
+    const confirmed = await showConfirmAlert(
+      "¿Eliminar usuario?",
+      `Vas a eliminar a ${u.nombre}. Esta acción no se puede deshacer.`,
+      "Sí, eliminar"
+    );
+    if (!confirmed) return;
 
     try {
-      const res = await fetch(`/api/usuarios/${userToDelete.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/usuarios/${u.id}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        console.error("Error al eliminar usuario", data);
-        alert(data?.error ?? "No se pudo eliminar el usuario.");
+        showErrorAlert("Error", data?.error ?? "No se pudo eliminar el usuario.");
         return;
       }
-
-      setUserToDelete(null);
+      showSuccessAlert("Eliminado", "Usuario eliminado correctamente.");
       await loadUsuarios();
     } catch (e) {
       console.error("Error de conexión al eliminar", e);
-      alert("Error de conexión al eliminar el usuario.");
+      showErrorAlert("Error", "Error de conexión al eliminar el usuario.");
     }
   }
 
@@ -154,7 +157,7 @@ export default function UsuariosSection() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setUserToDelete(u)}
+                        onClick={() => handleDelete(u)}
                         className="p-1.5 rounded-lg hover:bg-surface-light"
                         aria-label={`Eliminar a ${u.nombre}`}
                       >
@@ -195,43 +198,7 @@ export default function UsuariosSection() {
             }}
           />
         )}
-        {userToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80" onClick={() => setUserToDelete(null)} />
-            <div
-              className="relative w-full max-w-sm rounded-2xl border border-danger/30 bg-surface p-6 shadow-2xl"
-              role="alertdialog"
-              aria-modal="true"
-              aria-labelledby="delete-user-title"
-            >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-danger/15">
-                <Trash2 size={20} className="text-danger" />
-              </div>
-              <h2 id="delete-user-title" className="text-lg font-semibold text-text-primary">
-                ¿Eliminar usuario?
-              </h2>
-              <p className="mt-2 text-sm text-text-secondary">
-                Vas a eliminar a <strong>{userToDelete.nombre}</strong>. Esta acción no se puede deshacer.
-              </p>
-              <div className="mt-6 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setUserToDelete(null)}
-                  className="flex-1 rounded-xl bg-surface-lighter py-2.5 text-sm text-text-secondary"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="flex-1 rounded-xl bg-danger py-2.5 text-sm font-medium text-white hover:opacity-90"
-                >
-                  Sí, eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );
@@ -261,9 +228,15 @@ function UserFormModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, usuario, password, role }),
       });
-      if (res.ok) onSaved();
+      if (res.ok) {
+        showSuccessAlert("Guardado", "Usuario creado correctamente.");
+        onSaved();
+      } else {
+        showErrorAlert("Error", "No se pudo crear el usuario.");
+      }
     } catch (e) {
       console.error(e);
+      showErrorAlert("Error", "Ocurrió un error inesperado.");
     } finally {
       setSaving(false);
     }
@@ -370,9 +343,15 @@ function EditUserModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: user.id, nombre, role, activo }),
       });
-      if (res.ok) onSaved();
+      if (res.ok) {
+        showSuccessAlert("Guardado", "Usuario actualizado correctamente.");
+        onSaved();
+      } else {
+        showErrorAlert("Error", "No se pudo actualizar el usuario.");
+      }
     } catch (e) {
       console.error(e);
+      showErrorAlert("Error", "Ocurrió un error inesperado.");
     } finally {
       setSaving(false);
     }
