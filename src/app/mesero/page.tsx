@@ -272,11 +272,13 @@ export default function MeseroDashboard() {
 
   // Position map matching the physical floor plan
   const mesaPositionMap: Record<number, { row: number; col: number }> = {
-    1: { row: 1, col: 1 },
-    2: { row: 1, col: 2 },
-    3: { row: 1, col: 3 },
-    4: { row: 2, col: 1 },
-    5: { row: 2, col: 3 },
+    // Interior
+    1: { row: 3, col: 1 },
+    2: { row: 2, col: 1 },
+    3: { row: 1, col: 1 },
+    4: { row: 1, col: 2 },
+    5: { row: 2, col: 2 },
+    // Exterior
     6: { row: 1, col: 1 },
     7: { row: 1, col: 2 },
     8: { row: 1, col: 3 },
@@ -284,7 +286,7 @@ export default function MeseroDashboard() {
     10: { row: 2, col: 2 },
     11: { row: 3, col: 2 },
     12: { row: 4, col: 2 },
-    13: { row: 5, col: 1 },
+    13: { row: 5, col: 2 },
     14: { row: 5, col: 3 },
   };
 
@@ -493,7 +495,7 @@ export default function MeseroDashboard() {
                 </div>
 
                 {/* Tables grid */}
-                <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-3 px-5 pb-5 md:grid-rows-3">
+                <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-3 px-5 pb-5">
                   {mesasArea.map((mesa) => {
                     const cfg = statusConfig[mesa.estado];
                     const tieneLista = mesasConListas.has(mesa.numero);
