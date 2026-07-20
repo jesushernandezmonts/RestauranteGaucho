@@ -99,6 +99,15 @@ export default function MeseroDashboard() {
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [filterArea, setFilterArea] = useState<string | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Detect desktop for grid positioning
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Update "now" every 30s to refresh occupation times
   useEffect(() => {
@@ -506,10 +515,10 @@ export default function MeseroDashboard() {
                       <div
                         key={mesa.id}
                         className="relative group"
-                        style={{
-                          gridRow: typeof window !== "undefined" && window.innerWidth > 768 && mesaPositionMap[mesa.numero] ? mesaPositionMap[mesa.numero].row : "auto",
-                          gridColumn: typeof window !== "undefined" && window.innerWidth > 768 && mesaPositionMap[mesa.numero] ? mesaPositionMap[mesa.numero].col : "auto",
-                        }}
+                        style={isDesktop && mesaPositionMap[mesa.numero] ? {
+                          gridRow: mesaPositionMap[mesa.numero].row,
+                          gridColumn: mesaPositionMap[mesa.numero].col,
+                        } : {}}
                       >
                         <Link
                           href={
