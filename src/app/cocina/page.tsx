@@ -146,17 +146,34 @@ export default function CocinaDashboard() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOrdenes();
 
+    // Screen Wake Lock API para evitar que la tablet de cocina suspenda la pantalla
+    let wakeLock: any = null;
+    const requestWakeLock = async () => {
+      try {
+        if ("wakeLock" in navigator) {
+          wakeLock = await (navigator as any).wakeLock.request("screen");
+        }
+      } catch (err) {
+        console.warn("Wake Lock not supported or blocked:", err);
+      }
+    };
+    requestWakeLock();
+
     // Cross-tab instant sync
     const channel = new BroadcastChannel("gaucho_ordenes_changes");
     channel.onmessage = () => fetchOrdenes();
 
-    // Poll every 3s — balance entre tiempo real y carga
+    // Poll every 5s — optimizado para evitar saturación de la base de datos
     const interval = setInterval(() => {
       fetchOrdenes();
       setNow(Date.now());
-    }, 3000);
+    }, 5000);
 
-    return () => { channel.close(); clearInterval(interval); };
+    return () => {
+      channel.close();
+      clearInterval(interval);
+      if (wakeLock) wakeLock.release();
+    };
   }, [fetchOrdenes]);
 
   const updateEstado = useCallback(
@@ -333,6 +350,7 @@ export default function CocinaDashboard() {
                 <OrderCard
                   key={orden.id}
                   orden={orden}
+                  now={now}
                   timeElapsed={getTimeElapsed(orden.createdAt)}
                   onAction={() => updateEstado(orden.id, "PREPARANDO")}
                   actionLabel="🔴 Iniciar"
@@ -358,6 +376,7 @@ export default function CocinaDashboard() {
                 <OrderCard
                   key={orden.id}
                   orden={orden}
+                  now={now}
                   timeElapsed={getTimeElapsed(orden.createdAt)}
                   onAction={() => updateEstado(orden.id, "LISTO")}
                   actionLabel="✅ Listo"
@@ -383,6 +402,7 @@ export default function CocinaDashboard() {
                 <OrderCard
                   key={orden.id}
                   orden={orden}
+                  now={now}
                   timeElapsed={getTimeElapsed(orden.createdAt)}
                   onAction={() => updateEstado(orden.id, "SERVIDO")}
                   actionLabel="🧹 Limpiar"
@@ -408,38 +428,58 @@ export default function CocinaDashboard() {
 // ─── Order Card ────────────────────────────────
 function OrderCard({
   orden,
+  now,
   timeElapsed,
   onAction,
   actionLabel,
   actionColor,
 }: {
   orden: Orden;
+  now: number;
   timeElapsed: string;
   onAction: () => void;
   actionLabel: string;
   actionColor: string;
 }) {
+  const elapsedMins = Math.floor((now - new Date(orden.createdAt).getTime()) / 60000);
+  const isCritical = elapsedMins >= 20;
+  const isWarning = elapsedMins >= 10 && elapsedMins < 20;
+
   return (
     <div
-      className={`card !p-4 ${
-        orden.estado === "EN_COCINA"
-          ? "border-warning/30 animate-glow"
+      className={`card !p-4 transition-all ${
+        isCritical
+          ? "border-red-500/80 bg-red-950/20 shadow-lg shadow-red-500/20 animate-pulse"
+          : isWarning
+          ? "border-amber-500/60 bg-amber-950/20"
+          : orden.estado === "EN_COCINA"
+          ? "border-warning/30"
           : ""
       }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-text-primary">
+          <span className="font-bold text-text-primary text-base">
             Mesa {orden.mesa.numero}
           </span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-surface-light text-text-muted">
             {orden.mesero.nombre}
           </span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-text-muted">
+
+        {/* Semáforo Badge */}
+        <div
+          className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-bold ${
+            isCritical
+              ? "bg-red-600 text-white animate-bounce"
+              : isWarning
+              ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+              : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+          }`}
+        >
           <Clock size={12} />
-          {timeElapsed}
+          {isCritical ? `🚨 ${timeElapsed} - ATRASADO` : isWarning ? `⏰ ${timeElapsed}` : timeElapsed}
         </div>
       </div>
 

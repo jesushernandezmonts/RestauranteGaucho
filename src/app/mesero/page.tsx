@@ -12,6 +12,7 @@ import {
   Bell,
   Clock,
   Users,
+  ArrowRightLeft,
 } from "lucide-react";
 import {
   playNotificationSound,
@@ -100,6 +101,11 @@ export default function MeseroDashboard() {
   const [filterArea, setFilterArea] = useState<string | null>(null);
   const [now, setNow] = useState(Date.now());
   const [isDesktop, setIsDesktop] = useState(false);
+
+  // Transfer table states
+  const [transferOriginMesa, setTransferOriginMesa] = useState<Mesa | null>(null);
+  const [destMesaId, setDestMesaId] = useState<number | null>(null);
+  const [transferring, setTransferring] = useState(false);
 
   // Detect desktop for grid positioning
   useEffect(() => {
@@ -369,6 +375,97 @@ export default function MeseroDashboard() {
         </div>
       </div>
 
+      {/* MODAL MOVER / JUNTAR MESAS */}
+      {transferOriginMesa && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 max-w-md w-full shadow-2xl text-white">
+            <h3 className="font-bold text-lg mb-2 text-amber-400 flex items-center gap-2">
+              <ArrowRightLeft className="w-5 h-5" /> Mover / Juntar Mesa #{transferOriginMesa.numero}
+            </h3>
+            <p className="text-xs text-stone-300 mb-4">
+              Selecciona la mesa de destino. Si la mesa destino está ocupada, los consumos se <b>fusionarán</b> automáticamente.
+            </p>
+
+            <div className="grid grid-cols-4 gap-2 my-4 max-h-48 overflow-y-auto pr-1">
+              {mesas
+                .filter((m) => m.id !== transferOriginMesa.id)
+                .sort((a, b) => a.numero - b.numero)
+                .map((m) => (
+                  <button
+                    key={m.id}
+                    onClick={() => setDestMesaId(m.id)}
+                    className={`p-3 rounded-xl border text-center font-bold transition ${
+                      destMesaId === m.id
+                        ? "bg-amber-500 text-stone-950 border-amber-400 scale-105"
+                        : m.estado === "LIBRE"
+                        ? "bg-stone-950/60 border-emerald-500/40 text-emerald-400 hover:border-emerald-400"
+                        : "bg-stone-950/60 border-amber-500/40 text-amber-400 hover:border-amber-400"
+                    }`}
+                  >
+                    M{m.numero}
+                    <span className="block text-[9px] font-normal opacity-80">
+                      {m.estado === "LIBRE" ? "Libre" : "Ocupada"}
+                    </span>
+                  </button>
+                ))}
+            </div>
+
+            <div className="flex justify-end gap-3 pt-3 border-t border-stone-800">
+              <button
+                onClick={() => {
+                  setTransferOriginMesa(null);
+                  setDestMesaId(null);
+                }}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold rounded-xl"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  if (!destMesaId) return;
+                  try {
+                    setTransferring(true);
+                    const res = await fetch("/api/mesas/transferir", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        origenMesaId: transferOriginMesa.id,
+                        destinoMesaId: destMesaId,
+                      }),
+                    });
+
+                    if (res.ok) {
+                      const data = await res.json();
+                      showSuccessAlert("Exitoso", data.message);
+                      setTransferOriginMesa(null);
+                      setDestMesaId(null);
+                      fetchMesas();
+                    } else {
+                      const err = await res.json();
+                      showErrorAlert("Error", err.error || "No se pudo transferir");
+                    }
+                  } catch (e) {
+                    console.error(e);
+                    showErrorAlert("Error", "Error al transferir la mesa");
+                  } finally {
+                    setTransferring(false);
+                  }
+                }}
+                disabled={!destMesaId || transferring}
+                className="px-5 py-2 bg-amber-500 hover:bg-amber-600 font-bold text-stone-950 text-xs rounded-xl disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {transferring ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowRightLeft className="w-4 h-4" />
+                )}
+                Confirmar Transferencia
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ─── Content ───────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-4 py-4 space-y-4">
         {error && (
@@ -567,13 +664,26 @@ export default function MeseroDashboard() {
                             {cfg.label}
                           </div>
 
-                          {/* Occupation time */}
+                          {/* Occupation time & Transfer button */}
                           {showTime && (
-                            <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-text-muted">
-                              <Clock size={10} />
-                              <span>
+                            <div className="mt-2 flex items-center justify-between gap-1 text-[10px] text-text-muted">
+                              <span className="flex items-center gap-1">
+                                <Clock size={10} />
                                 {getOccupationTime(mesa.updatedAt)}
                               </span>
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setTransferOriginMesa(mesa);
+                                  setDestMesaId(null);
+                                }}
+                                className="p-1 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition flex items-center gap-0.5 font-bold"
+                                title="Mover o Juntar Mesa"
+                              >
+                                <ArrowRightLeft size={10} />
+                                Mover
+                              </button>
                             </div>
                           )}
                         </Link>

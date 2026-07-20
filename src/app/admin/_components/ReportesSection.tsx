@@ -172,28 +172,42 @@ export default function ReportesSection() {
   };
 
   const exportToCSV = () => {
-    if (!reportData || reportData.propinasPorMesero.length === 0) {
+    if (!reportData) {
       alert("No hay datos para exportar.");
       return;
     }
 
-    const headers = ["Mesero", "Propinas Totales", "Órdenes Cerradas", "Ventas Totales", "Propina Promedio por Orden"];
-    const rows = reportData.propinasPorMesero.map(m => [
-      m.nombre,
-      m.propinasTotal.toFixed(2),
-      m.ordenesCerradas,
-      m.ventasTotales.toFixed(2),
-      m.propinaPromedioPorOrden.toFixed(2),
-    ]);
+    let csvContent = "\uFEFF"; // UTF-8 BOM para soporte completo en MS Excel
 
-    let csvContent = "data:text/csv;charset=utf-8,"
-      + headers.join(",") + "\n"
-      + rows.map(e => e.join(",")).join("\n");
+    // Seccion 1: Resumen General
+    csvContent += "=== RESUMEN GENERAL DE VENTAS Y PROPINAS ===\n";
+    csvContent += `Propinas Totales,$${reportData.resumen.totalPropinas.toFixed(2)}\n`;
+    csvContent += `Propinas en Efectivo,$${reportData.resumen.totalPropinasEfectivo.toFixed(2)}\n`;
+    csvContent += `Propinas en Tarjeta,$${reportData.resumen.totalPropinasTarjeta.toFixed(2)}\n\n`;
 
-    const encodedUri = encodeURI(csvContent);
+    // Seccion 2: Desglose por Mesero
+    csvContent += "=== RENDIMIENTO POR MESERO ===\n";
+    csvContent += "Mesero,Propinas Totales,Órdenes Cerradas,Ventas Totales,Propina Promedio por Orden\n";
+    reportData.propinasPorMesero.forEach((m) => {
+      csvContent += `"${m.nombre}",$${m.propinasTotal.toFixed(2)},${m.ordenesCerradas},$${m.ventasTotales.toFixed(2)},$${m.propinaPromedioPorOrden.toFixed(2)}\n`;
+    });
+    csvContent += "\n";
+
+    // Seccion 3: Detalle de Órdenes
+    if (reportData.detalleOrdenes && reportData.detalleOrdenes.length > 0) {
+      csvContent += "=== DETALLE DE ÓRDENES CERRADAS ===\n";
+      csvContent += "ID Orden,Mesa,Mesero,Fecha,Metodo Pago,Subtotal,Descuento,Propina,Total Final\n";
+      reportData.detalleOrdenes.forEach((o: any) => {
+        const fecha = new Date(o.createdAt).toLocaleString("es-MX");
+        csvContent += `${o.id},Mesa ${o.mesa?.numero || "N/A"},"${o.mesero?.nombre || "N/A"}","${fecha}",${o.metodoPago || "N/A"},$${(o.total || 0).toFixed(2)},$${(o.descuento || 0).toFixed(2)},$${(o.propina || 0).toFixed(2)},$${(o.total || 0).toFixed(2)}\n`;
+      });
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "reporte_propinas.csv");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `reporte_ventas_gaucho_${format(new Date(), "yyyyMMdd_HHmm")}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

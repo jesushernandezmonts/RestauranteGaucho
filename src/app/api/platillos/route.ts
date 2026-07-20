@@ -9,7 +9,7 @@ export async function GET() {
       orderBy: { orden: "asc" },
       include: {
         platillos: {
-          orderBy: { id: "asc" },
+          orderBy: [{ orden: "asc" }, { id: "asc" }],
           select: {
             id: true,
             nombre: true,
@@ -18,6 +18,7 @@ export async function GET() {
             activo: true,
             imagen: true,
             ingredientesDestacados: true,
+            orden: true,
             _count: { select: { receta: true } },
           },
         },
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, nombre, precio, activo, descripcion, imagen } = body;
+    const { id, nombre, precio, activo, descripcion, imagen, orden } = body;
 
     if (!id) {
       return NextResponse.json({ error: "ID requerido" }, { status: 400 });
@@ -65,6 +66,7 @@ export async function PATCH(request: Request) {
     if (activo !== undefined) updateData.activo = activo;
     if (descripcion !== undefined) updateData.descripcion = descripcion;
     if (imagen !== undefined) updateData.imagen = imagen;
+    if (orden !== undefined) updateData.orden = orden;
     if (body.ingredientesDestacados !== undefined) updateData.ingredientesDestacados = body.ingredientesDestacados;
 
     const platillo = await prisma.platillo.update({

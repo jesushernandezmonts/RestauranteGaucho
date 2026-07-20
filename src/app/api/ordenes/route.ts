@@ -200,6 +200,9 @@ export async function PATCH(request: Request) {
       updateData.total = rest.total;
       updateData.propina = rest.propina || 0;
       updateData.tipoPropina = rest.tipoPropina || "";
+      updateData.descuento = rest.descuento || 0;
+      updateData.tipoDescuento = rest.tipoDescuento || "";
+      updateData.motivoDescuento = rest.motivoDescuento || "";
       updateData.cerradaPor = rest.cerradaPor;
       updateData.closedAt = new Date();
     }

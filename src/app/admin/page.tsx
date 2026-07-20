@@ -11,6 +11,7 @@ import UsuariosSection from "./_components/UsuariosSection";
 import AparienciaSection from "./_components/AparienciaSection";
 import FestividadesSection from "./_components/FestividadesSection";
 import PromocionesSection from "./_components/PromocionesSection";
+import CorteCajaSection from "./_components/CorteCajaSection";
 import {
   Shield,
   LogOut,
@@ -27,6 +28,7 @@ import {
   ImageIcon,
   Sparkles,
   Tag,
+  Receipt,
 } from "lucide-react";
 
 type DashboardStats = {
@@ -37,10 +39,11 @@ type DashboardStats = {
   ordenesRecientes: number;
 };
 
-type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones" | "reportes" | "apariencia" | "festividades" | "promociones";
+type Section = "dashboard" | "menu" | "inventario" | "usuarios" | "reservaciones" | "reportes" | "apariencia" | "festividades" | "promociones" | "corteCaja";
 
 const sectionLabels: Record<Section, { label: string; icon: React.ElementType }> = {
   dashboard: { label: "Dashboard", icon: TrendingUp },
+  corteCaja: { label: "Corte de Caja", icon: Receipt },
   menu: { label: "Menú", icon: UtensilsCrossed },
   inventario: { label: "Inventario", icon: Package },
   usuarios: { label: "Usuarios", icon: Users },
@@ -154,6 +157,8 @@ export default function AdminDashboard() {
     }
 
     switch (activeSection) {
+      case "corteCaja":
+        return <CorteCajaSection />;
       case "menu":
         return <MenuSection />;
       case "inventario":

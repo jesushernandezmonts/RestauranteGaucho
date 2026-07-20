@@ -17,8 +17,12 @@ import {
   Loader2,
   DollarSign,
   Edit2,
+  Printer,
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
+import { ThermalTicketModal, ThermalTicketData } from "@/components/ThermalTicketModal";
 
 type Platillo = {
   id: number;
@@ -73,23 +77,77 @@ export default function MesaDetailPage() {
   const [showMobileTicket, setShowMobileTicket] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  // Active Order & Thermal Print / Cancel States
+  const [activeOrder, setActiveOrder] = useState<any>(null);
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
+  const [ticketType, setTicketType] = useState<"comanda" | "cuenta">("comanda");
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelTarget, setCancelTarget] = useState<{ ordenId: number; detalleOrdenId?: number; platilloNombre?: string } | null>(null);
+  const [motivoCancelacion, setMotivoCancelacion] = useState("");
+  const [cancelando, setCancelando] = useState(false);
+
   async function loadData() {
     try {
-      const [mesaRes, menuRes] = await Promise.all([
+      const [mesaRes, menuRes, ordenesRes] = await Promise.all([
         fetch(`/api/mesas`),
         fetch(`/api/platillos`),
+        fetch(`/api/ordenes?mesaId=${mesaId}`),
       ]);
       const mesas = await mesaRes.json();
       const found = mesas.find((m: { id: number }) => m.id === mesaId);
       setMesa(found);
       const menuData = await menuRes.json();
       setMenu(menuData);
+
+      const ordenesData = await ordenesRes.json();
+      if (Array.isArray(ordenesData)) {
+        const activa = ordenesData.find(
+          (o: any) => o.mesaId === mesaId && o.estado !== "CERRADA" && o.estado !== "CANCELADA"
+        );
+        setActiveOrder(activa || null);
+      }
     } catch (e) {
       console.error("Error loading data:", e);
     } finally {
       setLoading(false);
     }
   }
+
+  const handleProcesarCancelacion = async () => {
+    if (!cancelTarget || !motivoCancelacion.trim()) {
+      showErrorAlert("Motivo requerido", "Por favor ingresa un motivo para la cancelación.");
+      return;
+    }
+
+    try {
+      setCancelando(true);
+      const res = await fetch("/api/ordenes/cancelar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ordenId: cancelTarget.ordenId,
+          detalleOrdenId: cancelTarget.detalleOrdenId,
+          motivo: motivoCancelacion.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        showSuccessAlert("Cancelado", "La cancelación fue procesada y los insumos reingresados.");
+        setCancelModalOpen(false);
+        setCancelTarget(null);
+        setMotivoCancelacion("");
+        loadData();
+      } else {
+        const err = await res.json();
+        showErrorAlert("Error", err.error || "No se pudo procesar la cancelación.");
+      }
+    } catch (e) {
+      console.error(e);
+      showErrorAlert("Error", "Error al procesar la cancelación.");
+    } finally {
+      setCancelando(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -269,9 +327,82 @@ export default function MesaDetailPage() {
 
   const TicketContent = (
     <div className="flex flex-col h-full">
+      {/* ORDEN ACTIVA YA ENVIADA */}
+      {activeOrder && (
+        <div className="mb-4 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200">
+          <div className="flex items-center justify-between pb-2 border-b border-amber-500/20 mb-2">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                Orden #{activeOrder.id} ({activeOrder.estado})
+              </span>
+              <p className="text-[11px] text-amber-200/70">
+                {activeOrder.mesero?.nombre} — Total: ${activeOrder.total.toFixed(2)}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setTicketType("comanda");
+                setTicketModalOpen(true);
+              }}
+              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-xs rounded-lg transition flex items-center gap-1"
+            >
+              <Printer size={13} /> Comanda
+            </button>
+          </div>
+
+          <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+            {activeOrder.detalle?.map((d: any) => (
+              <div
+                key={d.id}
+                className={`flex justify-between items-center text-xs p-1.5 rounded ${
+                  d.cancelado ? "line-through opacity-50 bg-stone-900/50" : "bg-stone-950/40"
+                }`}
+              >
+                <div>
+                  <span className="font-bold">{d.cantidad}x </span>
+                  <span>{d.platillo.nombre}</span>
+                  {d.cancelado && <span className="ml-1 text-[10px] text-red-400">(CANCELADO)</span>}
+                </div>
+                {!d.cancelado && (
+                  <button
+                    onClick={() => {
+                      setCancelTarget({
+                        ordenId: activeOrder.id,
+                        detalleOrdenId: d.id,
+                        platilloNombre: d.platillo.nombre,
+                      });
+                      setMotivoCancelacion("");
+                      setCancelModalOpen(true);
+                    }}
+                    className="p-1 text-red-400 hover:text-red-300 hover:bg-red-950/50 rounded transition"
+                    title="Cancelar Platillo"
+                  >
+                    <XCircle size={14} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => {
+              setCancelTarget({
+                ordenId: activeOrder.id,
+                platilloNombre: `Toda la Orden #${activeOrder.id}`,
+              });
+              setMotivoCancelacion("");
+              setCancelModalOpen(true);
+            }}
+            className="mt-2 w-full text-center py-1 text-[11px] font-semibold text-red-400 hover:text-red-300 transition border border-red-500/20 rounded-lg"
+          >
+            Cancelar Orden Completa
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center justify-between pb-3 border-b border-primary/10">
         <h2 className="font-display text-base sm:text-lg font-bold text-white flex items-center gap-2">
-          <span>📋</span> Pedido Actual
+          <span>📋</span> Pedido Adicional
         </h2>
         <span className="text-xs px-2.5 py-1 rounded-full bg-primary/15 text-primary-light font-semibold border border-primary/20">
           Mesa {mesa?.numero || params.id}
@@ -341,7 +472,7 @@ export default function MesaDetailPage() {
       {/* Totals and Buttons */}
       <div className="pt-4 border-t border-primary/10 space-y-3">
         <div className="flex justify-between items-center text-sm">
-          <span className="text-white/60">Total:</span>
+          <span className="text-white/60">Total Adicional:</span>
           <span className="text-xl font-bold text-gradient">${total.toFixed(0)}</span>
         </div>
         
@@ -753,6 +884,69 @@ export default function MesaDetailPage() {
           onCancel={() => setShowCustomize(null)}
           initialValues={showCustomize.initialValues}
         />
+      )}
+
+      {/* MODAL DE IMPRESIÓN TÉRMICA */}
+      {activeOrder && (
+        <ThermalTicketModal
+          isOpen={ticketModalOpen}
+          onClose={() => setTicketModalOpen(false)}
+          type={ticketType}
+          data={{
+            ordenId: activeOrder.id,
+            mesaNumero: mesa?.numero,
+            meseroNombre: activeOrder.mesero?.nombre,
+            fecha: activeOrder.createdAt,
+            items: activeOrder.detalle?.map((d: any) => ({
+              nombre: d.platillo.nombre,
+              cantidad: d.cantidad,
+              subtotal: d.subtotal,
+              extras: d.extras,
+              opciones: d.opciones,
+            })),
+            subtotal: activeOrder.total,
+            total: activeOrder.total,
+          }}
+        />
+      )}
+
+      {/* MODAL DE JUSTIFICACIÓN DE CANCELACIÓN */}
+      {cancelModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 max-w-md w-full shadow-2xl text-white">
+            <h3 className="font-bold text-lg mb-2 text-red-400 flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" /> Cancelar {cancelTarget?.platilloNombre}
+            </h3>
+            <p className="text-xs text-stone-300 mb-4">
+              Por favor ingresa el motivo de la cancelación para la bitácora de auditoría y retorno de insumos a almacén.
+            </p>
+
+            <textarea
+              value={motivoCancelacion}
+              onChange={(e) => setMotivoCancelacion(e.target.value)}
+              placeholder="Ej. Cliente cambió de opinión, error al capturar, platillo equivocado..."
+              rows={3}
+              className="w-full bg-stone-950 border border-stone-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-red-500 mb-4 resize-none"
+            />
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setCancelModalOpen(false)}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-semibold rounded-xl"
+              >
+                Regresar
+              </button>
+              <button
+                onClick={handleProcesarCancelacion}
+                disabled={cancelando || !motivoCancelacion.trim()}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {cancelando ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                Confirmar Cancelación
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

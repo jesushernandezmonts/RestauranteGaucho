@@ -11,6 +11,9 @@ import {
   ChevronDown,
   Trash2,
   AlertTriangle,
+  Search,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { compressImage } from "@/lib/compressImage";
 import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
@@ -32,6 +35,7 @@ type Platillo = {
   activo: boolean;
   imagen?: string;
   ingredientesDestacados?: string;
+  orden?: number;
   _count?: { receta: number };
 };
 
@@ -45,6 +49,41 @@ export default function MenuSection() {
   const [newDishCatId, setNewDishCatId] = useState<number | null>(null);
   const [recetaModal, setRecetaModal] = useState<Platillo | null>(null);
   const [expandedCats, setExpandedCats] = useState<Set<number>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+
+  async function moveDish(platillo: Platillo, direction: "up" | "down", catPlatillos: Platillo[]) {
+    const currentIndex = catPlatillos.findIndex((p) => p.id === platillo.id);
+    if (currentIndex === -1) return;
+    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= catPlatillos.length) return;
+
+    const targetPlatillo = catPlatillos[targetIndex];
+
+    try {
+      // Swapping order values
+      const currentOrder = platillo.orden ?? currentIndex;
+      const targetOrder = targetPlatillo.orden ?? targetIndex;
+
+      await Promise.all([
+        fetch("/api/platillos", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: platillo.id, orden: targetOrder === currentOrder ? (direction === "up" ? currentOrder - 1 : currentOrder + 1) : targetOrder }),
+        }),
+        fetch("/api/platillos", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: targetPlatillo.id, orden: currentOrder }),
+        }),
+      ]);
+
+      broadcastMenuChange();
+      loadMenu();
+    } catch (e) {
+      console.error(e);
+      showErrorAlert("Error", "No se pudo cambiar el orden del platillo.");
+    }
+  }
 
   function toggleCategory(catId: number) {
     setExpandedCats((prev) => {
@@ -192,9 +231,28 @@ export default function MenuSection() {
           </div>
         </div>
 
+        {/* BARRA DE BÚSQUEDA RÁPIDA DE PLATILLOS */}
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-3 text-stone-400 w-5 h-5" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar platillo por nombre..."
+            className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-12 pr-4 py-3 text-sm text-white placeholder:text-stone-500 focus:outline-none focus:border-amber-500 transition shadow-inner"
+          />
+        </div>
+
         <div className="space-y-3">
           {categorias.map((cat) => {
-            const isExpanded = expandedCats.has(cat.id);
+            const filteredPlatillos = cat.platillos.filter((p) =>
+              p.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            // Auto expand if searching
+            const isExpanded = searchQuery.trim() !== "" ? true : expandedCats.has(cat.id);
+            if (searchQuery.trim() !== "" && filteredPlatillos.length === 0) return null;
+
             return (
               <div key={cat.id} className="card !p-0 overflow-hidden">
                 {/* Category Header - Clickable */}
@@ -208,7 +266,7 @@ export default function MenuSection() {
                       {cat.nombre}
                     </h3>
                     <span className="text-xs text-gray-400 px-2 py-0.5 rounded-full bg-white/10">
-                      {cat.platillos.length} platillos
+                      {filteredPlatillos.length} platillos
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -260,16 +318,34 @@ export default function MenuSection() {
                 <div
                   className="transition-all duration-300 ease-in-out overflow-hidden"
                   style={{
-                    maxHeight: isExpanded ? `${(cat.platillos.length + 1) * 120}px` : "0px",
+                    maxHeight: isExpanded ? `${(filteredPlatillos.length + 1) * 120}px` : "0px",
                     opacity: isExpanded ? 1 : 0,
                   }}
                 >
                   <div className="space-y-2 px-4 pb-4">
-                    {cat.platillos.map((p) => (
+                    {filteredPlatillos.map((p, idx) => (
                       <div
                         key={p.id}
                         className="flex items-center justify-between p-3 rounded-xl bg-surface-light/50 group"
                       >
+                        <div className="flex items-center gap-1 mr-2">
+                          <button
+                            onClick={() => moveDish(p, "up", cat.platillos)}
+                            disabled={idx === 0}
+                            className="p-1 rounded text-stone-400 hover:text-amber-400 hover:bg-white/5 disabled:opacity-20 transition"
+                            title="Subir en el menú"
+                          >
+                            <ArrowUp size={14} />
+                          </button>
+                          <button
+                            onClick={() => moveDish(p, "down", cat.platillos)}
+                            disabled={idx === filteredPlatillos.length - 1}
+                            className="p-1 rounded text-stone-400 hover:text-amber-400 hover:bg-white/5 disabled:opacity-20 transition"
+                            title="Bajar en el menú"
+                          >
+                            <ArrowDown size={14} />
+                          </button>
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             {p.imagen && (

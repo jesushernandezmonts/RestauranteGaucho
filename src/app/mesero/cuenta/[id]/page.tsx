@@ -15,6 +15,7 @@ import {
   BanknoteIcon,
 } from "lucide-react";
 import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
+import { ThermalTicketModal } from "@/components/ThermalTicketModal";
 
 type Orden = {
   id: number;
@@ -49,6 +50,12 @@ export default function CuentaPage() {
   const [efectivoRecibido, setEfectivoRecibido] = useState(0);
   const [procesando, setProcesando] = useState(false);
   const [completado, setCompletado] = useState(false);
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
+
+  // Descuentos y Cortesías
+  const [tipoDescuento, setTipoDescuento] = useState<"ninguno" | "porcentaje" | "monto" | "cortesia">("ninguno");
+  const [descuentoValor, setDescuentoValor] = useState(0);
+  const [motivoDescuento, setMotivoDescuento] = useState("");
 
   const propinaPresets = [10, 15, 18, 20];
 
@@ -56,7 +63,6 @@ export default function CuentaPage() {
     try {
       const res = await fetch(`/api/ordenes`);
       const ordenes = await res.json();
-      // Buscar la orden activa (no cerrada) para esta mesa (ordenId aquí es en realidad params.id que es mesaId)
       const found = ordenes.find((o: any) => o.mesaId === ordenId && o.estado !== "CERRADA");
       if (found) setOrden(found);
     } catch (e) {
@@ -71,18 +77,35 @@ export default function CuentaPage() {
     loadOrden();
   }, []);
 
+  const totalBase = orden?.total || 0;
+
+  function getMontoDescuento(): number {
+    if (tipoDescuento === "cortesia") return totalBase;
+    if (tipoDescuento === "porcentaje") return (totalBase * (descuentoValor || 0)) / 100;
+    if (tipoDescuento === "monto") return Math.min(totalBase, descuentoValor || 0);
+    return 0;
+  }
+
+  const montoDescuento = getMontoDescuento();
+  const totalConDescuento = Math.max(0, totalBase - montoDescuento);
+
   function getPropinaCalculada(): number {
     if (!orden) return 0;
     if (tipoPropina === "cantidad") return propinaValor;
-    return (orden.total * propinaPorcentaje) / 100;
+    return (totalConDescuento * propinaPorcentaje) / 100;
   }
 
   const propina = getPropinaCalculada();
-  const totalConPropina = (orden?.total || 0) + propina;
+  const totalConPropina = totalConDescuento + propina;
   const cambio = efectivoRecibido - totalConPropina;
 
   async function handleCerrarCuenta() {
     if (!metodoPago || !orden) return;
+
+    if (tipoDescuento !== "ninguno" && !motivoDescuento.trim()) {
+      showErrorAlert("Motivo requerido", "Por favor ingresa la justificación del descuento o cortesía.");
+      return;
+    }
 
     const methodLabel = metodoPago === "efectivo" ? "Efectivo" : metodoPago === "tarjeta" ? "Tarjeta" : "Transferencia";
     const confirmed = await showConfirmAlert(
@@ -102,9 +125,12 @@ export default function CuentaPage() {
           id: orden.id,
           estado: "CERRADA",
           metodoPago,
-          total: orden.total,
+          total: totalConDescuento,
           propina,
           tipoPropina,
+          descuento: montoDescuento,
+          tipoDescuento,
+          motivoDescuento: motivoDescuento.trim(),
           cerradaPor: session?.user?.id,
         }),
       });
@@ -240,6 +266,123 @@ export default function CuentaPage() {
             <span className="text-text-secondary">Subtotal</span>
             <span className="text-text-primary">${orden?.total.toFixed(0)}</span>
           </div>
+        </div>
+
+        {/* Descuentos y Cortesías */}
+        <div className="card border-amber-500/20 bg-amber-500/5">
+          <h3 className="font-semibold text-amber-400 mb-3 flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Percent size={18} /> Descuento / Cortesía
+            </span>
+            {tipoDescuento !== "ninguno" && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold">
+                -${montoDescuento.toFixed(2)}
+              </span>
+            )}
+          </h3>
+
+          <div className="grid grid-cols-4 gap-2 mb-3">
+            <button
+              onClick={() => {
+                setTipoDescuento("ninguno");
+                setDescuentoValor(0);
+              }}
+              className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                tipoDescuento === "ninguno"
+                  ? "bg-stone-800 text-stone-100 border border-stone-600"
+                  : "bg-surface-light text-text-muted border border-primary/10"
+              }`}
+            >
+              Ninguno
+            </button>
+            <button
+              onClick={() => {
+                setTipoDescuento("porcentaje");
+                setDescuentoValor(10);
+              }}
+              className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                tipoDescuento === "porcentaje"
+                  ? "bg-amber-500 text-stone-950 font-bold border border-amber-400"
+                  : "bg-surface-light text-text-muted border border-primary/10"
+              }`}
+            >
+              Desc %
+            </button>
+            <button
+              onClick={() => {
+                setTipoDescuento("monto");
+                setDescuentoValor(50);
+              }}
+              className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                tipoDescuento === "monto"
+                  ? "bg-amber-500 text-stone-950 font-bold border border-amber-400"
+                  : "bg-surface-light text-text-muted border border-primary/10"
+              }`}
+            >
+              Desc $
+            </button>
+            <button
+              onClick={() => {
+                setTipoDescuento("cortesia");
+                setDescuentoValor(0);
+              }}
+              className={`py-2 rounded-xl text-xs font-semibold transition-all ${
+                tipoDescuento === "cortesia"
+                  ? "bg-purple-600 text-white font-bold border border-purple-400"
+                  : "bg-surface-light text-text-muted border border-primary/10"
+              }`}
+            >
+              Cortesía
+            </button>
+          </div>
+
+          {tipoDescuento === "porcentaje" && (
+            <div className="mb-3">
+              <div className="flex gap-2">
+                {[10, 15, 20, 25, 50].map((pct) => (
+                  <button
+                    key={pct}
+                    onClick={() => setDescuentoValor(pct)}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-bold ${
+                      descuentoValor === pct
+                        ? "bg-amber-500 text-stone-950"
+                        : "bg-stone-800 text-stone-300"
+                    }`}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {tipoDescuento === "monto" && (
+            <div className="mb-3">
+              <input
+                type="number"
+                min="0"
+                value={descuentoValor || ""}
+                onChange={(e) => setDescuentoValor(parseFloat(e.target.value) || 0)}
+                placeholder="Monto a descontar ($)"
+                className="w-full bg-stone-950 border border-amber-500/30 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
+              />
+            </div>
+          )}
+
+          {tipoDescuento !== "ninguno" && (
+            <div>
+              <label className="block text-[11px] text-amber-300 mb-1 font-semibold">
+                Motivo / Justificación (Requerido):
+              </label>
+              <input
+                type="text"
+                value={motivoDescuento}
+                onChange={(e) => setMotivoDescuento(e.target.value)}
+                placeholder="Ej. Cumpleañero, promoción especial, cliente VIP, etc."
+                className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-400"
+              />
+            </div>
+          )}
         </div>
 
         {/* Propina */}
@@ -426,22 +569,53 @@ export default function CuentaPage() {
           </div>
         )}
 
-        {/* Botón */}
-        <button
-          onClick={handleCerrarCuenta}
-          disabled={!metodoPago || procesando}
-          className="btn-primary w-full text-base py-4 disabled:opacity-50"
-        >
-          {procesando ? (
-            <Loader2 size={20} className="animate-spin" />
-          ) : (
-            <DollarSign size={20} />
-          )}
-          {procesando
-            ? "Procesando..."
-            : `Cobrar $${totalConPropina.toFixed(0)}`}
-        </button>
+        {/* Botones */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => setTicketModalOpen(true)}
+            className="flex-1 btn-secondary flex items-center justify-center gap-2 py-4"
+          >
+            <Printer size={18} />
+            Ticket Térmico
+          </button>
+          <button
+            onClick={handleCerrarCuenta}
+            disabled={!metodoPago || procesando}
+            className="flex-[2] btn-primary text-base py-4 disabled:opacity-50"
+          >
+            {procesando ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <DollarSign size={20} />
+            )}
+            {procesando
+              ? "Procesando..."
+              : `Cobrar $${totalConPropina.toFixed(0)}`}
+          </button>
+        </div>
       </div>
+
+      <ThermalTicketModal
+        isOpen={ticketModalOpen}
+        onClose={() => setTicketModalOpen(false)}
+        type="cuenta"
+        data={{
+          ordenId: orden?.id,
+          mesaNumero: orden?.mesa?.numero,
+          meseroNombre: orden?.mesero?.nombre,
+          fecha: orden?.createdAt,
+          items: orden?.detalle.map((d) => ({
+            nombre: d.platillo.nombre,
+            cantidad: d.cantidad,
+            subtotal: d.subtotal,
+            extras: d.extras,
+          })),
+          subtotal: orden?.total,
+          propina: propina,
+          total: totalConPropina,
+          metodoPago: metodoPago || "pendiente",
+        }}
+      />
     </div>
   );
 }

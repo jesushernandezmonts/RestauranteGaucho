@@ -27,6 +27,8 @@ model User {
 
   ordenes  Orden[]
   pagos    Pago[]
+  cortesCaja CorteCaja[]
+  auditoriaCancelaciones AuditoriaCancelacion[]
 }
 
 // ─── MESAS ──────────────────────────────────────────────
@@ -66,6 +68,7 @@ model Platillo {
   imagen       String  @default("")
   activo       Boolean @default(true)
   ingredientesDestacados String @default("")
+  orden        Int     @default(0)
   createdAt    DateTime @default(now())
 
   categoria    Categoria        @relation(fields: [categoriaId], references: [id])
@@ -107,6 +110,7 @@ enum OrdenEstado {
   LISTO
   SERVIDO
   CERRADA
+  CANCELADA
 }
 
 model Orden {
@@ -118,7 +122,11 @@ model Orden {
   propina   Float       @default(0)
   tipoPropina String    @default("") // "cantidad" o "porcentaje"
   metodoPago String     @default("") // "efectivo" o "tarjeta"
+  descuento Float       @default(0)
+  tipoDescuento String  @default("") // "porcentaje", "monto" o "cortesia"
+  motivoDescuento String @default("")
   cerradaPor Int?       // userId de quien cerró
+  motivoCancelacion String? @default("")
   createdAt  DateTime   @default(now())
   closedAt   DateTime?
 
@@ -126,6 +134,7 @@ model Orden {
   mesero     User           @relation(fields: [meseroId], references: [id])
   detalle    DetalleOrden[]
   pagos      Pago[]
+  auditoriaCancelaciones AuditoriaCancelacion[]
 
   @@index([estado, createdAt])
   @@index([mesaId, estado])
@@ -139,11 +148,14 @@ model DetalleOrden {
   platilloId Int
   cantidad   Int     @default(1)
   subtotal   Float
+  cancelado  Boolean @default(false)
+  motivoCancelacion String? @default("")
 
   orden     Orden      @relation(fields: [ordenId], references: [id])
   platillo  Platillo   @relation(fields: [platilloId], references: [id])
   extras    ExtraOrden[]
   opciones  OpcionOrden[]
+  auditoriaCancelaciones AuditoriaCancelacion[]
 }
 
 // ─── EXTRAS DE UN PLATILLO EN LA ORDEN ──────────────────
@@ -248,3 +260,40 @@ model Promocion {
   destacado   Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
+
+// ─── CORTE DE CAJA (CORTE Z) ─────────────────
+model CorteCaja {
+  id                 Int      @id @default(autoincrement())
+  usuarioId          Int
+  fechaInicio        DateTime
+  fechaFin           DateTime @default(now())
+  montoInicial       Float    @default(0)
+  ventasEfectivo     Float    @default(0)
+  ventasTarjeta      Float    @default(0)
+  totalVentas        Float    @default(0)
+  totalPropinas      Float    @default(0)
+  efectivoReal       Float    @default(0)
+  diferencia         Float    @default(0)
+  notas              String   @default("")
+  createdAt          DateTime @default(now())
+
+  usuario User @relation(fields: [usuarioId], references: [id])
+}
+
+// ─── BITÁCORA DE AUDITORÍA DE CANCELACIONES ──
+model AuditoriaCancelacion {
+  id             Int      @id @default(autoincrement())
+  usuarioId      Int
+  ordenId        Int
+  detalleOrdenId Int?
+  platilloNombre String   @default("")
+  cantidad       Int      @default(1)
+  montoPerdido   Float    @default(0)
+  motivo         String
+  createdAt      DateTime @default(now())
+
+  usuario      User          @relation(fields: [usuarioId], references: [id])
+  orden        Orden         @relation(fields: [ordenId], references: [id])
+  detalleOrden DetalleOrden? @relation(fields: [detalleOrdenId], references: [id])
+}
+
