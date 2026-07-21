@@ -32,6 +32,7 @@ export default function AparienciaSection() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   async function fetchConfig() {
     try {
@@ -42,6 +43,7 @@ export default function AparienciaSection() {
       console.error(e);
     } finally {
       setLoading(false);
+      setTimeout(() => setIsInitialLoad(false), 300);
     }
   }
 
@@ -49,6 +51,37 @@ export default function AparienciaSection() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchConfig();
   }, []);
+
+  // Auto-save effect with 500ms debounce
+  useEffect(() => {
+    if (isInitialLoad || loading) return;
+
+    setSaving(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/config", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(config),
+        });
+        if (res.ok) {
+          setSaved(true);
+          try {
+            const bc = new BroadcastChannel("gaucho_config_changes");
+            bc.postMessage({ changed: true });
+            bc.close();
+          } catch {}
+          setTimeout(() => setSaved(false), 2000);
+        }
+      } catch (e) {
+        console.error("Auto-save error:", e);
+      } finally {
+        setSaving(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [config, isInitialLoad, loading]);
 
   async function handleImageUpload(key: string, file: File) {
     setUploading(key);
@@ -101,7 +134,6 @@ export default function AparienciaSection() {
       if (res.ok) {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
-        // Notify other tabs instantly
         try {
           const bc = new BroadcastChannel("gaucho_config_changes");
           bc.postMessage({ changed: true });
@@ -137,14 +169,34 @@ export default function AparienciaSection() {
             Personaliza cada elemento visual y encuadre de las imágenes de tu restaurante
           </p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="btn-primary !px-4 !py-2 text-sm font-medium w-full sm:w-auto flex items-center justify-center gap-2"
-        >
-          {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
-          {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar Cambios"}
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-surface-light border border-white/10 text-gray-300">
+            {saving ? (
+              <>
+                <Loader2 size={14} className="animate-spin text-primary" />
+                <span>Guardando cambios...</span>
+              </>
+            ) : saved ? (
+              <>
+                <Check size={14} className="text-emerald-400" />
+                <span className="text-emerald-400 font-semibold">Guardado automático</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Auto-guardado activo</span>
+              </>
+            )}
+          </div>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="btn-primary !px-4 !py-2 text-sm font-medium w-full sm:w-auto flex items-center justify-center gap-2"
+          >
+            {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
+            {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar Ahora"}
+          </button>
+        </div>
       </div>
 
       {/* Main images */}
