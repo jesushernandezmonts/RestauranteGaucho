@@ -12,9 +12,25 @@ import {
   Trash2,
   AlertTriangle,
   Search,
-  ArrowUp,
-  ArrowDown,
+  GripVertical,
 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { compressImage } from "@/lib/compressImage";
 import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
@@ -39,6 +55,105 @@ type Platillo = {
   _count?: { receta: number };
 };
 
+function SortablePlatilloItem({
+  p,
+  setRecetaModal,
+  setEditPlatillo,
+  deletePlatillo,
+}: {
+  p: Platillo;
+  setRecetaModal: (p: Platillo) => void;
+  setEditPlatillo: (p: Platillo) => void;
+  deletePlatillo: (id: number, nombre: string) => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: p.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center justify-between p-3 rounded-xl bg-surface-light/50 group border border-transparent ${
+        isDragging ? "border-amber-500/50 shadow-lg bg-surface-light" : ""
+      }`}
+    >
+      <div className="flex items-center gap-1 mr-2">
+        <button
+          type="button"
+          {...attributes}
+          {...listeners}
+          className="p-1.5 cursor-grab active:cursor-grabbing text-stone-400 hover:text-amber-400 hover:bg-white/5 rounded-lg transition"
+          title="Arrastrar para reordenar platillo"
+        >
+          <GripVertical size={16} />
+        </button>
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          {p.imagen && (
+            <img
+              src={p.imagen}
+              alt={p.nombre}
+              className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+            />
+          )}
+          <span
+            className={`font-medium text-sm ${
+              p.activo ? "text-white" : "text-gray-400 line-through"
+            }`}
+          >
+            {p.nombre}
+          </span>
+          {!p.activo && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-400">
+              Inactivo
+            </span>
+          )}
+        </div>
+        {p.descripcion && (
+          <p className="text-xs text-gray-400 truncate mt-0.5">
+            {p.descripcion}
+          </p>
+        )}
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="font-bold text-primary-light text-sm">
+          ${p.precio}
+        </span>
+        <button
+          onClick={() => setRecetaModal(p)}
+          className={`p-1.5 rounded-lg transition-all hover:bg-surface-lighter ${
+            (p._count?.receta ?? 0) > 0 ? "text-gold" : "text-text-muted"
+          }`}
+          title="Receta"
+        >
+          <FlaskConical size={14} />
+        </button>
+        <button
+          onClick={() => setEditPlatillo(p)}
+          className="p-1.5 rounded-lg hover:bg-surface-lighter transition-all"
+        >
+          <Pencil size={14} className="text-gray-400 hover:text-white" />
+        </button>
+        <button
+          onClick={() => deletePlatillo(p.id, p.nombre)}
+          className="p-1.5 rounded-lg transition-all hover:bg-red-500/20"
+          title="Eliminar platillo"
+        >
+          <Trash2 size={14} className="text-red-400 hover:text-red-300" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function MenuSection() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,37 +166,50 @@ export default function MenuSection() {
   const [expandedCats, setExpandedCats] = useState<Set<number>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
 
-  async function moveDish(platillo: Platillo, direction: "up" | "down", catPlatillos: Platillo[]) {
-    const currentIndex = catPlatillos.findIndex((p) => p.id === platillo.id);
-    if (currentIndex === -1) return;
-    const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-    if (targetIndex < 0 || targetIndex >= catPlatillos.length) return;
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-    const targetPlatillo = catPlatillos[targetIndex];
+  async function handlePlatilloDragEnd(catId: number, event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const category = categorias.find((c) => c.id === catId);
+    if (!category) return;
+
+    const oldIndex = category.platillos.findIndex((p) => p.id === active.id);
+    const newIndex = category.platillos.findIndex((p) => p.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newPlatillos = arrayMove(category.platillos, oldIndex, newIndex);
+
+    setCategorias((prev) =>
+      prev.map((c) => (c.id === catId ? { ...c, platillos: newPlatillos } : c))
+    );
 
     try {
-      // Swapping order values
-      const currentOrder = platillo.orden ?? currentIndex;
-      const targetOrder = targetPlatillo.orden ?? targetIndex;
-
-      await Promise.all([
-        fetch("/api/platillos", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: platillo.id, orden: targetOrder === currentOrder ? (direction === "up" ? currentOrder - 1 : currentOrder + 1) : targetOrder }),
-        }),
-        fetch("/api/platillos", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: targetPlatillo.id, orden: currentOrder }),
-        }),
-      ]);
-
+      await Promise.all(
+        newPlatillos.map((p, idx) =>
+          fetch("/api/platillos", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: p.id, orden: idx }),
+          })
+        )
+      );
       broadcastMenuChange();
-      loadMenu();
     } catch (e) {
       console.error(e);
-      showErrorAlert("Error", "No se pudo cambiar el orden del platillo.");
+      showErrorAlert("Error", "No se pudo actualizar el orden del platillo.");
+      loadMenu();
     }
   }
 
@@ -323,90 +451,26 @@ export default function MenuSection() {
                   }}
                 >
                   <div className="space-y-2 px-4 pb-4">
-                    {filteredPlatillos.map((p, idx) => (
-                      <div
-                        key={p.id}
-                        className="flex items-center justify-between p-3 rounded-xl bg-surface-light/50 group"
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={(e) => handlePlatilloDragEnd(cat.id, e)}
+                    >
+                      <SortableContext
+                        items={filteredPlatillos.map((p) => p.id)}
+                        strategy={verticalListSortingStrategy}
                       >
-                        <div className="flex items-center gap-1 mr-2">
-                          <button
-                            onClick={() => moveDish(p, "up", cat.platillos)}
-                            disabled={idx === 0}
-                            className="p-1 rounded text-stone-400 hover:text-amber-400 hover:bg-white/5 disabled:opacity-20 transition"
-                            title="Subir en el menú"
-                          >
-                            <ArrowUp size={14} />
-                          </button>
-                          <button
-                            onClick={() => moveDish(p, "down", cat.platillos)}
-                            disabled={idx === filteredPlatillos.length - 1}
-                            className="p-1 rounded text-stone-400 hover:text-amber-400 hover:bg-white/5 disabled:opacity-20 transition"
-                            title="Bajar en el menú"
-                          >
-                            <ArrowDown size={14} />
-                          </button>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            {p.imagen && (
-                              <img
-                                src={p.imagen}
-                                alt={p.nombre}
-                                className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                              />
-                            )}
-                            <span
-                              className={`font-medium text-sm ${
-                                p.activo
-                                  ? "text-white"
-                                  : "text-gray-400 line-through"
-                              }`}
-                            >
-                              {p.nombre}
-                            </span>
-                            {!p.activo && (
-                              <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-400">
-                                Inactivo
-                              </span>
-                            )}
-                          </div>
-                          {p.descripcion && (
-                            <p className="text-xs text-gray-400 truncate mt-0.5">
-                              {p.descripcion}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="font-bold text-primary-light text-sm">
-                            ${p.precio}
-                          </span>
-                          <button
-                            onClick={() => setRecetaModal(p)}
-                            className={`p-1.5 rounded-lg transition-all hover:bg-surface-lighter ${
-                              (p._count?.receta ?? 0) > 0
-                                ? "text-gold"
-                                : "text-text-muted"
-                            }`}
-                            title="Receta"
-                          >
-                            <FlaskConical size={14} />
-                          </button>
-                          <button
-                            onClick={() => setEditPlatillo(p)}
-                            className="p-1.5 rounded-lg hover:bg-surface-lighter transition-all"
-                          >
-                            <Pencil size={14} className="text-gray-400 hover:text-white" />
-                          </button>
-                          <button
-                            onClick={() => deletePlatillo(p.id, p.nombre)}
-                            className="p-1.5 rounded-lg transition-all hover:bg-red-500/20"
-                            title="Eliminar platillo"
-                          >
-                            <Trash2 size={14} className="text-red-400 hover:text-red-300" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                        {filteredPlatillos.map((p) => (
+                          <SortablePlatilloItem
+                            key={p.id}
+                            p={p}
+                            setRecetaModal={setRecetaModal}
+                            setEditPlatillo={setEditPlatillo}
+                            deletePlatillo={deletePlatillo}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
                     {cat.platillos.length === 0 && (
                       <p className="text-sm text-text-muted text-center py-4">
                         Sin platillos aún
