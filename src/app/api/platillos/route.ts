@@ -19,6 +19,7 @@ export async function GET() {
             imagen: true,
             ingredientesDestacados: true,
             orden: true,
+            categoriaId: true,
             _count: { select: { receta: true } },
           },
         },
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, nombre, precio, activo, descripcion, imagen, orden } = body;
+    const { id, nombre, precio, activo, descripcion, imagen, orden, categoriaId } = body;
 
     if (!id) {
       return NextResponse.json({ error: "ID requerido" }, { status: 400 });
@@ -67,6 +68,7 @@ export async function PATCH(request: Request) {
     if (descripcion !== undefined) updateData.descripcion = descripcion;
     if (imagen !== undefined) updateData.imagen = imagen;
     if (orden !== undefined) updateData.orden = orden;
+    if (categoriaId !== undefined) updateData.categoriaId = categoriaId;
     if (body.ingredientesDestacados !== undefined) updateData.ingredientesDestacados = body.ingredientesDestacados;
 
     const platillo = await prisma.platillo.update({

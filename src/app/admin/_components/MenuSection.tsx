@@ -52,6 +52,7 @@ type Platillo = {
   imagen?: string;
   ingredientesDestacados?: string;
   orden?: number;
+  categoriaId?: number;
   _count?: { receta: number };
 };
 
@@ -565,16 +566,15 @@ function PlatilloForm({
   const [imagen, setImagen] = useState(platillo?.imagen || "");
   const [ingredientesDestacados, setIngredientesDestacados] = useState(platillo?.ingredientesDestacados || "");
   const [uploading, setUploading] = useState(false);
-  const [catId, setCatId] = useState(categoriaId || 0);
+  const [catId, setCatId] = useState(platillo?.categoriaId || categoriaId || 0);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (isNew)
-      fetch("/api/categorias")
-        .then((r) => r.json())
-        .then(setCategorias);
-  }, [isNew]);
+    fetch("/api/categorias")
+      .then((r) => r.json())
+      .then(setCategorias);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -596,6 +596,7 @@ function PlatilloForm({
         body.activo = activo;
         body.descripcion = descripcion;
         body.imagen = imagen;
+        body.categoriaId = catId;
         body.ingredientesDestacados = ingredientesDestacados;
       }
       const res = await fetch(url, {
@@ -619,7 +620,10 @@ function PlatilloForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {isNew && (
+      <div>
+        <label className="text-xs text-text-muted mb-1 block">
+          Categoría
+        </label>
         <select
           value={catId}
           onChange={(e) => setCatId(parseInt(e.target.value))}
@@ -633,7 +637,7 @@ function PlatilloForm({
             </option>
           ))}
         </select>
-      )}
+      </div>
       <input
         placeholder="Nombre"
         value={nombre}
