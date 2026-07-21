@@ -14,7 +14,12 @@ import {
   Receipt,
   History,
   FileText,
+  FileSpreadsheet,
 } from "lucide-react";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { format } from "date-fns";
 import { showConfirmAlert, showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 import { ThermalTicketModal, ThermalTicketData } from "@/components/ThermalTicketModal";
 
@@ -67,6 +72,67 @@ export default function CorteCajaSection() {
   // Thermal print modal state
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [ticketData, setTicketData] = useState<ThermalTicketData>({});
+
+  const exportCortesToExcel = () => {
+    if (historial.length === 0) {
+      showErrorAlert("Sin datos", "No hay cortes de caja registrados.");
+      return;
+    }
+
+    const data = historial.map((c) => ({
+      "ID Corte": c.id,
+      "Administrador": c.usuario?.nombre || "N/A",
+      "Fecha Inicio": new Date(c.fechaInicio).toLocaleString("es-MX"),
+      "Fecha Fin": new Date(c.fechaFin).toLocaleString("es-MX"),
+      "Monto Inicial ($)": c.montoInicial,
+      "Ventas Efectivo ($)": c.ventasEfectivo,
+      "Ventas Tarjeta ($)": c.ventasTarjeta,
+      "Total Ventas ($)": c.totalVentas,
+      "Total Propinas ($)": c.totalPropinas,
+      "Efectivo Declarado ($)": c.efectivoReal,
+      "Diferencia ($)": c.diferencia,
+      "Notas": c.notas || "N/A",
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, "Historial Cortes Z");
+    XLSX.writeFile(wb, `cortes_caja_gaucho_${format(new Date(), "yyyyMMdd_HHmm")}.xlsx`);
+  };
+
+  const exportCortesToPDF = () => {
+    if (historial.length === 0) {
+      showErrorAlert("Sin datos", "No hay cortes de caja registrados.");
+      return;
+    }
+
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("RESTAURANTE NIÑO GAUCHO", 14, 18);
+    doc.setFontSize(11);
+    doc.text("Historial Oficial de Cortes de Caja (Cierre Z)", 14, 25);
+    doc.setFontSize(9);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleString("es-MX")}`, 14, 31);
+
+    const rows = historial.map((c) => [
+      `#${c.id}`,
+      c.usuario?.nombre || "Admin",
+      new Date(c.fechaFin).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }),
+      `$${c.totalVentas.toFixed(2)}`,
+      `$${c.efectivoReal.toFixed(2)}`,
+      `${c.diferencia >= 0 ? "+" : ""}$${c.diferencia.toFixed(2)}`,
+    ]);
+
+    autoTable(doc, {
+      startY: 36,
+      head: [["ID", "Admin", "Fecha Fin", "Total Ventas", "Efectivo Real", "Diferencia"]],
+      body: rows,
+      theme: "striped",
+      headStyles: { fillColor: [212, 162, 58] },
+    });
+
+    doc.save(`cortes_caja_gaucho_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
+  };
 
   const loadCorteData = useCallback(async () => {
     try {
@@ -353,9 +419,29 @@ export default function CorteCajaSection() {
 
       {/* HISTORIAL DE CORTES Z ANTERIORES */}
       <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <History className="w-5 h-5 text-amber-500" /> Historial de Cortes de Caja
-        </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <History className="w-5 h-5 text-amber-500" /> Historial de Cortes de Caja
+          </h3>
+          {historial.length > 0 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={exportCortesToExcel}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-all cursor-pointer"
+                title="Exportar cortes de caja a Excel (.xlsx)"
+              >
+                <FileSpreadsheet size={14} /> Excel (.xlsx)
+              </button>
+              <button
+                onClick={exportCortesToPDF}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-xs font-semibold transition-all cursor-pointer"
+                title="Exportar cortes de caja a PDF"
+              >
+                <FileText size={14} /> PDF (.pdf)
+              </button>
+            </div>
+          )}
+        </div>
 
         {historial.length === 0 ? (
           <p className="text-stone-500 text-sm text-center py-6">

@@ -1,11 +1,13 @@
-
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Loader2, Download, CalendarDays } from "lucide-react";
+import { Loader2, Download, CalendarDays, FileSpreadsheet, FileText } from "lucide-react";
 import { format, subDays, startOfMonth, endOfMonth } from "date-fns"; // NUEVA IMPORTACIÓN ESTÁTICA
 import { es } from 'date-fns/locale/es'; // NUEVA IMPORTACIÓN ESTÁTICA
 import dynamic from "next/dynamic";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 
 // Importaciones dinámicas para Recharts
@@ -139,17 +141,17 @@ export default function ReportesSection() {
     fetchReportData();
   }, [dateRange, selectedMeseroId, selectedMetodoPago]);
 
-  const handleDateRangeChange = (option: string) => {
-
+  const handleDateRangeChange = (value: string) => {
     const today = new Date();
     today.setHours(23, 59, 59, 999); // End of day
 
     let newStartDate: Date | null = null;
     let newEndDate: Date | null = today;
 
-    switch (option) {
+    switch (value) {
       case "today":
-        newStartDate = new Date(today.setHours(0, 0, 0, 0)); // Start of day
+        newStartDate = new Date(today);
+        newStartDate.setHours(0, 0, 0, 0);
         break;
       case "last7days":
         newStartDate = subDays(today, 6);
@@ -169,6 +171,136 @@ export default function ReportesSection() {
         break;
     }
     setDateRange({ startDate: newStartDate, endDate: newEndDate });
+  };
+
+  const exportToExcel = () => {
+    if (!reportData) {
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+    const wb = XLSX.utils.book_new();
+
+    // Hoja 1: Resumen General
+    const resumenData = [
+      { Métrica: "Propinas Totales ($)", Monto: reportData.resumen.totalPropinas },
+      { Métrica: "Propinas en Efectivo ($)", Monto: reportData.resumen.totalPropinasEfectivo },
+      { Métrica: "Propinas en Tarjeta ($)", Monto: reportData.resumen.totalPropinasTarjeta },
+    ];
+    const wsResumen = XLSX.utils.json_to_sheet(resumenData);
+    XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen General");
+
+    // Hoja 2: Meseros
+    const meserosData = reportData.propinasPorMesero.map((m) => ({
+      "Mesero": m.nombre,
+      "Propinas Totales ($)": m.propinasTotal,
+      "Órdenes Cerradas": m.ordenesCerradas,
+      "Ventas Totales ($)": m.ventasTotales,
+      "Propina Promedio / Orden ($)": m.propinaPromedioPorOrden,
+    }));
+    const wsMeseros = XLSX.utils.json_to_sheet(meserosData);
+    XLSX.utils.book_append_sheet(wb, wsMeseros, "Rendimiento Meseros");
+
+    // Hoja 3: Detalle Órdenes
+    if (reportData.detalleOrdenes && reportData.detalleOrdenes.length > 0) {
+      const ordenesData = reportData.detalleOrdenes.map((o: any) => ({
+        "ID Orden": o.id,
+        "Mesa": `Mesa ${o.mesa?.numero || "N/A"}`,
+        "Mesero": o.mesero?.nombre || "N/A",
+        "Fecha": new Date(o.createdAt).toLocaleString("es-MX"),
+        "Método de Pago": (o.metodoPago || "N/A").toUpperCase(),
+        "Subtotal ($)": o.total || 0,
+        "Descuento ($)": o.descuento || 0,
+        "Propina ($)": o.propina || 0,
+        "Total Final ($)": o.total || 0,
+      }));
+      const wsOrdenes = XLSX.utils.json_to_sheet(ordenesData);
+      XLSX.utils.book_append_sheet(wb, wsOrdenes, "Órdenes Cerradas");
+    }
+
+    XLSX.writeFile(wb, `reporte_ventas_gaucho_${format(new Date(), "yyyyMMdd_HHmm")}.xlsx`);
+  };
+
+  const exportToPDF = () => {
+    if (!reportData) {
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    // Título y Encabezado
+    doc.setFontSize(18);
+    doc.text("RESTAURANTE NIÑO GAUCHO", 14, 18);
+
+    doc.setFontSize(11);
+    doc.text("Reporte Ejecutivo de Ventas y Propinas", 14, 25);
+    doc.setFontSize(9);
+    doc.text(`Fecha de emisión: ${new Date().toLocaleString("es-MX")}`, 14, 31);
+
+    // Tabla Resumen
+    autoTable(doc, {
+      startY: 36,
+      head: [["Métrica Resumen", "Monto ($)"]],
+      body: [
+        ["Propinas Totales", `$${(reportData.resumen.totalPropinas || 0).toFixed(2)}`],
+        ["Propinas en Efectivo", `$${(reportData.resumen.totalPropinasEfectivo || 0).toFixed(2)}`],
+        ["Propinas en Tarjeta", `$${(reportData.resumen.totalPropinasTarjeta || 0).toFixed(2)}`],
+      ],
+      theme: "striped",
+      headStyles: { fillColor: [212, 162, 58] },
+    });
+
+    let currentY = (doc as any).lastAutoTable.finalY + 12;
+
+    // Tabla Meseros
+    if (reportData.propinasPorMesero.length > 0) {
+      doc.setFontSize(11);
+      doc.text("Rendimiento por Mesero", 14, currentY);
+
+      const meserosRows = reportData.propinasPorMesero.map((m) => [
+        m.nombre,
+        `$${m.propinasTotal.toFixed(2)}`,
+        m.ordenesCerradas.toString(),
+        `$${m.ventasTotales.toFixed(2)}`,
+        `$${m.propinaPromedioPorOrden.toFixed(2)}`,
+      ]);
+
+      autoTable(doc, {
+        startY: currentY + 4,
+        head: [["Mesero", "Propinas", "Órdenes", "Ventas Totales", "Propina Prom."]],
+        body: meserosRows,
+        theme: "grid",
+        headStyles: { fillColor: [40, 40, 40] },
+      });
+
+      currentY = (doc as any).lastAutoTable.finalY + 12;
+    }
+
+    // Tabla Órdenes
+    if (reportData.detalleOrdenes && reportData.detalleOrdenes.length > 0) {
+      doc.setFontSize(11);
+      doc.text("Detalle de Órdenes Cerradas", 14, currentY);
+
+      const ordenesRows = reportData.detalleOrdenes.map((o: any) => [
+        `#${o.id}`,
+        `Mesa ${o.mesa?.numero || "N/A"}`,
+        o.mesero?.nombre || "N/A",
+        new Date(o.createdAt).toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" }),
+        (o.metodoPago || "N/A").toUpperCase(),
+        `$${(o.total || 0).toFixed(2)}`,
+      ]);
+
+      autoTable(doc, {
+        startY: currentY + 4,
+        head: [["ID", "Mesa", "Mesero", "Fecha", "Método", "Total"]],
+        body: ordenesRows,
+        theme: "striped",
+        headStyles: { fillColor: [212, 162, 58] },
+      });
+    }
+
+    doc.save(`reporte_ventas_gaucho_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
   };
 
   const exportToCSV = () => {
@@ -250,12 +382,29 @@ export default function ReportesSection() {
             </h1>
             <p className="text-xs sm:text-sm text-gray-400">Análisis de métricas de meseros</p>
           </div>
-          <button
-            onClick={exportToCSV}
-            className="btn-secondary !px-4 !py-2 text-sm font-medium w-full sm:w-auto"
-          >
-            <Download size={16} /> Exportar CSV
-          </button>
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={exportToExcel}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition-all cursor-pointer"
+              title="Descargar reporte en formato Excel (.xlsx)"
+            >
+              <FileSpreadsheet size={16} /> Excel (.xlsx)
+            </button>
+            <button
+              onClick={exportToPDF}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-xs font-semibold transition-all cursor-pointer"
+              title="Descargar reporte oficial en PDF"
+            >
+              <FileText size={16} /> PDF (.pdf)
+            </button>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 text-xs font-semibold transition-all cursor-pointer"
+              title="Descargar en CSV"
+            >
+              <Download size={16} /> CSV
+            </button>
+          </div>
         </div>
 
         {/* Filters */}
