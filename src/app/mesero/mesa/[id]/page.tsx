@@ -535,28 +535,36 @@ export default function MesaDetailPage() {
           {/* Left Column: Categories and Dishes */}
           <div className="md:col-span-7 lg:col-span-8 space-y-4">
             {/* Search */}
-            <div className="relative">
+            <div className="relative sticky top-[73px] z-20 bg-stone-950/90 backdrop-blur-md pb-2 pt-1">
               <Search
                 size={18}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50"
               />
               <input
                 type="text"
-                placeholder="Buscar platillo o ingrediente..."
+                placeholder="🔍 Busca rápido: 'rib', 'coca', 'tacos'..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl bg-surface border border-primary/10 text-white placeholder:text-white/40 focus:outline-none focus:border-primary/30 transition-all"
+                className="w-full pl-12 pr-10 py-3 rounded-xl bg-surface border border-primary/20 text-white placeholder:text-white/40 focus:outline-none focus:border-amber-400 transition-all text-sm shadow-inner"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-white/50 hover:text-white rounded-full"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
 
-            {/* Quick category nav */}
+            {/* Quick category nav - Sticky navigation */}
             {!search && (
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+              <div className="flex gap-2 overflow-x-auto pb-2 pt-1 scrollbar-none sticky top-[125px] z-10 bg-stone-950/80 backdrop-blur-sm">
                 <button
                   onClick={() => setExpandedCat(null)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 border ${
                     expandedCat === null
-                      ? "bg-primary/20 text-primary-light border-primary/40"
+                      ? "bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-sm"
                       : "bg-surface-light text-white/80 border-primary/10 hover:border-primary/30"
                   }`}
                 >
@@ -571,16 +579,16 @@ export default function MesaDetailPage() {
                     <button
                       key={cat.id}
                       onClick={() => setExpandedCat(cat.id)}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0 border ${
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 border ${
                         expandedCat === cat.id
-                          ? "bg-primary/20 text-primary-light border-primary/40"
+                          ? "bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-sm"
                           : "bg-surface-light text-white/80 border-primary/10 hover:border-primary/30"
                       }`}
                     >
-                      <span>{cat.icono}</span>
+                      <span className="text-sm">{cat.icono}</span>
                       {cat.nombre}
                       {catCount > 0 && (
-                        <span className="ml-1 w-4 h-4 rounded-full bg-primary/80 text-chocolate text-[10px] font-bold flex items-center justify-center">
+                        <span className="ml-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-stone-950 text-[10px] font-black">
                           {catCount}
                         </span>
                       )}
@@ -590,25 +598,117 @@ export default function MesaDetailPage() {
               </div>
             )}
 
-            {/* Menu */}
-            <div className="space-y-3">
-              {menu
-                .filter((cat) => {
-                  if (!search) return true;
-                  return cat.platillos.some(
-                    (p) =>
-                      p.nombre.toLowerCase().includes(search.toLowerCase()) ||
-                      p.descripcion.toLowerCase().includes(search.toLowerCase())
-                  );
-                })
-                .map((cat) => {
-                  const filtered = search
-                    ? cat.platillos.filter(
-                        (p) =>
-                          p.nombre.toLowerCase().includes(search.toLowerCase()) ||
-                          p.descripcion.toLowerCase().includes(search.toLowerCase())
-                      )
-                    : cat.platillos;
+            {/* BUSQUEDA INSTANTÁNEA - Lista plana directa si hay texto digitado */}
+            {search.trim() !== "" ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs text-amber-400 font-bold px-1">
+                  <span>Resultados de búsqueda</span>
+                  <span>
+                    {menu.flatMap((c) => c.platillos).filter(
+                      (p) =>
+                        p.nombre.toLowerCase().includes(search.toLowerCase()) ||
+                        p.descripcion.toLowerCase().includes(search.toLowerCase())
+                    ).length} encontrados
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {menu
+                    .flatMap((c) => c.platillos)
+                    .filter(
+                      (p) =>
+                        p.nombre.toLowerCase().includes(search.toLowerCase()) ||
+                        p.descripcion.toLowerCase().includes(search.toLowerCase())
+                    )
+                    .map((p) => {
+                      const dishCount = orderItems
+                        .filter((item) => item.platilloId === p.id)
+                        .reduce((s, item) => s + item.cantidad, 0);
+
+                      return (
+                        <div
+                          key={p.id}
+                          className={`flex items-center justify-between p-3.5 rounded-2xl transition-all border ${
+                            dishCount > 0
+                              ? "bg-amber-500/10 border-amber-500/40 shadow-md"
+                              : "bg-surface-light/80 border-white/5 hover:border-amber-500/30"
+                          }`}
+                        >
+                          <button
+                            onClick={() => setShowCustomize({ platillo: p, itemIndex: null })}
+                            className="flex-1 min-w-0 pr-3 text-left cursor-pointer"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-white text-sm hover:text-amber-400 transition-colors">
+                                {p.nombre}
+                              </span>
+                              {dishCount > 0 && (
+                                <span className="px-2 py-0.5 rounded-full bg-amber-500 text-stone-950 text-xs font-black">
+                                  {dishCount}
+                                </span>
+                              )}
+                            </div>
+                            {p.descripcion && (
+                              <p className="text-xs text-stone-400 mt-0.5 truncate">
+                                {p.descripcion}
+                              </p>
+                            )}
+                          </button>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <span className="font-extrabold text-amber-400 text-base">
+                              ${p.precio}
+                            </span>
+                            {dishCount > 0 ? (
+                              <div className="flex items-center gap-2 bg-stone-900 border border-amber-500/30 rounded-xl p-1">
+                                <button
+                                  onClick={() => quickRemoveFromOrder(p.id)}
+                                  className="w-9 h-9 rounded-lg bg-stone-800 text-amber-400 hover:bg-stone-700 active:scale-90 flex items-center justify-center font-bold text-lg transition-all"
+                                  aria-label={`Disminuir ${p.nombre}`}
+                                >
+                                  <Minus size={16} />
+                                </button>
+                                <span className="text-sm font-black text-white min-w-[20px] text-center">
+                                  {dishCount}
+                                </span>
+                                <button
+                                  onClick={() => quickAddToOrder(p)}
+                                  className="w-9 h-9 rounded-lg bg-amber-500 text-stone-950 hover:bg-amber-400 active:scale-90 flex items-center justify-center font-bold text-lg transition-all shadow-md shadow-amber-500/20"
+                                  aria-label={`Aumentar ${p.nombre}`}
+                                >
+                                  <Plus size={16} />
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => quickAddToOrder(p)}
+                                className="w-10 h-10 rounded-xl bg-amber-500 text-stone-950 hover:bg-amber-400 active:scale-95 flex items-center justify-center font-black transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+                                aria-label={`Agregar ${p.nombre} 1-Tap`}
+                              >
+                                <Plus size={20} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  {menu
+                    .flatMap((c) => c.platillos)
+                    .filter(
+                      (p) =>
+                        p.nombre.toLowerCase().includes(search.toLowerCase()) ||
+                        p.descripcion.toLowerCase().includes(search.toLowerCase())
+                    ).length === 0 && (
+                    <div className="text-center py-10 bg-surface rounded-2xl border border-stone-800 text-stone-400">
+                      <p className="text-sm">Sin platillos con "{search}"</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* Menu por categorías normal */
+              <div className="space-y-3">
+                {menu.map((cat) => {
+                  const isCatExpanded = expandedCat === null || expandedCat === cat.id;
 
                   const catOrderedCount = orderItems.reduce((s, item) => {
                     const inCat = cat.platillos.some((p) => p.id === item.platilloId);
@@ -616,9 +716,12 @@ export default function MesaDetailPage() {
                   }, 0);
 
                   return (
-                    <div key={cat.id} className={`card !p-4 transition-all duration-200 ${
-                      expandedCat === cat.id ? "border-primary/20 shadow-sm shadow-primary/5" : ""
-                    }`}>
+                    <div
+                      key={cat.id}
+                      className={`card !p-4 transition-all duration-200 ${
+                        isCatExpanded ? "border-primary/20 shadow-sm shadow-primary/5" : ""
+                      }`}
+                    >
                       <button
                         onClick={() =>
                           setExpandedCat(expandedCat === cat.id ? null : cat.id)
@@ -631,7 +734,7 @@ export default function MesaDetailPage() {
                             {cat.nombre}
                           </h3>
                           {catOrderedCount > 0 && (
-                            <span className="ml-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary-light text-[10px] font-bold">
+                            <span className="ml-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">
                               {catOrderedCount} en pedido
                             </span>
                           )}
@@ -646,9 +749,9 @@ export default function MesaDetailPage() {
                         </div>
                       </button>
 
-                      {expandedCat === cat.id && (
+                      {isCatExpanded && (
                         <div className="mt-4 space-y-2">
-                          {filtered.map((p) => {
+                          {cat.platillos.map((p) => {
                             const dishCount = orderItems
                               .filter((item) => item.platilloId === p.id)
                               .reduce((s, item) => s + item.cantidad, 0);
@@ -687,46 +790,42 @@ export default function MesaDetailPage() {
                                     <div className="flex items-center gap-1.5 bg-surface-light border border-primary/15 rounded-lg p-1">
                                       <button
                                         onClick={() => quickRemoveFromOrder(p.id)}
-                                        className="w-7 h-7 rounded-md bg-primary/15 flex items-center justify-center text-primary-light hover:bg-primary/25 active:scale-90 transition-all"
+                                        className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary-light hover:bg-primary/25 active:scale-90 transition-all font-bold"
                                         aria-label={`Disminuir ${p.nombre}`}
                                       >
-                                        <Minus size={12} />
+                                        <Minus size={14} />
                                       </button>
-                                      <span className="text-xs font-bold text-white min-w-[16px] text-center">
+                                      <span className="text-xs font-bold text-white min-w-[18px] text-center">
                                         {dishCount}
                                       </span>
                                       <button
                                         onClick={() => quickAddToOrder(p)}
-                                        className="w-7 h-7 rounded-md bg-primary/15 flex items-center justify-center text-primary-light hover:bg-primary/25 active:scale-90 transition-all"
+                                        className="w-8 h-8 rounded-lg bg-amber-500 text-stone-950 flex items-center justify-center font-bold hover:bg-amber-400 active:scale-90 transition-all"
                                         aria-label={`Aumentar ${p.nombre}`}
                                       >
-                                        <Plus size={12} />
+                                        <Plus size={14} />
                                       </button>
                                     </div>
                                   ) : (
                                     <button
                                       onClick={() => quickAddToOrder(p)}
-                                      className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary-light hover:bg-primary/20 active:scale-95 transition-all cursor-pointer"
+                                      className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 hover:bg-amber-500 hover:text-stone-950 active:scale-95 transition-all cursor-pointer shadow-sm"
                                       aria-label={`Agregar ${p.nombre}`}
                                     >
-                                      <Plus size={16} />
+                                      <Plus size={18} />
                                     </button>
                                   )}
                                 </div>
                               </div>
                             );
                           })}
-                          {filtered.length === 0 && (
-                            <p className="text-sm text-white/50 text-center py-3">
-                              Sin resultados para "{search}"
-                            </p>
-                          )}
                         </div>
                       )}
                     </div>
                   );
                 })}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column: Ticket (Desktop only, md and up) */}
