@@ -130,9 +130,11 @@ export function ThermalTicketModal({
               <h2 className="text-base font-black tracking-wider uppercase">
                 NIÑO GAUCHO
               </h2>
-              <p className="text-[10px] font-bold tracking-tight uppercase">
-                Corte de Carne & Gastronomía
-              </p>
+              {type !== "cuenta" && (
+                <p className="text-[10px] font-bold tracking-tight uppercase">
+                  Corte de Carne & Gastronomía
+                </p>
+              )}
               <p className="text-[10px] mt-1 font-mono">{fechaFormateada}</p>
             </div>
 
@@ -155,31 +157,41 @@ export function ThermalTicketModal({
                     <span className="flex-1">CONCEPTO</span>
                     <span className="w-16 text-right">TOTAL</span>
                   </div>
-                  {data.items?.map((item, idx) => (
-                    <div key={idx} className="mb-1">
-                      <div className="flex justify-between items-start font-medium">
-                        <span className="w-8">{item.cantidad}x</span>
-                        <span className="flex-1 pr-1">{item.nombre}</span>
-                        <span className="w-16 text-right font-bold">
-                          ${item.subtotal.toFixed(2)}
-                        </span>
+                  {data.items?.map((item, idx) => {
+                    const unitPrice = item.cantidad > 0 ? item.subtotal / item.cantidad : item.subtotal;
+                    return (
+                      <div key={idx} className="mb-1.5">
+                        <div className="flex justify-between items-start font-medium">
+                          <span className="w-8">{item.cantidad}x</span>
+                          <div className="flex-1 pr-1">
+                            <span>{item.nombre}</span>
+                            {item.cantidad > 1 && (
+                              <span className="text-[10px] text-gray-700 block italic">
+                                (${unitPrice.toFixed(2)} c/u)
+                              </span>
+                            )}
+                          </div>
+                          <span className="w-16 text-right font-bold">
+                            ${item.subtotal.toFixed(2)}
+                          </span>
+                        </div>
+                        {item.extras && item.extras.length > 0 && (
+                          <div className="pl-8 text-[10px] text-gray-700">
+                            {item.extras.map((e, ei) => (
+                              <div key={ei}>+ {e.nombre} (${e.precio.toFixed(2)})</div>
+                            ))}
+                          </div>
+                        )}
+                        {item.opciones && item.opciones.length > 0 && (
+                          <div className="pl-8 text-[10px] italic text-gray-700">
+                            {item.opciones.map((o, oi) => (
+                              <div key={oi}>* {o.valor}</div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      {item.extras && item.extras.length > 0 && (
-                        <div className="pl-8 text-[10px] text-gray-700">
-                          {item.extras.map((e, ei) => (
-                            <div key={ei}>+ {e.nombre} (${e.precio.toFixed(2)})</div>
-                          ))}
-                        </div>
-                      )}
-                      {item.opciones && item.opciones.length > 0 && (
-                        <div className="pl-8 text-[10px] italic text-gray-700">
-                          {item.opciones.map((o, oi) => (
-                            <div key={oi}>* {o.valor}</div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="border-t border-black pt-2 mb-3 text-right">
