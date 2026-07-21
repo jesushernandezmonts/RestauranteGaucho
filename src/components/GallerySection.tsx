@@ -40,12 +40,23 @@ export function GallerySection() {
 
   const items = DEFAULT_ITEMS.map((item, i) => {
     const idx = i + 1;
+    const isDouble = config[`galeria_${idx}_span`] === "double" || (config[`galeria_${idx}_span`] === undefined && item.span);
     return {
       src: config[`galeria_${idx}_img`] || item.src,
       label: config[`galeria_${idx}_label`] || item.label,
-      span: item.span,
+      fit: config[`galeria_${idx}_fit`] || "cover",
+      position: config[`galeria_${idx}_position`] || "center",
+      aspect: config[`galeria_${idx}_aspect`] || "auto",
+      span: isDouble,
     };
   });
+
+  const getAspectRatio = (aspect: string) => {
+    if (aspect === "square") return "1 / 1";
+    if (aspect === "video") return "16 / 9";
+    if (aspect === "tall") return "3 / 4";
+    return undefined;
+  };
 
   return (
     <section id="galeria" className="py-14 sm:py-20 md:py-28 bg-cream relative overflow-hidden">
@@ -71,17 +82,25 @@ export function GallerySection() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-1 md:gap-2 px-1 md:px-2">
         {items.map((img, i) => (
           <div
-            key={img.label}
-            className={`relative overflow-hidden rounded-lg cursor-pointer group ${
-              img.span && "md:col-span-2 md:row-span-2"
+            key={img.label + i}
+            className={`relative overflow-hidden rounded-lg cursor-pointer group bg-black/10 ${
+              img.span ? "col-span-2 row-span-2" : ""
             }`}
+            style={{
+              aspectRatio: getAspectRatio(img.aspect),
+            }}
           >
             {loaded ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={img.src}
                 alt={img.label}
                 loading="lazy"
-                className="w-full h-full min-h-[120px] sm:min-h-[180px] object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full min-h-[120px] sm:min-h-[180px] transition-transform duration-700 group-hover:scale-105"
+                style={{
+                  objectFit: img.fit as any,
+                  objectPosition: img.position as any,
+                }}
               />
             ) : (
               <div className="w-full min-h-[120px] sm:min-h-[180px] bg-chocolate/10 animate-pulse" />

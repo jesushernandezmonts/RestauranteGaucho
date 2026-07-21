@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Save, Check, Upload, X } from "lucide-react";
+import { Loader2, Save, Check, Upload, X, Sliders, Maximize2 } from "lucide-react";
 import { compressImage } from "@/lib/compressImage";
 
 const CONFIG_KEYS = [
@@ -93,17 +93,10 @@ export default function AparienciaSection() {
   async function handleSave() {
     setSaving(true);
     try {
-      // Only save the keys that exist in our list (filter non-gallery labels if needed)
-      const payload: Record<string, string> = {};
-      for (const item of CONFIG_KEYS) {
-        if (config[item.key] !== undefined) {
-          payload[item.key] = config[item.key];
-        }
-      }
       const res = await fetch("/api/config", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(config),
       });
       if (res.ok) {
         setSaved(true);
@@ -141,13 +134,13 @@ export default function AparienciaSection() {
             Personalización de la Apariencia
           </h1>
           <p className="text-sm text-gray-400 mt-1">
-            Personaliza cada elemento visual del menú principal de tu restaurante
+            Personaliza cada elemento visual y encuadre de las imágenes de tu restaurante
           </p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="btn-primary !px-4 !py-2 text-sm font-medium w-full sm:w-auto"
+          className="btn-primary !px-4 !py-2 text-sm font-medium w-full sm:w-auto flex items-center justify-center gap-2"
         >
           {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
           {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar Cambios"}
@@ -156,6 +149,7 @@ export default function AparienciaSection() {
 
       {/* Main images */}
       <div className="space-y-6 mb-10">
+        <h2 className="text-lg sm:text-xl font-bold text-white">Imágenes Principales</h2>
         {mainKeys.map((item) => (
           <div
             key={item.key}
@@ -174,7 +168,7 @@ export default function AparienciaSection() {
                 className="w-full px-3 py-2.5 rounded-xl text-sm bg-surface-light border border-primary/10 text-text-primary"
               />
             </div>
-            <label className="btn-secondary !px-3 !py-2 text-xs font-medium shrink-0 w-full sm:w-auto">
+            <label className="btn-secondary !px-3 !py-2 text-xs font-medium shrink-0 w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer">
               {uploading === item.key ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : (
@@ -192,7 +186,7 @@ export default function AparienciaSection() {
               />
             </label>
             {config[item.key] && (
-              <div className="relative w-full sm:w-24 h-20 rounded-lg overflow-hidden shrink-0">
+              <div className="relative w-full sm:w-24 h-20 rounded-lg overflow-hidden shrink-0 border border-primary/20">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={config[item.key]}
@@ -203,7 +197,7 @@ export default function AparienciaSection() {
                   onClick={() =>
                     setConfig((prev) => ({ ...prev, [item.key]: "" }))
                   }
-                  className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white"
+                  className="absolute top-1 right-1 bg-black/70 hover:bg-black rounded-full p-1 text-white"
                 >
                   <X size={12} />
                 </button>
@@ -214,88 +208,207 @@ export default function AparienciaSection() {
       </div>
 
       {/* Gallery images and labels */}
-      <h2 className="text-xl sm:text-2xl font-bold text-white mb-6">Galería</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Galería de Imágenes</h2>
+      <p className="text-sm text-gray-400 mb-6">
+        Modifica la foto, la etiqueta, el ancho y el estilo de encuadre para cada platillo o sección.
+      </p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {galleryKeys
           .filter((_, i) => i % 2 === 0)
           .map((item, index) => {
+            const idx = index + 1;
             const imgKey = item.key;
             const labelKey = galleryKeys[index * 2 + 1].key;
+            
+            const fitKey = `galeria_${idx}_fit`;
+            const posKey = `galeria_${idx}_position`;
+            const aspectKey = `galeria_${idx}_aspect`;
+            const spanKey = `galeria_${idx}_span`;
+
+            const currentImg = config[imgKey] || "";
+            const currentLabel = config[labelKey] || "";
+            const currentFit = config[fitKey] || "cover";
+            const currentPos = config[posKey] || "center";
+            const currentAspect = config[aspectKey] || "auto";
+            const currentSpan = config[spanKey] || (idx === 5 ? "double" : "normal");
+
+            const sectionName = item.label.replace(" - ", " (").concat(")");
+
             return (
-              <div key={imgKey} className="card p-4 sm:p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-text-primary">
-                  {item.label.replace(" - Parrilla", "").replace("Galería ", "")}
-                </h3>
-                {/* Image upload */}
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  <div className="flex-1 w-full">
-                    <label className="block text-xs font-medium mb-1 text-text-muted">
-                      Imagen ({item.label.split(" - ")[1]})
-                    </label>
+              <div key={imgKey} className="card p-5 space-y-4 border border-white/5 hover:border-primary/20 transition-all">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">
+                      {idx}
+                    </span>
+                    <h3 className="text-base font-bold text-white">
+                      {item.label.split(" - ")[1] || item.label}
+                    </h3>
+                  </div>
+                  <span className="text-xs text-gray-400 font-mono bg-white/5 px-2 py-1 rounded">
+                    {sectionName}
+                  </span>
+                </div>
+
+                {/* Live Preview box */}
+                <div className="space-y-1">
+                  <span className="text-xs font-medium text-text-muted flex items-center gap-1">
+                    <Maximize2 size={12} /> Vista previa de encuadre:
+                  </span>
+                  <div className="relative w-full h-44 rounded-xl overflow-hidden bg-black/40 border border-primary/20 flex items-center justify-center">
+                    {currentImg ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={currentImg}
+                        alt="preview"
+                        className="w-full h-full transition-all duration-300"
+                        style={{
+                          objectFit: currentFit as any,
+                          objectPosition: currentPos as any,
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-500">Sin imagen seleccionada</span>
+                    )}
+                    {currentLabel && (
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-center">
+                        <span className="text-xs text-white font-medium">{currentLabel}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Image upload & URL */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-text-muted">
+                    URL de la Imagen
+                  </label>
+                  <div className="flex gap-2">
                     <input
                       type="text"
-                      value={config[imgKey] || ""}
+                      value={currentImg}
                       onChange={(e) =>
                         setConfig((prev) => ({
                           ...prev,
                           [imgKey]: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2.5 rounded-xl text-sm bg-surface-light border border-primary/10 text-text-primary"
+                      placeholder="https://..."
+                      className="flex-1 px-3 py-2 rounded-xl text-xs bg-surface-light border border-primary/10 text-text-primary"
                     />
-                  </div>
-                  <label className="btn-secondary !px-3 !py-2 text-xs font-medium shrink-0 w-full sm:w-auto">
-                    {uploading === imgKey ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Upload size={14} />
-                    )}
-                    {uploading === imgKey ? "Subiendo..." : "Subir Imagen"}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        if (f) handleImageUpload(imgKey, f);
-                      }}
-                    />
-                  </label>
-                  {config[imgKey] && (
-                    <div className="relative w-full sm:w-24 h-20 rounded-lg overflow-hidden shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={config[imgKey]}
-                        alt="preview"
-                        className="w-full h-full object-cover"
+                    <label className="btn-secondary !px-3 !py-2 text-xs font-medium shrink-0 flex items-center gap-1 cursor-pointer">
+                      {uploading === imgKey ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <Upload size={12} />
+                      )}
+                      Subir
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleImageUpload(imgKey, f);
+                        }}
                       />
-                      <button
-                        onClick={() =>
-                          setConfig((prev) => ({ ...prev, [imgKey]: "" }))
-                        }
-                        className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  )}
+                    </label>
+                  </div>
                 </div>
+
                 {/* Label input */}
                 <div>
                   <label className="block text-xs font-medium mb-1 text-text-muted">
-                    Etiqueta ({galleryKeys[index * 2 + 1].label.split(" - ")[1]})
+                    Etiqueta / Texto
                   </label>
                   <input
                     type="text"
-                    value={config[labelKey] || ""}
+                    value={currentLabel}
                     onChange={(e) =>
                       setConfig((prev) => ({
                         ...prev,
                         [labelKey]: e.target.value,
                       }))
                     }
-                    className="w-full px-3 py-2.5 rounded-xl text-sm bg-surface-light border border-primary/10 text-text-primary"
+                    className="w-full px-3 py-2 rounded-xl text-xs bg-surface-light border border-primary/10 text-text-primary"
                   />
+                </div>
+
+                {/* Image Controls: Width/Span, Object Fit, Position, Aspect */}
+                <div className="pt-2 border-t border-white/5 space-y-3">
+                  <div className="flex items-center gap-1.5 text-xs text-primary font-medium">
+                    <Sliders size={14} />
+                    <span>Ajustes de Tamaño y Posición</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {/* Width / Grid Span */}
+                    <div>
+                      <label className="block text-[11px] text-gray-400 mb-1">Ancho en galería</label>
+                      <select
+                        value={currentSpan}
+                        onChange={(e) =>
+                          setConfig((prev) => ({ ...prev, [spanKey]: e.target.value }))
+                        }
+                        className="w-full bg-surface-light border border-white/10 rounded-lg px-2.5 py-1.5 text-white"
+                      >
+                        <option value="normal">Normal (1 Columna)</option>
+                        <option value="double">Doble Ancho (Destacado)</option>
+                      </select>
+                    </div>
+
+                    {/* Object Fit */}
+                    <div>
+                      <label className="block text-[11px] text-gray-400 mb-1">Ajuste (Object-fit)</label>
+                      <select
+                        value={currentFit}
+                        onChange={(e) =>
+                          setConfig((prev) => ({ ...prev, [fitKey]: e.target.value }))
+                        }
+                        className="w-full bg-surface-light border border-white/10 rounded-lg px-2.5 py-1.5 text-white"
+                      >
+                        <option value="cover">Cubrir (Rellenar sin deformar)</option>
+                        <option value="contain">Contener (Ver foto completa)</option>
+                        <option value="fill">Estirar (Ajustar a marco)</option>
+                      </select>
+                    </div>
+
+                    {/* Object Position */}
+                    <div>
+                      <label className="block text-[11px] text-gray-400 mb-1">Enfoque / Alineación</label>
+                      <select
+                        value={currentPos}
+                        onChange={(e) =>
+                          setConfig((prev) => ({ ...prev, [posKey]: e.target.value }))
+                        }
+                        className="w-full bg-surface-light border border-white/10 rounded-lg px-2.5 py-1.5 text-white"
+                      >
+                        <option value="center">Centro</option>
+                        <option value="top">Arriba</option>
+                        <option value="bottom">Abajo</option>
+                        <option value="left">Izquierda</option>
+                        <option value="right">Derecha</option>
+                      </select>
+                    </div>
+
+                    {/* Aspect Ratio */}
+                    <div>
+                      <label className="block text-[11px] text-gray-400 mb-1">Proporción (Aspect)</label>
+                      <select
+                        value={currentAspect}
+                        onChange={(e) =>
+                          setConfig((prev) => ({ ...prev, [aspectKey]: e.target.value }))
+                        }
+                        className="w-full bg-surface-light border border-white/10 rounded-lg px-2.5 py-1.5 text-white"
+                      >
+                        <option value="auto">Automático</option>
+                        <option value="square">Cuadrado (1:1)</option>
+                        <option value="video">Panorámico (16:9)</option>
+                        <option value="tall">Vertical (3:4)</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
@@ -304,3 +417,4 @@ export default function AparienciaSection() {
     </div>
   );
 }
+
