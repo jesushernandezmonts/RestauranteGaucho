@@ -120,13 +120,20 @@ export function ThermalTicketModal({
         {/* ÁREA IMPRIMIBLE (Se ve en pantalla y se imprime) */}
         <div className="overflow-y-auto my-4 p-4 bg-white text-black font-mono text-xs rounded-lg shadow-inner select-text">
           <div id="thermal-ticket-print-area" className="w-full">
-            {/* CABECERA GENERAL */}
-            <div className="text-center pb-2 mb-2 border-b border-dashed border-black">
-              <h2 className="text-base font-bold tracking-wider uppercase">
-                RESTAURANTE GAUCHO
+            {/* CABECERA GENERAL CON LOGO */}
+            <div className="text-center pb-3 mb-2 border-b-2 border-black flex flex-col items-center">
+              <img
+                src="/gaucho-logo.png"
+                alt="Niño Gaucho"
+                className="w-20 h-auto mb-1.5 object-contain filter grayscale contrast-200"
+              />
+              <h2 className="text-base font-black tracking-wider uppercase">
+                NIÑO GAUCHO
               </h2>
-              <p className="text-[10px]">Corte de Carne & Gastronomía</p>
-              <p className="text-[10px]">{fechaFormateada}</p>
+              <p className="text-[10px] font-bold tracking-tight uppercase">
+                Corte de Carne & Gastronomía
+              </p>
+              <p className="text-[10px] mt-1 font-mono">{fechaFormateada}</p>
             </div>
 
             {/* CONTENIDO SEGÚN TIPO */}
@@ -199,7 +206,7 @@ export function ThermalTicketModal({
 
                 <div className="text-center pt-2 border-t border-dashed border-black text-[10px]">
                   <p>¡Gracias por su preferencia!</p>
-                  <p>*** Gaucho Restaurante ***</p>
+                  <p>*** Niño Gaucho ***</p>
                 </div>
               </>
             )}
@@ -207,35 +214,37 @@ export function ThermalTicketModal({
             {/* 2. COMANDA DE COCINA */}
             {type === "comanda" && (
               <>
-                <div className="text-center bg-black text-white font-bold py-1 text-sm mb-2 rounded">
+                <div className="text-center bg-black text-white font-black py-1.5 text-sm mb-3 tracking-widest rounded uppercase">
                   *** COMANDA COCINA ***
                 </div>
-                <div className="mb-2 pb-2 border-b border-black text-xs font-bold">
-                  <div className="flex justify-between text-sm">
-                    <span>MESA #{data.mesaNumero}</span>
+                <div className="mb-3 pb-2 border-b-2 border-black text-xs font-bold space-y-1">
+                  <div className="flex justify-between text-base font-black">
+                    <span>MESA #{data.mesaNumero || "N/A"}</span>
                     <span>ORDEN #{data.ordenId}</span>
                   </div>
-                  {data.meseroNombre && <p className="font-normal">Mesero: {data.meseroNombre}</p>}
+                  {data.meseroNombre && (
+                    <p className="font-semibold text-sm">Mesero: {data.meseroNombre}</p>
+                  )}
                 </div>
 
-                <div className="space-y-3 my-2">
+                <div className="space-y-3 my-3">
                   {data.items?.map((item, idx) => (
-                    <div key={idx} className="border-b border-dashed border-gray-400 pb-1">
-                      <div className="flex items-start text-sm font-bold">
-                        <span className="w-8 text-base">{item.cantidad}x</span>
-                        <span className="flex-1 uppercase">{item.nombre}</span>
+                    <div key={idx} className="border-b border-dashed border-gray-400 pb-2">
+                      <div className="flex items-start text-base font-black leading-tight">
+                        <span className="w-10 text-lg font-black">{item.cantidad}x</span>
+                        <span className="flex-1 uppercase tracking-wide">{item.nombre}</span>
                       </div>
                       {item.extras && item.extras.length > 0 && (
-                        <div className="pl-8 text-xs font-bold text-gray-800">
+                        <div className="pl-10 mt-1 text-xs font-bold text-gray-800 space-y-0.5">
                           {item.extras.map((e, ei) => (
-                            <div key={ei}>[EXTRA] {e.nombre}</div>
+                            <div key={ei}>• [EXTRA] {e.nombre}</div>
                           ))}
                         </div>
                       )}
                       {item.opciones && item.opciones.length > 0 && (
-                        <div className="pl-8 text-xs font-bold underline">
+                        <div className="pl-10 mt-1 text-xs font-black text-black">
                           {item.opciones.map((o, oi) => (
-                            <div key={oi}>⚠️ {o.valor}</div>
+                            <div key={oi}>👉 {o.valor}</div>
                           ))}
                         </div>
                       )}
@@ -243,7 +252,7 @@ export function ThermalTicketModal({
                   ))}
                 </div>
 
-                <div className="text-center pt-2 text-[10px]">
+                <div className="text-center pt-3 border-t-2 border-dashed border-black font-bold text-xs tracking-wider">
                   --- FIN DE COMANDA ---
                 </div>
               </>
