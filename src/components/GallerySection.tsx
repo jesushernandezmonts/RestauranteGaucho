@@ -41,6 +41,10 @@ export function GallerySection() {
   const items = DEFAULT_ITEMS.map((item, i) => {
     const idx = i + 1;
     const isDouble = config[`galeria_${idx}_span`] === "double" || (config[`galeria_${idx}_span`] === undefined && item.span);
+    const zoom = Number(config[`galeria_${idx}_zoom`]) || 100;
+    const zoomX = Number(config[`galeria_${idx}_zoom_x`]) ?? 50;
+    const zoomY = Number(config[`galeria_${idx}_zoom_y`]) ?? 50;
+
     return {
       src: config[`galeria_${idx}_img`] || item.src,
       label: config[`galeria_${idx}_label`] || item.label,
@@ -48,6 +52,9 @@ export function GallerySection() {
       position: config[`galeria_${idx}_position`] || "center",
       aspect: config[`galeria_${idx}_aspect`] || "auto",
       span: isDouble,
+      zoom,
+      zoomX,
+      zoomY,
     };
   });
 
@@ -99,7 +106,9 @@ export function GallerySection() {
                 className="w-full h-full min-h-[120px] sm:min-h-[180px] transition-transform duration-700 group-hover:scale-105"
                 style={{
                   objectFit: img.fit as any,
-                  objectPosition: img.position as any,
+                  objectPosition: `${img.zoomX}% ${img.zoomY}%`,
+                  transform: `scale(${img.zoom / 100})`,
+                  transformOrigin: `${img.zoomX}% ${img.zoomY}%`,
                 }}
               />
             ) : (
