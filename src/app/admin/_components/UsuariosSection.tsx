@@ -102,72 +102,96 @@ export default function UsuariosSection() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-primary/10">
-                <th className="text-left px-6 py-4 text-xs font-medium text-text-muted uppercase">
-                  Nombre
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-medium text-text-muted uppercase">
-                  Usuario
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-medium text-text-muted uppercase">
-                  Rol
-                </th>
-                <th className="text-center px-6 py-4 text-xs font-medium text-text-muted uppercase">
-                  Activo
-                </th>
-                <th className="text-right px-6 py-4 text-xs font-medium text-text-muted uppercase">
-                  Acción
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-primary/5">
-              {usuarios.map((u) => (
-                <tr key={u.id} className="hover:bg-surface-light/30">
-                  <td className="px-6 py-4 text-sm font-medium text-text-primary">
-                    {u.nombre}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">
-                    {u.usuario}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">
-                    {roleLabels[u.role] || u.role}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span
-                      className={`inline-block w-2 h-2 rounded-full ${
-                        u.activo ? "bg-success" : "bg-text-muted"
-                      }`}
-                    />
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => setChangePasswordUser(u)}
-                        className="p-1.5 rounded-lg hover:bg-surface-light"
-                      >
-                        <KeyRound size={14} className="text-text-muted" />
-                      </button>
-                      <button
-                        onClick={() => setEditUser(u)}
-                        className="p-1.5 rounded-lg hover:bg-surface-light"
-                      >
-                        <Pencil size={14} className="text-text-muted" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(u)}
-                        className="p-1.5 rounded-lg hover:bg-surface-light"
-                        aria-label={`Eliminar a ${u.nombre}`}
-                      >
-                        <Trash2 size={14} className="text-danger" />
-                      </button>
-                  </td>
+        <div className="w-full bg-stone-900/60 border border-stone-800/80 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-md">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-stone-800 bg-stone-950/80 text-[11px] font-semibold tracking-wider text-stone-400 uppercase">
+                  <th className="px-6 py-4">Nombre</th>
+                  <th className="px-6 py-4">Usuario</th>
+                  <th className="px-6 py-4">Rol</th>
+                  <th className="px-6 py-4 text-center">Estado</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-stone-800/50">
+                {usuarios.map((u) => (
+                  <tr key={u.id} className="hover:bg-stone-800/40 transition-colors">
+                    <td className="px-6 py-4 text-sm font-semibold text-stone-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">
+                          {u.nombre.charAt(0).toUpperCase()}
+                        </div>
+                        <span>{u.nombre}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-stone-400 font-mono">
+                      @{u.usuario}
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      {u.role === "ADMIN" && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          👑 Admin
+                        </span>
+                      )}
+                      {u.role === "CHEF" && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                          🍳 Chef
+                        </span>
+                      )}
+                      {u.role === "MESERO" && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          🧑‍🍳 Mesero
+                        </span>
+                      )}
+                      {u.role !== "ADMIN" && u.role !== "CHEF" && u.role !== "MESERO" && (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-stone-800 text-stone-300 border border-stone-700">
+                          {u.role}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      {u.activo ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Activo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-stone-800 text-stone-400 border border-stone-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-stone-500" /> Inactivo
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setChangePasswordUser(u)}
+                          className="p-2 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white transition shadow-sm"
+                          title="Cambiar Contraseña"
+                        >
+                          <KeyRound size={15} />
+                        </button>
+                        <button
+                          onClick={() => setEditUser(u)}
+                          className="p-2 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white transition shadow-sm"
+                          title="Editar Usuario"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(u)}
+                          className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition shadow-sm"
+                          title={`Eliminar a ${u.nombre}`}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {showCreate && (
