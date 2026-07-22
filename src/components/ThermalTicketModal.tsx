@@ -51,10 +51,20 @@ export function ThermalTicketModal({
   data,
 }: ThermalTicketModalProps) {
   const [mounted, setMounted] = useState(false);
+  const [paperWidth, setPaperWidth] = useState<"58" | "80">("58");
 
   useEffect(() => {
     setMounted(true);
+    const saved = localStorage.getItem("gaucho_paper_width");
+    if (saved === "80" || saved === "58") {
+      setPaperWidth(saved);
+    }
   }, []);
+
+  const handlePaperChange = (width: "58" | "80") => {
+    setPaperWidth(width);
+    localStorage.setItem("gaucho_paper_width", width);
+  };
 
   if (!isOpen || !mounted) return null;
 
@@ -72,17 +82,20 @@ export function ThermalTicketModal({
         timeStyle: "short",
       });
 
+  const printAreaWidth = paperWidth === "80" ? "74mm" : "54mm";
+  const containerWidth = paperWidth === "80" ? "80mm" : "58mm";
+
   const modalContent = (
     <div id="thermal-ticket-portal">
       <div
         id="thermal-ticket-modal-backdrop"
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
       >
-        {/* Estilos específicos para impresión térmica en impresora de 58mm */}
+        {/* Estilos específicos para impresión térmica en impresora de 58mm u 80mm */}
         <style jsx global>{`
           @media print {
             @page {
-              size: 58mm auto;
+              size: ${containerWidth} auto;
               margin: 0;
             }
 
@@ -90,7 +103,7 @@ export function ThermalTicketModal({
             body {
               margin: 0 !important;
               padding: 0 !important;
-              width: 58mm !important;
+              width: ${containerWidth} !important;
               height: auto !important;
               min-height: 0 !important;
               overflow: visible !important;
@@ -108,8 +121,8 @@ export function ThermalTicketModal({
             #thermal-ticket-scroll-wrapper {
               display: block !important;
               position: static !important;
-              width: 58mm !important;
-              max-width: 58mm !important;
+              width: ${containerWidth} !important;
+              max-width: ${containerWidth} !important;
               height: auto !important;
               min-height: 0 !important;
               max-height: none !important;
@@ -123,14 +136,14 @@ export function ThermalTicketModal({
 
             #thermal-ticket-print-area {
               display: block !important;
-              width: 54mm !important;
-              max-width: 58mm !important;
+              width: ${printAreaWidth} !important;
+              max-width: ${containerWidth} !important;
               margin: 0 auto !important;
               padding: 2mm !important;
               color: #000 !important;
               background: #fff !important;
               font-family: "Courier New", Courier, monospace !important;
-              font-size: 9.5pt !important;
+              font-size: ${paperWidth === "80" ? "10.5pt" : "9.5pt"} !important;
               line-height: 1.2 !important;
               box-sizing: border-box !important;
               page-break-inside: avoid !important;
@@ -152,11 +165,14 @@ export function ThermalTicketModal({
         <div className="no-print flex items-center justify-between pb-4 border-b border-stone-800">
           <div className="flex items-center gap-2">
             <Printer className="w-5 h-5 text-amber-500" />
-            <h3 className="font-semibold text-lg">
-              {type === "cuenta" && "Vista Previa — Ticket de Cuenta"}
-              {type === "comanda" && "Vista Previa — Comanda de Cocina"}
-              {type === "corte" && "Vista Previa — Corte de Caja (Z)"}
-            </h3>
+            <div>
+              <h3 className="font-semibold text-lg leading-tight">
+                {type === "cuenta" && "Vista Previa — Ticket de Cuenta"}
+                {type === "comanda" && "Vista Previa — Comanda de Cocina"}
+                {type === "corte" && "Vista Previa — Corte de Caja (Z)"}
+              </h3>
+              <p className="text-xs text-stone-400">Impresora objetivo: GEZHI micro-printer</p>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -407,20 +423,50 @@ export function ThermalTicketModal({
         </div>
 
         {/* BOTONES DE ACCIÓN */}
-        <div className="no-print flex justify-end gap-3 pt-3 border-t border-stone-800">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm bg-stone-800 hover:bg-stone-700 rounded-xl transition"
-          >
-            Cerrar
-          </button>
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2 text-sm bg-amber-500 hover:bg-amber-600 font-semibold text-stone-950 rounded-xl transition shadow-lg shadow-amber-500/20"
-          >
-            <Printer className="w-4 h-4" />
-            Imprimir Térmico
-          </button>
+        <div className="no-print flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-stone-800">
+          <div className="flex items-center gap-2 text-xs text-stone-400">
+            <span>Ancho papel GEZHI:</span>
+            <div className="inline-flex rounded-lg p-0.5 bg-stone-800">
+              <button
+                type="button"
+                onClick={() => handlePaperChange("58")}
+                className={`px-2.5 py-1 rounded-md transition font-medium text-xs ${
+                  paperWidth === "58"
+                    ? "bg-amber-500 text-stone-950 font-bold"
+                    : "text-stone-300 hover:text-white"
+                }`}
+              >
+                58 mm
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePaperChange("80")}
+                className={`px-2.5 py-1 rounded-md transition font-medium text-xs ${
+                  paperWidth === "80"
+                    ? "bg-amber-500 text-stone-950 font-bold"
+                    : "text-stone-300 hover:text-white"
+                }`}
+              >
+                80 mm
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm bg-stone-800 hover:bg-stone-700 rounded-xl transition"
+            >
+              Cerrar
+            </button>
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-5 py-2 text-sm bg-amber-500 hover:bg-amber-600 font-semibold text-stone-950 rounded-xl transition shadow-lg shadow-amber-500/20"
+            >
+              <Printer className="w-4 h-4" />
+              Imprimir Térmico
+            </button>
+          </div>
         </div>
       </div>
     </div>
