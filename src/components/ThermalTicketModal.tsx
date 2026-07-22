@@ -66,10 +66,15 @@ export function ThermalTicketModal({
       });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
-      {/* Estilos específicos para impresión térmica (Optimizado para impresoras de 58mm y 80mm) */}
+    <div id="thermal-ticket-modal-backdrop" className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+      {/* Estilos específicos para impresión térmica en impresora de 58mm */}
       <style jsx global>{`
         @media print {
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+
           html,
           body {
             height: auto !important;
@@ -79,15 +84,33 @@ export function ThermalTicketModal({
             overflow: visible !important;
             background: #fff !important;
           }
+
           body * {
             visibility: hidden !important;
           }
+
+          #thermal-ticket-modal-backdrop,
+          #thermal-ticket-modal-box,
+          #thermal-ticket-scroll-wrapper {
+            position: static !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            overflow: visible !important;
+          }
+
           #thermal-ticket-print-area,
           #thermal-ticket-print-area * {
             visibility: visible !important;
           }
+
           #thermal-ticket-print-area {
-            position: fixed !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 54mm !important;
@@ -97,20 +120,20 @@ export function ThermalTicketModal({
             color: #000 !important;
             background: #fff !important;
             font-family: "Courier New", Courier, monospace !important;
-            font-size: 10pt !important;
+            font-size: 9.5pt !important;
             line-height: 1.2 !important;
             box-sizing: border-box !important;
           }
-          @page {
-            size: 58mm auto;
-            margin: 0;
+
+          .no-print {
+            display: none !important;
           }
         }
       `}</style>
 
       {/* Contenedor Modal */}
-      <div className="relative w-full max-w-md bg-stone-900 border border-stone-800 text-stone-100 rounded-2xl shadow-2xl p-6 flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between pb-4 border-b border-stone-800">
+      <div id="thermal-ticket-modal-box" className="relative w-full max-w-md bg-stone-900 border border-stone-800 text-stone-100 rounded-2xl shadow-2xl p-6 flex flex-col max-h-[90vh]">
+        <div className="no-print flex items-center justify-between pb-4 border-b border-stone-800">
           <div className="flex items-center gap-2">
             <Printer className="w-5 h-5 text-amber-500" />
             <h3 className="font-semibold text-lg">
@@ -128,7 +151,7 @@ export function ThermalTicketModal({
         </div>
 
         {/* ÁREA IMPRIMIBLE (Se ve en pantalla y se imprime) */}
-        <div className="overflow-y-auto my-4 p-4 bg-white text-black font-mono text-xs rounded-lg shadow-inner select-text">
+        <div id="thermal-ticket-scroll-wrapper" className="overflow-y-auto my-4 p-4 bg-white text-black font-mono text-xs rounded-lg shadow-inner select-text">
           <div id="thermal-ticket-print-area" className="w-full">
             {/* CABECERA GENERAL CON LOGO */}
             <div className="text-center pb-3 mb-2 border-b-2 border-black flex flex-col items-center">
@@ -368,7 +391,7 @@ export function ThermalTicketModal({
         </div>
 
         {/* BOTONES DE ACCIÓN */}
-        <div className="flex justify-end gap-3 pt-3 border-t border-stone-800">
+        <div className="no-print flex justify-end gap-3 pt-3 border-t border-stone-800">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm bg-stone-800 hover:bg-stone-700 rounded-xl transition"
