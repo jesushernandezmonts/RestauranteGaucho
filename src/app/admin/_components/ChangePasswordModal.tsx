@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, Loader2, Eye, EyeOff } from "lucide-react";
+import { showSuccessAlert, showErrorAlert } from "@/lib/alerts";
 
 type ChangePasswordModalProps = {
   user: { id: number; nombre: string };
@@ -30,14 +31,22 @@ export function ChangePasswordModal({ user, onClose, onSaved }: ChangePasswordMo
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
+        showSuccessAlert(
+          "¡Contraseña Cambiada!",
+          `La contraseña para ${user.nombre} se actualizó correctamente.`
+        );
         onSaved();
       } else {
         const data = await res.json();
-        setError(data.error || "Error al cambiar la contraseña.");
+        const msg = data.error || "Error al cambiar la contraseña.";
+        setError(msg);
+        showErrorAlert("Error", msg);
       }
     } catch (e) {
       console.error(e);
-      setError("Error de conexión al intentar cambiar la contraseña.");
+      const msg = "Error de conexión al intentar cambiar la contraseña.";
+      setError(msg);
+      showErrorAlert("Error", msg);
     } finally {
       setSaving(false);
     }
