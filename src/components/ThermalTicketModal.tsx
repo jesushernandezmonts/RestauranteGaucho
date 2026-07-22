@@ -424,7 +424,8 @@ export function ThermalTicketModal({
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 
   return createPortal(modalContent, document.body);
 }
