@@ -43,7 +43,7 @@ export default function CuentaPage() {
 
   const [orden, setOrden] = useState<Orden | null>(null);
   const [loading, setLoading] = useState(true);
-  const [metodoPago, setMetodoPago] = useState<"efectivo" | "tarjeta" | "transferencia" | null>(null);
+  const [metodoPago, setMetodoPago] = useState<"efectivo" | "tarjeta" | null>(null);
   const [tipoPropina, setTipoPropina] = useState<"cantidad" | "porcentaje">("porcentaje");
   const [propinaValor, setPropinaValor] = useState(0);
   const [propinaPorcentaje, setPropinaPorcentaje] = useState(10);
@@ -107,7 +107,7 @@ export default function CuentaPage() {
       return;
     }
 
-    const methodLabel = metodoPago === "efectivo" ? "Efectivo" : metodoPago === "tarjeta" ? "Tarjeta" : "Transferencia";
+    const methodLabel = metodoPago === "efectivo" ? "Efectivo" : "Tarjeta";
     const confirmed = await showConfirmAlert(
       "Cobrar cuenta",
       `¿Cerrar cuenta por $${totalConPropina.toFixed(0)} en ${methodLabel}?`,
@@ -189,7 +189,7 @@ export default function CuentaPage() {
               <span className="font-bold text-lg text-gradient">${totalConPropina.toFixed(0)}</span>
             </div>
             <div className="mt-3 text-xs text-text-muted">
-              Pagado con {metodoPago === "efectivo" ? "💵 Efectivo" : metodoPago === "transferencia" ? "📲 Transferencia" : "💳 Tarjeta"}
+              Pagado con {metodoPago === "efectivo" ? "💵 Efectivo" : "💳 Tarjeta"}
             </div>
           </div>
           <button
@@ -495,7 +495,7 @@ export default function CuentaPage() {
           <h3 className="font-semibold text-text-primary mb-4">
             Método de Pago
           </h3>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setMetodoPago("efectivo")}
               className={`p-4 rounded-xl border text-center transition-all ${
@@ -517,17 +517,6 @@ export default function CuentaPage() {
             >
               <CreditCard size={24} className="mx-auto mb-2" />
               <span className="text-xs font-medium">Tarjeta</span>
-            </button>
-            <button
-              onClick={() => setMetodoPago("transferencia")}
-              className={`p-4 rounded-xl border text-center transition-all ${
-                metodoPago === "transferencia"
-                  ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
-                  : "bg-surface-light border-primary/10 text-text-secondary hover:border-primary/30"
-              }`}
-            >
-              <BanknoteIcon size={24} className="mx-auto mb-2" />
-              <span className="text-xs font-medium">Transferencia</span>
             </button>
           </div>
         </div>
@@ -559,15 +548,7 @@ export default function CuentaPage() {
           </div>
         </div>
 
-        {/* Info adicional por método de pago */}
-        {metodoPago === "transferencia" && (
-          <div className="card border-purple-500/20 bg-purple-500/5">
-            <p className="text-sm text-purple-300 flex items-center gap-2">
-              <span>📲</span>
-              Solicita al cliente el comprobante de transferencia antes de cerrar la cuenta.
-            </p>
-          </div>
-        )}
+
 
         {/* Botones */}
         <div className="flex gap-3">
