@@ -67,9 +67,18 @@ export function ThermalTicketModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
-      {/* Estilos específicos para impresión térmica en papel de 80mm */}
+      {/* Estilos específicos para impresión térmica (Optimizado para impresoras de 58mm y 80mm) */}
       <style jsx global>{`
         @media print {
+          html,
+          body {
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            background: #fff !important;
+          }
           body * {
             visibility: hidden !important;
           }
@@ -78,21 +87,22 @@ export function ThermalTicketModal({
             visibility: visible !important;
           }
           #thermal-ticket-print-area {
-            position: absolute !important;
+            position: fixed !important;
             left: 0 !important;
             top: 0 !important;
-            width: 78mm !important;
-            max-width: 80mm !important;
+            width: 54mm !important;
+            max-width: 58mm !important;
             margin: 0 !important;
-            padding: 4mm !important;
+            padding: 2mm !important;
             color: #000 !important;
             background: #fff !important;
             font-family: "Courier New", Courier, monospace !important;
-            font-size: 11pt !important;
+            font-size: 10pt !important;
             line-height: 1.2 !important;
+            box-sizing: border-box !important;
           }
           @page {
-            size: 80mm auto;
+            size: 58mm auto;
             margin: 0;
           }
         }
