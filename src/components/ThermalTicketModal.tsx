@@ -72,6 +72,84 @@ export function ThermalTicketModal({
     window.print();
   };
 
+  const handlePrintTextOnly = () => {
+    let text = "===============================\n";
+    text += "         NINO GAUCHO          \n";
+    text += "  Corte de Carne & Gastronomia \n";
+    text += `Fecha: ${fechaFormateada}\n`;
+    text += "===============================\n\n";
+
+    if (type === "cuenta") {
+      text += `MESA #${data.mesaNumero || "N/A"}   ORDEN #${data.ordenId || ""}\n`;
+      if (data.meseroNombre) text += `Mesero: ${data.meseroNombre}\n`;
+      text += "-------------------------------\n";
+      text += "CANT CONCEPTO             TOTAL\n";
+      text += "-------------------------------\n";
+      data.items?.forEach((item) => {
+        const name = item.nombre.padEnd(16).slice(0, 16);
+        const qty = item.cantidad.toString().padStart(3);
+        const tot = `$${item.subtotal.toFixed(2)}`.padStart(8);
+        text += `${qty}  ${name} ${tot}\n`;
+        item.extras?.forEach((e) => {
+          text += `     + ${e.nombre} ($${e.precio.toFixed(2)})\n`;
+        });
+        item.opciones?.forEach((o) => {
+          text += `     * ${o.valor}\n`;
+        });
+      });
+      text += "-------------------------------\n";
+      text += `Subtotal:      $${(data.subtotal || 0).toFixed(2)}\n`;
+      if ((data.propina || 0) > 0) {
+        text += `Propina:       $${(data.propina || 0).toFixed(2)}\n`;
+      }
+      text += `TOTAL:         $${(data.total || 0).toFixed(2)}\n`;
+      if (data.metodoPago) {
+        text += `Pago: ${data.metodoPago.toUpperCase()}\n`;
+      }
+      text += "\n   ¡Gracias por su preferencia!\n";
+      text += "      *** NINO GAUCHO ***\n\n\n\n\n";
+    } else if (type === "comanda") {
+      text += "*** COMANDA COCINA ***\n";
+      text += `MESA #${data.mesaNumero || "N/A"}   ORDEN #${data.ordenId || ""}\n`;
+      if (data.meseroNombre) text += `Mesero: ${data.meseroNombre}\n`;
+      text += "-------------------------------\n";
+      data.items?.forEach((item) => {
+        text += `${item.cantidad}x ${item.nombre.toUpperCase()}\n`;
+        item.extras?.forEach((e) => {
+          text += `   + ${e.nombre}\n`;
+        });
+        item.opciones?.forEach((o) => {
+          text += `   -> ${o.valor}\n`;
+        });
+      });
+      text += "-------------------------------\n";
+      text += "--- FIN DE COMANDA ---\n\n\n\n\n";
+    } else if (type === "corte") {
+      text += "*** CORTE DE CAJA (Z) ***\n";
+      text += `Admin: ${data.adminNombre || "Admin"}\n`;
+      text += `Fondo Inicial: $${(data.montoInicial || 0).toFixed(2)}\n`;
+      text += `Ventas Efectivo: $${(data.ventasEfectivo || 0).toFixed(2)}\n`;
+      text += `Ventas Tarjeta: $${(data.ventasTarjeta || 0).toFixed(2)}\n`;
+      text += `TOTAL VENTAS: $${(data.totalVentas || 0).toFixed(2)}\n`;
+      text += `Efectivo Real: $${(data.efectivoReal || 0).toFixed(2)}\n`;
+      text += `Diferencia: $${(data.diferencia || 0).toFixed(2)}\n`;
+      text += "\nFirma: ________________________\n\n\n\n\n";
+    }
+
+    const printWin = window.open("", "_blank", "width=320,height=450");
+    if (printWin) {
+      printWin.document.write(
+        `<html><head><title>Ticket Impresion</title><style>body{font-family:monospace;font-size:12px;white-space:pre;margin:0;padding:5px;}</style></head><body>${text}</body></html>`
+      );
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => {
+        printWin.print();
+        printWin.close();
+      }, 300);
+    }
+  };
+
   const fechaFormateada = data.fecha
     ? new Date(data.fecha).toLocaleString("es-MX", {
         dateStyle: "medium",
@@ -452,19 +530,27 @@ export function ThermalTicketModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm bg-stone-800 hover:bg-stone-700 rounded-xl transition"
+              className="px-3 py-2 text-sm bg-stone-800 hover:bg-stone-700 rounded-xl transition"
             >
               Cerrar
             </button>
             <button
+              onClick={handlePrintTextOnly}
+              title="Para impresoras con driver Genérico / Solo Texto"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 rounded-xl transition"
+            >
+              <Printer className="w-3.5 h-3.5 text-stone-400" />
+              Imprimir Texto Plano
+            </button>
+            <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-5 py-2 text-sm bg-amber-500 hover:bg-amber-600 font-semibold text-stone-950 rounded-xl transition shadow-lg shadow-amber-500/20"
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-amber-500 hover:bg-amber-600 font-semibold text-stone-950 rounded-xl transition shadow-lg shadow-amber-500/20"
             >
               <Printer className="w-4 h-4" />
-              Imprimir Térmico
+              Imprimir Térmico (Gráfico)
             </button>
           </div>
         </div>
