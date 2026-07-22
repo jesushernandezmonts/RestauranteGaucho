@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Printer, X } from "lucide-react";
 
 export type ThermalTicketData = {
@@ -49,7 +50,13 @@ export function ThermalTicketModal({
   type,
   data,
 }: ThermalTicketModalProps) {
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handlePrint = () => {
     window.print();
@@ -65,71 +72,80 @@ export function ThermalTicketModal({
         timeStyle: "short",
       });
 
-  return (
-    <div id="thermal-ticket-modal-backdrop" className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
-      {/* Estilos específicos para impresión térmica en impresora de 58mm */}
-      <style jsx global>{`
-        @media print {
-          @page {
-            size: 58mm auto;
-            margin: 0;
-          }
+  const modalContent = (
+    <div id="thermal-ticket-portal">
+      <div
+        id="thermal-ticket-modal-backdrop"
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
+      >
+        {/* Estilos específicos para impresión térmica en impresora de 58mm */}
+        <style jsx global>{`
+          @media print {
+            @page {
+              size: 58mm auto;
+              margin: 0;
+            }
 
-          html,
-          body {
-            height: auto !important;
-            min-height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-            background: #fff !important;
-          }
+            html,
+            body {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 58mm !important;
+              height: auto !important;
+              min-height: 0 !important;
+              overflow: visible !important;
+              background: #fff !important;
+            }
 
-          body * {
-            visibility: hidden !important;
-          }
+            /* Ocultar la aplicación principal por completo */
+            body > *:not(#thermal-ticket-portal) {
+              display: none !important;
+            }
 
-          #thermal-ticket-modal-backdrop,
-          #thermal-ticket-modal-box,
-          #thermal-ticket-scroll-wrapper {
-            position: static !important;
-            height: 0 !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            border: none !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            overflow: visible !important;
-          }
+            #thermal-ticket-portal,
+            #thermal-ticket-modal-backdrop,
+            #thermal-ticket-modal-box,
+            #thermal-ticket-scroll-wrapper {
+              display: block !important;
+              position: static !important;
+              width: 58mm !important;
+              max-width: 58mm !important;
+              height: auto !important;
+              min-height: 0 !important;
+              max-height: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              border: none !important;
+              background: #fff !important;
+              box-shadow: none !important;
+              overflow: visible !important;
+            }
 
-          #thermal-ticket-print-area,
-          #thermal-ticket-print-area * {
-            visibility: visible !important;
-          }
+            #thermal-ticket-print-area {
+              display: block !important;
+              width: 54mm !important;
+              max-width: 58mm !important;
+              margin: 0 auto !important;
+              padding: 2mm !important;
+              color: #000 !important;
+              background: #fff !important;
+              font-family: "Courier New", Courier, monospace !important;
+              font-size: 9.5pt !important;
+              line-height: 1.2 !important;
+              box-sizing: border-box !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+            }
 
-          #thermal-ticket-print-area {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 54mm !important;
-            max-width: 58mm !important;
-            margin: 0 !important;
-            padding: 2mm !important;
-            color: #000 !important;
-            background: #fff !important;
-            font-family: "Courier New", Courier, monospace !important;
-            font-size: 9.5pt !important;
-            line-height: 1.2 !important;
-            box-sizing: border-box !important;
-          }
+            #thermal-ticket-print-area * {
+              visibility: visible !important;
+            }
 
-          .no-print {
-            display: none !important;
+            .no-print {
+              display: none !important;
+            }
           }
-        }
-      `}</style>
+        `}</style>
 
       {/* Contenedor Modal */}
       <div id="thermal-ticket-modal-box" className="relative w-full max-w-md bg-stone-900 border border-stone-800 text-stone-100 rounded-2xl shadow-2xl p-6 flex flex-col max-h-[90vh]">
@@ -409,4 +425,6 @@ export function ThermalTicketModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
